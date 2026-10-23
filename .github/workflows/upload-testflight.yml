@@ -32,8 +32,67 @@ jobs:
       - name: Sync web assets (el proyecto ios/ ya esta commiteado, usa SPM, no CocoaPods)
         run: npx cap sync ios
 
-      # Firma MANUAL, igual que en el repo privado (que lleva un mes subiendo builds
-      # sin un solo error): todo (CODE_SIGN_STYLE, CODE_SIGN_IDENTITY,
+      # La plantilla de Capacitor no reenvia el token APNs al plugin de push: sin esto el iPhone nunca lo recibe.
+      - name: Parchear AppDelegate para recibir el token de push
+        run: |
+          F=ios/App/App/AppDelegate.swift
+          python3 - "$F" << 'PYEOF'
+          import sys
+          p = sys.argv[1]
+          s = open(p, encoding="utf-8").read()
+          if "didRegisterForRemoteNotificationsWithDeviceToken" not in s:
+              add = """
+              func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+                  NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)
+              }
+
+              func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+                  NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+              }
+
+          """
+              i = s.rstrip().rfind("}")
+              s = s[:i] + add + s[i:]
+              open(p, "w", encoding="utf-8").write(s)
+          PYEOF
+          grep -n "didRegisterForRemoteNotificationsWithDeviceToken" "$F"
+
+      - name: Configure AdMob (Info.plist)
+        env:
+          ADMOB_IOS_APP_ID: ${{ vars.ADMOB_IOS_APP_ID }}
+        run: |
+          PLIST=ios/App/App/Info.plist
+          # Sin ADMOB_IOS_APP_ID (Settings > Secrets and variables > Actions > Variables) se usa el ID de PRUEBA de Google.
+          if [ -z "$ADMOB_IOS_APP_ID" ]; then echo "::warning::Falta la variable ADMOB_IOS_APP_ID: esta build usa el ID de PRUEBA de AdMob (valido para TestFlight, NO para publicar en la App Store)"; fi
+          APP_ID="${ADMOB_IOS_APP_ID:-ca-app-pub-3940256099942544~1458002511}"
+          PB=/usr/libexec/PlistBuddy
+          $PB -c "Delete :GADApplicationIdentifier" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :GADApplicationIdentifier string $APP_ID" "$PLIST"
+          $PB -c "Delete :NSUserTrackingUsageDescription" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :NSUserTrackingUsageDescription string Usaremos este identificador para mostrarte anuncios más relevantes. Puedes rechazarlo y la app funcionará igual." "$PLIST"
+          $PB -c "Delete :SKAdNetworkItems" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :SKAdNetworkItems array" "$PLIST"
+          $PB -c "Add :SKAdNetworkItems:0 dict" "$PLIST"
+          $PB -c "Add :SKAdNetworkItems:0:SKAdNetworkIdentifier string cstr6suwn9.skadnetwork" "$PLIST"
+
+      # Sin estas claves, iOS deniega el acceso a la camara/galeria en silencio
+      # y ni siquiera llega a mostrar el dialogo de permiso al usuario.
+      - name: Configurar permisos de camara y galeria (Info.plist)
+        run: |
+          PLIST=ios/App/App/Info.plist
+          PB=/usr/libexec/PlistBuddy
+          $PB -c "Delete :NSCameraUsageDescription" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :NSCameraUsageDescription string Necesitamos acceder a la camara para que puedas publicar tus Tics con foto o video." "$PLIST"
+          $PB -c "Delete :NSPhotoLibraryUsageDescription" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :NSPhotoLibraryUsageDescription string Necesitamos acceder a tus fotos para que puedas elegir una imagen al publicar un Tic." "$PLIST"
+          $PB -c "Delete :NSPhotoLibraryAddUsageDescription" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :NSPhotoLibraryAddUsageDescription string Necesitamos guardar fotos en tu galeria cuando lo pidas." "$PLIST"
+
+      - name: Generate iOS app icon
+        run: npx @capacitor/assets generate --ios
+
+      # Firma MANUAL, igual que en el repo privado (que lleva mas de un mes subiendo
+      # builds sin errores): todo (CODE_SIGN_STYLE, CODE_SIGN_IDENTITY,
       # PROVISIONING_PROFILE_SPECIFIER, DEVELOPMENT_TEAM) ya esta fijado en el
       # .pbxproj solo para el target "App" (Release), asi que xcodebuild no
       # necesita ningun override por linea de comandos y los paquetes SPM
@@ -63,10 +122,39 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: Set build number
+      # Avisos push en iPhone: se activan SOLO si el perfil de aprovisionamiento instalado ya incluye "aps-environment"
+      # (App ID con Push Notifications + perfil regenerado despues). Si no lo incluye, la build sale igual pero sin avisos.
+      - name: Activar Push Notifications (entitlements) si el perfil lo permite
         run: |
-          cd ios/App
-          xcrun agvtool new-version -all "$(date -u +%Y%m%d%H%M)"
+          if security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" | grep -q "aps-environment"; then
+            echo "El perfil incluye Push Notifications: se activan los avisos push."
+          else
+            echo "::warning::El perfil de aprovisionamiento NO incluye Push Notifications. Esta build saldra SIN avisos push."
+            exit 0
+          fi
+          cat > ios/App/App/App.entitlements << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>aps-environment</key>
+              <string>production</string>
+          </dict>
+          </plist>
+          EOF
+          gem install xcodeproj --no-document
+          ruby -e '
+            require "xcodeproj"
+            project = Xcodeproj::Project.open("ios/App/App.xcodeproj")
+            target = project.targets.find { |t| t.name == "App" }
+            raise "No se encontro el target App" unless target
+            target.build_configurations.each do |config|
+              config.build_settings["CODE_SIGN_ENTITLEMENTS"] = "App/App.entitlements"
+            end
+            group = project.main_group.find_subpath("App", false)
+            group.new_file("App.entitlements") if group && group.files.none? { |f| f.path == "App.entitlements" }
+            project.save
+          '
 
       - name: Install App Store Connect API key
         env:
@@ -75,6 +163,60 @@ jobs:
         run: |
           mkdir -p ~/.appstoreconnect/private_keys
           echo -n "$APPSTORE_API_KEY_BASE64" | base64 --decode -o ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_API_KEY_ID}.p8
+
+      # Numero de build: se consulta el ultimo build YA SUBIDO a App Store Connect para este
+      # bundle id (sea cual sea el repo que lo subiera) y se usa el siguiente. Asi siempre es
+      # correlativo (124, 125, ...) y nunca choca, sin depender del numero de run de este repo.
+      - name: Calcular siguiente numero de build
+        env:
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_ISSUER_ID: ${{ secrets.APPSTORE_API_ISSUER_ID }}
+          BUNDLE_ID: com.seeyouonline.app
+        run: |
+          pip3 install --quiet --break-system-packages pyjwt cryptography
+
+          NEXT_BUILD=$(python3 - << 'PYEOF'
+          import jwt, time, os, json, urllib.request
+
+          key_id = os.environ["APPSTORE_API_KEY_ID"]
+          issuer_id = os.environ["APPSTORE_API_ISSUER_ID"]
+          bundle_id = os.environ["BUNDLE_ID"]
+          key_path = os.path.expanduser(f"~/.appstoreconnect/private_keys/AuthKey_{key_id}.p8")
+          private_key = open(key_path).read()
+
+          token = jwt.encode(
+              {"iss": issuer_id, "exp": int(time.time()) + 600, "aud": "appstoreconnect-v1"},
+              private_key,
+              algorithm="ES256",
+              headers={"kid": key_id, "typ": "JWT"},
+          )
+          headers = {"Authorization": f"Bearer {token}"}
+
+          def get(url):
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req) as r:
+                  return json.loads(r.read())
+
+          apps = get(f"https://api.appstoreconnect.apple.com/v1/apps?filter[bundleId]={bundle_id}")
+          app_id = apps["data"][0]["id"]
+
+          builds = get(f"https://api.appstoreconnect.apple.com/v1/builds?filter[app]={app_id}&sort=-version&limit=1")
+          if builds["data"]:
+              last_version = int(builds["data"][0]["attributes"]["version"])
+          else:
+              last_version = 0
+
+          print(last_version + 1)
+          PYEOF
+          )
+
+          echo "Siguiente numero de build: $NEXT_BUILD"
+          echo "NEXT_BUILD=$NEXT_BUILD" >> "$GITHUB_ENV"
+
+      - name: Set build number
+        run: |
+          cd ios/App
+          xcrun agvtool new-version -all "$NEXT_BUILD"
 
       - name: Archive signed iOS app
         run: |
