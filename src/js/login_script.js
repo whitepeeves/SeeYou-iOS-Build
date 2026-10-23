@@ -261,6 +261,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-verify-code').addEventListener('click', verifyResetCode);
     document.getElementById('btn-save-new-password').addEventListener('click', saveNewPassword);
 
+    // Como los pasos de recuperacion viven dentro del mismo <form> que el login,
+    // al pulsar Enter el navegador dispara el submit del boton "btn-login" (es el
+    // unico type="submit"), saltandose el paso de recuperacion que se este viendo.
+    // Interceptamos Enter en cada campo para que llame a la accion correcta.
+    function onRecoveryEnter(action) {
+        return (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                action();
+            }
+        };
+    }
+    document.getElementById('recover-email').addEventListener('keydown', onRecoveryEnter(sendResetCode));
+    document.getElementById('recover-code').addEventListener('keydown', onRecoveryEnter(verifyResetCode));
+    document.getElementById('new-password').addEventListener('keydown', onRecoveryEnter(saveNewPassword));
+    document.getElementById('confirm-new-password').addEventListener('keydown', onRecoveryEnter(saveNewPassword));
+
     async function performLogin() {
         const contrasena = document.getElementById('password').value;
         let loginIdentifier;
