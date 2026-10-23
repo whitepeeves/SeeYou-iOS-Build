@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <script src="js/perf_probe.js?v=1"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Amigos - SeeYou</title>
+    <link rel="icon" type="image/png" href="logotipo.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1B3A5C">
+    <link rel="stylesheet" href="style.css?v=4">
+    <script src="js/palette.js?v=1"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <script src="js/local_db.js?v=1"></script>
+    <style>
+        :root {
+            --primary: #1B3A5C;
+            --surface: #fef7ff;
+            --on-surface: #1D1B20;
+            --outline: #CAC4D0;
+            --blue-glow: rgba(103, 158, 244, 0.4);
+        }
+
+        body {
+            background-color: var(--app-bg, var(--surface));
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            color: var(--app-text, var(--on-surface));
+        }
+
+        /* --- SIDEBAR (Convertido en Nav Vertical) --- */
+        .sidebar {
+            width: 80px;
+            background-color: #fff;
+            border-right: 1px solid var(--outline);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 0;
+            z-index: 200;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary);
+            margin-bottom: 60px;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        .header {
+            position: fixed !important;
+            top: 24px !important;
+            right: 24px !important;
+            z-index: 999 !important;
+            display: flex;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .user-section {
+            pointer-events: auto;
+            position: relative;
+            cursor: pointer;
+            background: white;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eee;
+        }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #fff;
+            border-top: 1px solid var(--outline);
+            padding: 12px 0 8px;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        /* Esfera del apartado activo: centrada (en horizontal y en vertical) sobre icono + texto.
+           El botón activo sube 3px (translateY(-3px)), así que la esfera sube con él. Los botones
+           reparten el ancho a partes iguales para que su centro coincida con el de cada cuarto. */
+        .bottom-nav-indicator {
+            position: absolute;
+            left: 0;
+            top: 12px;
+            bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+            width: 20%;
+            pointer-events: none;
+            transform: translateX(calc(var(--nav-index, 0) * 100%));
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 0;
+        }
+
+        .bottom-nav-indicator::before {
+            content: '';
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            left: 50%;
+            top: calc(var(--nav-cy, 34px) - 12px);
+            border-radius: 50%;
+            background: rgba(27, 58, 92, 0.12);
+            transform: translate(-50%, -50%) scale(0.72);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
+        }
+
+        .bottom-nav-bar.is-ready .bottom-nav-indicator::before {
+            transform: translate(-50%, -50%) scale(1);
+            background: rgba(27, 58, 92, 0.14);
+        }
+
+        .bottom-nav-bar .nav-btn { flex: 1 1 0; min-width: 0; padding-left: 2px; padding-right: 2px; white-space: nowrap; }
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #79747E;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: 'Roboto', sans-serif;
+            padding: 6px 12px;
+            border-radius: 16px;
+            position: relative;
+            z-index: 1;
+            transition: color 0.2s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(27, 58, 92, 0.08);
+            color: var(--primary);
+        }
+
+        .bottom-nav-bar .nav-btn:hover, .bottom-nav-bar .nav-btn.active {
+            background: transparent;
+            color: var(--primary);
+            transform: translateY(-3px);
+            font-weight: 700;
+        }
+
+        .bottom-nav-bar .nav-btn.active .material-icons-outlined { transform: scale(1.08); }
+        .nav-btn .material-icons-outlined { font-size: 24px; }
+
+        @media (min-width: 901px) {
+            .sidebar { display: flex; }
+            .main {
+                margin-left: 80px;
+            }
+            .bottom-nav-bar { display: none; }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .bottom-nav-bar { left: 0; display: flex; }
+            .main { margin-left: 0; }
+            .mobile-header,
+            .header {
+                display: none !important;
+            }
+        }
+
+        /* --- USER MENU --- */
+        .avatar {
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 56px;
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            width: 220px;
+            padding: 8px 0;
+            display: none;
+            border: 1px solid #eee;
+        }
+
+        .dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #1D1B20;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* ===================== AMIGOS (fr-*) ===================== */
+        .fr-page {
+            --fr-text: var(--app-text, #1D1B20);
+            --fr-muted: #667085;
+            --fr-border: var(--app-border, #E5E7EB);
+            --fr-card: #fff;
+            --fr-primary: var(--app-primary, #1B3A5C);
+            --fr-accent: var(--app-accent, #3B82F6);
+            --fr-on-accent: #fff;
+            --fr-tint: #EAF2FF;
+            --fr-track: #EDF1F7;
+            --fr-tab-on: #fff;
+            --fr-ring: rgba(59, 130, 246, .2);
+            --fr-shadow: 0 4px 18px rgba(27, 58, 92, .07);
+            --fr-hot: #EF4444;
+            --fr-warn-bg: #FFF4E0; --fr-warn: #B45309;
+            --fr-ok-bg: #E7F7EC; --fr-ok: #15803D;
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 44px 20px 60px;
+            box-sizing: border-box;
+            color: var(--fr-text);
+        }
+        body[data-theme="dark"] .fr-page,
+        body[data-theme="blue"] .fr-page {
+            --fr-muted: var(--app-muted, #94a3b8);
+            --fr-card: var(--app-surface, #141825);
+            --fr-on-accent: #06121f;
+            --fr-tint: rgba(96, 165, 250, .16);
+            --fr-track: rgba(148, 163, 184, .12);
+            --fr-tab-on: rgba(96, 165, 250, .24);
+            --fr-ring: rgba(96, 165, 250, .28);
+            --fr-shadow: 0 4px 18px rgba(0, 0, 0, .3);
+            --fr-warn-bg: rgba(245, 158, 11, .16); --fr-warn: #fbbf24;
+            --fr-ok-bg: rgba(34, 197, 94, .16); --fr-ok: #4ade80;
+        }
+        @media (max-width: 900px) {
+            .fr-page { padding: calc(22px + env(safe-area-inset-top, 0px)) 16px calc(120px + env(safe-area-inset-bottom, 0px)); }
+        }
+
+        .fr-head { text-align: left; }
+        .fr-head h1 { margin: 0; font-size: 30px; line-height: 1.15; font-weight: 800; letter-spacing: -.5px; color: var(--fr-primary); }
+        .fr-head p { margin: 6px 0 0; font-size: 14px; color: var(--fr-muted); }
+
+        .fr-ic { flex-shrink: 0; display: block; }
+
+        /* Buscador siempre visible */
+        .fr-search { position: relative; margin: 20px 0 18px; }
+        .fr-search input {
+            width: 100%; box-sizing: border-box; height: 54px; padding: 0 48px 0 50px;
+            border-radius: 18px; border: 1.5px solid var(--fr-border); background: var(--fr-card);
+            color: var(--fr-text); font: 400 16px 'Roboto', sans-serif; outline: none;
+            box-shadow: 0 6px 22px rgba(17, 42, 89, .07);
+            transition: border-color .15s, box-shadow .15s;
+            -webkit-appearance: none; appearance: none;
+        }
+        .fr-search input::placeholder { color: var(--fr-muted); opacity: .85; }
+        .fr-search input:focus { border-color: var(--fr-accent); box-shadow: 0 0 0 4px var(--fr-ring); }
+        .fr-search .fr-search-ic { position: absolute; left: 17px; top: 50%; transform: translateY(-50%); color: var(--fr-muted); pointer-events: none; }
+        .fr-search input:focus ~ .fr-search-ic { color: var(--fr-accent); }
+        .fr-clear {
+            position: absolute; right: 9px; top: 50%; transform: translateY(-50%) scale(.8);
+            width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--fr-track); color: var(--fr-muted);
+            display: grid; place-items: center; cursor: pointer; opacity: 0; pointer-events: none;
+            transition: opacity .15s, transform .15s;
+        }
+        .fr-search.has-text .fr-clear { opacity: 1; pointer-events: auto; transform: translateY(-50%) scale(1); }
+
+        /* Pestañas */
+        .fr-tabs { display: flex; gap: 4px; padding: 4px; background: var(--fr-track); border-radius: 18px; margin-bottom: 20px; }
+        .fr-tab {
+            flex: 1; min-width: 0; height: 44px; border: 0; border-radius: 14px; background: transparent; color: var(--fr-muted);
+            font: 600 14px 'Roboto', sans-serif; display: flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer;
+            transition: background .2s, color .2s, box-shadow .2s, transform .12s;
+        }
+        .fr-tab:active { transform: scale(.96); }
+        .fr-tab:focus-visible, .fr-btn:focus-visible, .fr-clear:focus-visible { outline: 3px solid var(--fr-ring); outline-offset: 1px; }
+        .fr-tab[aria-selected="true"] { background: var(--fr-tab-on); color: var(--fr-primary); box-shadow: 0 2px 10px rgba(27, 58, 92, .12); }
+        .fr-tab.is-hot:not([aria-selected="true"]) { color: var(--fr-text); }
+        .fr-badge {
+            min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; background: rgba(102, 112, 133, .18); color: var(--fr-muted);
+            font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .fr-tab[aria-selected="true"] .fr-badge { background: var(--fr-tint); color: var(--fr-primary); }
+        .fr-badge.hot, .fr-tab[aria-selected="true"] .fr-badge.hot { background: var(--fr-hot); color: #fff; animation: frPop .4s cubic-bezier(.34, 1.56, .64, 1); }
+        .fr-badge:empty { display: none; }
+
+        .fr-panel[hidden], .fr-results[hidden], .fr-tabs[hidden] { display: none; }
+        .fr-panel, .fr-results { animation: frIn .28s ease both; }
+        .fr-searching .fr-tabs, .fr-searching .fr-panel { display: none; }
+
+        /* Listas y filas */
+        .fr-list { display: flex; flex-direction: column; gap: 10px; }
+        .fr-sec-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 2px 12px; }
+        .fr-sec-head:not(:first-child) { margin-top: 26px; }
+        .fr-sec-title { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--fr-muted); }
+        .fr-note { margin: 0 2px 6px; font-size: 14px; color: var(--fr-muted); }
+
+        .fr-row {
+            position: relative; display: flex; align-items: center; gap: 14px; padding: 12px 14px;
+            background: var(--fr-card); border: 1px solid var(--fr-border); border-radius: 18px; box-shadow: var(--fr-shadow);
+            transition: border-color .15s, transform .15s, box-shadow .15s, opacity .28s, max-height .28s, padding .28s, margin .28s;
+            overflow: hidden;
+        }
+        .fr-row.fr-in { animation: frIn .34s ease both; animation-delay: calc(var(--i, 0) * 40ms); }
+        .fr-row:hover { border-color: var(--fr-accent); }
+        .fr-row.leaving { opacity: 0; transform: translateX(28px); max-height: 0 !important; padding-top: 0; padding-bottom: 0; margin-top: -5px; margin-bottom: -5px; border-width: 0; }
+        .fr-av {
+            position: relative; width: var(--s, 48px); height: var(--s, 48px); border-radius: 50%; flex-shrink: 0; overflow: hidden;
+            display: grid; place-items: center; color: #fff; font-weight: 700; font-size: calc(var(--s, 48px) * .4);
+            box-shadow: 0 0 0 2px var(--fr-card), 0 0 0 3.5px rgba(59, 130, 246, .35);
+        }
+        .fr-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .fr-who { flex: 1; min-width: 0; }
+        .fr-who a { display: block; color: inherit; text-decoration: none; outline: none; }
+        .fr-who a::after { content: ''; position: absolute; inset: 0; }
+        .fr-who a:focus-visible::after { box-shadow: inset 0 0 0 3px var(--fr-ring); border-radius: 18px; }
+        .fr-name { display: flex; align-items: center; font-size: 16px; font-weight: 700; color: var(--fr-text); }
+        .fr-name span.t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .fr-mutual { margin-top: 3px; font-size: 12.5px; font-weight: 600; color: #2f6fed; }
+        .fr-sub { margin-top: 2px; font-size: 13px; color: var(--fr-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .fr-actions { position: relative; z-index: 1; display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+
+        .fr-btn {
+            height: 40px; padding: 0 15px; border-radius: 13px; border: 1.5px solid transparent; background: transparent; color: var(--fr-text);
+            font: 600 14px 'Roboto', sans-serif; display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer;
+            text-decoration: none; white-space: nowrap; transition: transform .12s, background .15s, filter .15s, opacity .15s; -webkit-tap-highlight-color: transparent;
+        }
+        .fr-btn:active:not(:disabled) { transform: scale(.94); }
+        .fr-btn.primary { background: var(--fr-accent); color: var(--fr-on-accent); box-shadow: 0 4px 12px rgba(59, 130, 246, .28); }
+        .fr-btn.primary:hover { filter: brightness(1.06); }
+        .fr-btn.soft { background: var(--fr-tint); color: var(--fr-primary); }
+        .fr-btn.soft:hover { filter: brightness(.97); }
+        .fr-btn.ghost { border-color: var(--fr-border); color: var(--fr-muted); background: transparent; }
+        .fr-btn.ghost:hover { background: var(--fr-track); }
+        .fr-btn.sent, .fr-btn.friend { cursor: default; height: 36px; padding: 0 12px; border-radius: 999px; font-size: 13px; }
+        .fr-btn.sent { background: var(--fr-warn-bg); color: var(--fr-warn); }
+        .fr-btn.friend { background: var(--fr-ok-bg); color: var(--fr-ok); }
+        .fr-btn.wide { width: 100%; }
+        .fr-btn.busy { opacity: .6; pointer-events: none; }
+        .fr-chip { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 11px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+        .fr-chip.pending { background: var(--fr-warn-bg); color: var(--fr-warn); }
+
+        /* Tarjeta de solicitud recibida */
+        .fr-req { flex-wrap: wrap; row-gap: 14px; border-color: rgba(59, 130, 246, .35); background: linear-gradient(135deg, var(--fr-tint), var(--fr-card) 60%); }
+        .fr-req .fr-actions { flex: 1 1 100%; }
+        .fr-req .fr-actions .fr-btn { flex: 1; }
+        @media (min-width: 600px) {
+            .fr-req { flex-wrap: nowrap; }
+            .fr-req .fr-actions { flex: 0 0 auto; }
+            .fr-req .fr-actions .fr-btn { flex: 0 0 auto; }
+        }
+
+        /* Sugerencias */
+        .fr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        @media (min-width: 600px) { .fr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
+        .fr-card { flex-direction: column; text-align: center; gap: 10px; padding: 18px 12px 14px; }
+        .fr-card:hover { transform: translateY(-3px); }
+        .fr-card .fr-who { width: 100%; flex: 0 0 auto; }
+        .fr-card .fr-name { justify-content: center; }
+        .fr-card .fr-actions { width: 100%; margin-top: 4px; justify-content: center; }
+        .fr-card .fr-actions .fr-btn { flex: 1; }
+
+        /* Estados vacíos, errores y esqueletos */
+        .fr-empty { text-align: center; padding: 34px 18px 22px; }
+        .fr-empty-ic { width: 88px; height: 88px; border-radius: 50%; margin: 0 auto 16px; background: var(--fr-tint); color: var(--fr-accent); display: grid; place-items: center; animation: frFloat 4s ease-in-out infinite; }
+        .fr-empty h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: var(--fr-text); }
+        .fr-empty p { margin: 0 auto 18px; max-width: 320px; font-size: 14px; line-height: 1.45; color: var(--fr-muted); }
+        .fr-empty .fr-btn { margin: 4px; }
+        .fr-skel { height: 74px; border-radius: 18px; border: 1px solid var(--fr-border); background: linear-gradient(100deg, var(--fr-card) 30%, var(--fr-track) 50%, var(--fr-card) 70%); background-size: 300% 100%; animation: frShimmer 1.3s linear infinite; }
+        .fr-skel.card { height: 168px; }
+
+        /* Toast */
+        .fr-toast {
+            position: fixed; left: 50%; top: calc(20px + env(safe-area-inset-top, 0px)); z-index: 99999; width: max-content; max-width: calc(100vw - 32px); box-sizing: border-box;
+            transform: translate(-50%, -140%); opacity: 0; pointer-events: none;
+            display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: 16px;
+            background: linear-gradient(135deg, #1B3A5C, #2A5580); color: #fff; font-size: 14px; font-weight: 600;
+            box-shadow: 0 10px 32px rgba(27, 58, 92, .4);
+            transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), opacity .3s ease;
+        }
+        .fr-toast.show { transform: translate(-50%, 0); opacity: 1; }
+        .fr-toast.show.has-action { pointer-events: auto; }
+        .fr-toast.error { background: linear-gradient(135deg, #991B1B, #DC2626); }
+        .fr-toast a { color: #BFDBFE; text-decoration: none; font-weight: 700; margin-left: 4px; padding: 4px 0 4px 10px; border-left: 1px solid rgba(255, 255, 255, .3); }
+
+        @keyframes frIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        @keyframes frPop { 0% { transform: scale(.4); } 100% { transform: scale(1); } }
+        @keyframes frFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes frShimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+        @media (prefers-reduced-motion: reduce) {
+            .fr-page *, .fr-toast { animation: none !important; transition: none !important; }
+        }
+        .fr-search input::-webkit-search-cancel-button, .fr-search input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+    </style>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4230708127921610"
+     crossorigin="anonymous"></script>
+    <script defer src="js/keyboard_ui.js?v=1"></script>
+</head>
+
+<body>
+    <!-- SPLASH SCREEN ANIMADO: oculta por defecto. Solo se muestra si de verdad hace falta
+         (sin sesión o servidor en cache); si no, se vería un parpadeo oscuro cada vez que se
+         entra aquí desde dentro de la app, cuando ya estábamos conectados segundos antes. -->
+    <div id="initial-splash" class="splash-screen" style="display:none">
+        <div class="splash-logo-container">
+            <svg class="splash-logo-svg" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                <circle class="c1" cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
+                <circle class="c2" cx="65" cy="30" r="22" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" />
+                <path class="arc" d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
+            </svg>
+        </div>
+        <div class="splash-text" id="splash-status">Conectando con el servidor...</div>
+        <button id="btn-splash-config" class="btn-splash-config">Configurar Servidor</button>
+    </div>
+
+    <script src="js/session_guard.js?v=3"></script>
+    <script src="js/auth_fetch.js?v=3"></script>
+    <script src="config.js?v=16"></script>
+    <script src="js/back_button.js?v=3"></script>
+    <script src="js/notifications_system.js?v=10"></script>
+    <script src="js/badges_ui.js?v=7"></script>
+    <script src="js/qr_mini.js?v=1"></script>
+    <script src="js/coins_ui.js?v=32"></script>
+    <script src="js/admob_ui.js?v=4"></script>
+    <script>
+        (async function() {
+            const splash = document.getElementById('initial-splash');
+            const statusText = document.getElementById('splash-status');
+            const configBtn = document.getElementById('btn-splash-config');
+
+            // Navegación "en caliente": se llega aquí siempre desde dentro de la app (inicio, mapa,
+            // perfil…), con sesión ya iniciada y el servidor ya localizado segundos antes. En ese
+            // caso no hace falta mostrar la pantalla de "Conectando…": solo provoca un parpadeo
+            // oscuro en cada ida y vuelta a Amigos. Se reserva para cuando de verdad no hay nada
+            // en cache (p. ej. se abrió este enlace directamente sin pasar por el login).
+            const hasSession = !!(localStorage.getItem('current_user_id') || localStorage.getItem('current_user'));
+            const hasCachedServer = !!(localStorage.getItem('seeyou_server_url') || localStorage.getItem('seeYouServerUrl'));
+            const warmNav = hasSession && hasCachedServer;
+
+            if (warmNav) {
+                splash.remove();
+                window.serverInitialization = CONFIG.initServer().catch((error) => {
+                    console.error('[SeeYou] Error inicializando servidor:', error);
+                });
+                return;
+            }
+
+            splash.style.display = 'flex';
+
+            const configTimer = setTimeout(() => {
+                configBtn.style.display = 'block';
+                statusText.innerText = 'Buscando servidor en la red local...';
+            }, 5000);
+
+            configBtn.onclick = (e) => {
+                e.stopPropagation();
+                const url = prompt("Introduce la URL del servidor (ej: 192.168.1.100:3000 o una URL de túnel)");
+                if (url) {
+                    CONFIG.setServerUrl(url);
+                    window.location.reload();
+                }
+            };
+
+            window.serverInitialization = CONFIG.initServer().catch((error) => {
+                console.error('[SeeYou] Error inicializando servidor:', error);
+            });
+            clearTimeout(configTimer);
+            splash.remove();
+        })();
+    </script>
+    <!-- SIDEBAR (NAV LATERAL) -->
+    <aside class="sidebar">
+        <div class="logo-section" style="cursor:pointer; margin-bottom: 30px; display:flex; justify-content:center;" onclick="window.location.href='home.html'">
+            <svg width="40" height="24" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" />
+                <circle cx="65" cy="30" r="22" fill="none" stroke="#1B3A5C" stroke-width="8" />
+                <path d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
+            </svg>
+        </div>
+
+        <button class="nav-btn" onclick="window.location.href='home.html'" style="margin-bottom:12px;" data-i18n-title="nav_home">
+            <span class="material-icons-outlined">home</span>
+            <span style="font-size:10px;" data-i18n="nav_home">Inicio</span>
+        </button>
+        <button class="nav-btn active" onclick="window.location.reload()" style="margin-bottom:12px;" data-i18n-title="nav_friends">
+            <span class="material-icons-outlined">group</span>
+            <span style="font-size:10px;" data-i18n="nav_friends">Amigos</span>
+        </button>
+        <button class="nav-btn" onclick="window.location.href='chat.html'" style="margin-bottom:12px;" data-i18n-title="nav_chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="width:24px;height:24px;display:block;flex:none"><path d="M21.4 3.2 2.9 10.4a.6.6 0 0 0 0 1.1l6.9 2.6 2.6 6.9a.6.6 0 0 0 1.1 0L21.4 3.2z"/><path d="m9.8 14.1 5.3-5.3"/></svg>
+            <span style="font-size:10px;" data-i18n="nav_chat">Chat</span>
+        </button>
+        <button class="nav-btn" onclick="window.location.href='home.html?section=actividades-map'" style="margin-bottom:12px;" data-i18n-title="nav_map">
+            <span class="material-icons-outlined">map</span>
+            <span style="font-size:10px;" data-i18n="nav_map">Mapa</span>
+        </button>
+
+        <div style="margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:16px; padding-bottom:24px;">
+            <button class="nav-btn" id="nav-perfil-side" onclick="window.location.href='home.html?section=perfil'" title="Perfil" data-i18n-title="nav_profile">
+                <span class="material-icons-outlined">person</span>
+            </button>
+            <button class="nav-btn" onclick="copyProfileId()" title="Copiar ID" data-i18n-title="copy_profile_id_title">
+                <span class="material-icons-outlined">share</span>
+            </button>
+            <button class="nav-btn" id="logout-btn" title="Cerrar sesión" data-i18n-title="logout_title">
+                <span class="material-icons-outlined" style="color:#ff4444;">logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <!-- MOBILE HEADER -->
+        <header class="mobile-header">
+            <div class="logo-section" style="cursor:pointer; margin:0; display:flex; align-items:center;" onclick="window.location.href='home.html'">
+                <svg width="40" height="24" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                    <circle cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" />
+                    <circle cx="65" cy="30" r="22" fill="none" stroke="#1B3A5C" stroke-width="8" />
+                    <path d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
+                </svg>
+                <span style="font-size: 20px; font-weight: 700; color: var(--primary); margin-left:6px; letter-spacing:-0.5px;">SeeYou</span>
+            </div>
+            <div class="user-section" style="width:36px; height:36px; pointer-events:auto; border:2px solid var(--primary); box-shadow:none; flex-shrink:0;" onclick="document.getElementById('mobile-dropdown').classList.toggle('show')">
+                <div class="avatar" style="font-size:16px; background:#fff; color:var(--primary); font-weight:800;" id="mobile-avatar-initial">U</div>
+                <div class="dropdown" id="mobile-dropdown" style="top:44px; right:0;">
+                    <a href="home.html" class="dropdown-item">
+                        <span class="material-icons-outlined">settings</span> <span data-i18n="mobile_settings">Configuración</span>
+                    </a>
+                    <a href="home.html?section=actividades-map" class="dropdown-item">
+                        <span class="material-icons-outlined">map</span> <span data-i18n="nav_map">Mapa</span>
+                    </a>
+                    <a href="friends.html" class="dropdown-item">
+                        <span class="material-icons-outlined">group</span> <span data-i18n="mobile_friends">Mis Amigos y Solicitudes</span>
+                    </a>
+                    <a href="javascript:void(0)" class="dropdown-item" onclick="event.preventDefault(); CONFIG.logout();">
+                        <span class="material-icons-outlined">logout</span> <span data-i18n="mobile_logout">Cerrar sesión</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <header class="header">
+            <div class="user-section" id="user-avatar-wrap">
+                <div class="avatar" id="user-avatar">
+                    <span id="avatar-initial">U</span>
+                </div>
+                <div class="dropdown" id="user-dropdown">
+                    <div class="dropdown-item"
+                        style="border-bottom: 1px solid #f0f0f0; pointer-events: none; font-weight:700">
+                        <span id="user-display-name">Usuario</span>
+                    </div>
+                    <a href="javascript:void(0)" class="dropdown-item" onclick="event.preventDefault(); CONFIG.logout();">
+                        <span class="material-icons-outlined">logout</span>
+                        Cerrar sesión
+                    </a>
+                </div>
+            </div>
+        </header>
+
+
+        <div class="fr-page" id="friends-view">
+            <header class="fr-head">
+                <h1 id="friends-page-title">Amigos</h1>
+                <p id="friends-page-subtitle">Tus amigos, tus solicitudes y gente que quizá conoces.</p>
+            </header>
+
+            <!-- BUSCADOR (siempre visible) -->
+            <div class="fr-search" id="fr-search" role="search">
+                <input type="search" id="search-phone-input" placeholder="Buscar por usuario o teléfono" aria-label="Buscar personas por usuario o teléfono"
+                    autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
+                <svg class="fr-search-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <button type="button" class="fr-clear" id="fr-clear" aria-label="Borrar búsqueda">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- RESULTADOS DE BÚSQUEDA (en línea) -->
+            <section class="fr-results" id="search-result-container" aria-live="polite" hidden></section>
+
+            <!-- PESTAÑAS -->
+            <div class="fr-tabs" id="fr-tabs" role="tablist" aria-label="Secciones de amigos">
+                <button type="button" class="fr-tab" role="tab" id="tab-friends" data-tab="friends" aria-controls="panel-friends" aria-selected="true">Amigos <span class="fr-badge" id="badge-friends"></span></button>
+                <button type="button" class="fr-tab" role="tab" id="tab-requests" data-tab="requests" aria-controls="panel-requests" aria-selected="false" tabindex="-1">Solicitudes <span class="fr-badge" id="badge-requests"></span></button>
+                <button type="button" class="fr-tab" role="tab" id="tab-discover" data-tab="discover" aria-controls="panel-discover" aria-selected="false" tabindex="-1">Descubrir <span class="fr-badge" id="badge-discover"></span></button>
+            </div>
+
+            <section class="fr-panel" id="panel-friends" role="tabpanel" aria-labelledby="tab-friends">
+                <div id="friends-list" class="fr-list"></div>
+            </section>
+
+            <section class="fr-panel" id="panel-requests" role="tabpanel" aria-labelledby="tab-requests" hidden>
+                <div id="requests-section"></div>
+            </section>
+
+            <section class="fr-panel" id="panel-discover" role="tabpanel" aria-labelledby="tab-discover" hidden>
+                <div id="suggestions-wrap"></div>
+            </section>
+        </div>
+    </main>
+
+    <nav class="bottom-nav-bar">
+        <span class="bottom-nav-indicator" aria-hidden="true"></span>
+        <button class="nav-btn" id="nav-inicio" onclick="sessionStorage.setItem('seeyou_nav_index', 0); window.location.href='home.html'">
+            <span class="material-icons-outlined">home</span>
+            <span data-i18n="nav_home">Inicio</span>
+        </button>
+        <button class="nav-btn active" id="nav-amigos" onclick="sessionStorage.setItem('seeyou_nav_index', 1); window.location.reload()">
+            <span class="material-icons-outlined">group</span>
+            <span data-i18n="nav_friends">Amigos</span>
+        </button>
+        <button class="nav-btn" id="nav-chat" onclick="sessionStorage.setItem('seeyou_nav_index', 2); window.location.href='chat.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="width:24px;height:24px;display:block;flex:none"><path d="M21.4 3.2 2.9 10.4a.6.6 0 0 0 0 1.1l6.9 2.6 2.6 6.9a.6.6 0 0 0 1.1 0L21.4 3.2z"/><path d="m9.8 14.1 5.3-5.3"/></svg>
+            <span data-i18n="nav_chat">Chat</span>
+        </button>
+        <button class="nav-btn" id="nav-actividades" onclick="sessionStorage.setItem('seeyou_nav_index', 3); window.location.href='home.html?section=actividades-map'">
+            <span class="material-icons-outlined">map</span>
+            <span data-i18n="nav_map">Mapa</span>
+        </button>
+        <button class="nav-btn" id="nav-perfil" onclick="sessionStorage.setItem('seeyou_nav_index', 4); window.location.href='home.html?section=perfil'">
+            <span class="material-icons-outlined">person_outline</span>
+            <span data-i18n="nav_profile">Perfil</span>
+        </button>
+    </nav>
+
+    <script>
+        (() => {
+            const nav = document.querySelector('.bottom-nav-bar');
+            if (!nav) return;
+            const buttons = [...nav.querySelectorAll('.nav-btn')];
+            // Centra la esfera sobre icono + texto midiendo el boton real (y deja aire respecto a la linea de arriba)
+            const placeCircle = () => {
+                try {
+                    const b = buttons[0]; if (!b) return;
+                    const range = document.createRange(); range.selectNodeContents(b);
+                    const r = range.getBoundingClientRect(); const br = b.getBoundingClientRect();
+                    if (!r.height) return;
+                    nav.style.setProperty('--nav-cy', (b.offsetTop + (r.top - br.top) + r.height / 2 - 3) + 'px');
+                } catch (e) { /* sin medir: valor por defecto del CSS */ }
+            };
+            placeCircle();
+            if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeCircle);
+            window.addEventListener('resize', placeCircle);
+
+            const activeIndex = 1;
+            const previousIndex = Number(sessionStorage.getItem('seeyou_nav_previous'));
+            nav.style.setProperty('--nav-index', Number.isFinite(previousIndex) ? previousIndex : activeIndex);
+            requestAnimationFrame(() => {
+                nav.classList.add('is-ready');
+                nav.style.setProperty('--nav-index', activeIndex);
+            });
+            buttons.forEach((button, index) => button.addEventListener('click', () => {
+                sessionStorage.setItem('seeyou_nav_previous', activeIndex);
+                sessionStorage.setItem('seeyou_nav_index', index);
+            }));
+            sessionStorage.removeItem('seeyou_nav_previous');
+        })();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const currentUser = localStorage.getItem('current_user');
+            if (!currentUser) { window.location.href = 'index.html'; return; }
+
+            CONFIG.initLanguage();
+            CONFIG.translatePage();
+
+            let userPhoneId = null;
+            let isUserVerified = false;
+
+            if (CONFIG.USE_MOCK_DB) {
+                const userObj = MockDB.getUsers().find(u => u.usuario === currentUser);
+                if (!userObj) { localStorage.clear(); window.location.href = 'index.html'; return; }
+                userPhoneId = userObj.id;
+                isUserVerified = userObj.verificado;
+            } else {
+                userPhoneId = localStorage.getItem('current_user_id');
+                isUserVerified = localStorage.getItem('current_user_verified') === 'true' || localStorage.getItem('current_user_verified') === true;
+                if (!userPhoneId) { localStorage.clear(); window.location.href = 'index.html'; return; }
+            }
+            userPhoneId = String(userPhoneId);
+
+            try {
+                const savedTheme = localStorage.getItem('seeYou_theme');
+                if (savedTheme === 'dark' || savedTheme === 'blue') document.body.dataset.theme = savedTheme;
+            } catch (e) { /* sin almacenamiento */ }
+
+            // Iniciar sistema de notificaciones
+            if (typeof notificationsSystem !== 'undefined') {
+                notificationsSystem.startPolling(userPhoneId);
+            }
+
+            // ---------- Cabecera / sesión ----------
+            const avatarInitial = document.getElementById('avatar-initial');
+            const userDisplayName = document.getElementById('user-display-name');
+            if (avatarInitial) avatarInitial.textContent = currentUser.charAt(0).toUpperCase();
+            const mAvatar = document.getElementById('mobile-avatar-initial');
+            if (mAvatar) mAvatar.textContent = currentUser.charAt(0).toUpperCase();
+            if (userDisplayName) userDisplayName.innerHTML = `${esc(currentUser)} ${isUserVerified ? CONFIG.getVerifiedBadge() : ''}`;
+
+            const avatarWrap = document.getElementById('user-avatar-wrap');
+            const userDropdown = document.getElementById('user-dropdown');
+            const mDropdown = document.getElementById('mobile-dropdown');
+            avatarWrap.onclick = (e) => { e.stopPropagation(); userDropdown.classList.toggle('show'); };
+            window.onclick = () => {
+                userDropdown.classList.remove('show');
+                if (mDropdown) mDropdown.classList.remove('show');
+            };
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) logoutBtn.onclick = (e) => { e.preventDefault(); CONFIG.logout(); };
+
+            window.copyProfileId = () => {
+                if (!navigator.clipboard) return;
+                navigator.clipboard.writeText(userPhoneId).then(() => showToast('ID copiado. Envíaselo a un amigo.'));
+            };
+
+            // ---------- Utilidades ----------
+            function esc(s) {
+                return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            }
+            const $ = (id) => document.getElementById(id);
+
+            const ICONS = {
+                search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+                noresult: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8.5 8.5l5 5M13.5 8.5l-5 5"/>',
+                x: '<path d="M18 6 6 18M6 6l12 12"/>',
+                check: '<path d="M20 6 9 17l-5-5"/>',
+                clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+                userPlus: '<path d="M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+                message: '<path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+                users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+                inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+                compass: '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',
+                refresh: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+                alert: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>'
+            };
+            const icon = (name, size = 18) => `<svg class="fr-ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
+
+            const GRADIENTS = [
+                ['#1B3A5C', '#3B82F6'], ['#2563EB', '#60A5FA'], ['#0F766E', '#2DD4BF'],
+                ['#6D28D9', '#A78BFA'], ['#BE185D', '#F472B6'], ['#B45309', '#F59E0B']
+            ];
+            function gradientFor(text) {
+                let h = 0;
+                for (const ch of String(text)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+                const [a, b] = GRADIENTS[h % GRADIENTS.length];
+                return `linear-gradient(135deg, ${a}, ${b})`;
+            }
+
+            // Normaliza cualquier usuario devuelto por la API
+            function normUser(u) {
+                u = u || {};
+                const username = String(u.usuario || u.username || '').trim();
+                const rawName = String(u.name || '').trim();
+                const distinct = !!rawName && !!username;
+                return {
+                    id: String(u.id),
+                    title: rawName || username || 'Usuario',
+                    handle: username && rawName ? '@' + username : '',
+                    username,
+                    avatar: String(u.foto || u.avatar || ''),
+                    verified: !!u.verificado,
+                    mutual: Number(u.mutualFriends) || 0
+                };
+            }
+            function avatarUrl(a) {
+                if (!a) return '';
+                if (/^(https?:|data:|blob:)/.test(a)) return a;
+                return `${CONFIG.API_BASE_URL}/${a.replace(/^\/?/, '')}`;
+            }
+            function avatarHtml(u, size = 48) {
+                const initial = esc((u.title || '?').trim().charAt(0).toUpperCase());
+                const url = avatarUrl(u.avatar);
+                return `<span class="fr-av" style="--s:${size}px;background:${gradientFor(u.id)}">${initial}${url ? `<img src="${esc(url)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>`;
+            }
+            const profileHref = (u) => `profile.html?id=${encodeURIComponent(u.id)}`;
+            const chatHref = (u) => `chat.html?user=${encodeURIComponent(u.id)}`;
+            const nameHtml = (u, size = 16) => `<div class="fr-name"><span class="t">${esc(u.title)}</span>${u.verified ? CONFIG.getVerifiedBadge(size) : ''}</div>`;
+
+            function ago(iso) {
+                const t = Date.parse(iso);
+                if (!t) return '';
+                const m = Math.max(0, Math.round((Date.now() - t) / 60000));
+                if (m < 1) return 'ahora mismo';
+                if (m < 60) return `hace ${m} min`;
+                const h = Math.round(m / 60);
+                if (h < 24) return `hace ${h} h`;
+                const d = Math.round(h / 24);
+                if (d < 30) return d === 1 ? 'hace 1 día' : `hace ${d} días`;
+                return new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+            }
+
+            // ---------- Toast ----------
+            const toast = document.createElement('div');
+            toast.className = 'fr-toast';
+            toast.id = 'toast-notification';
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+            document.body.appendChild(toast);
+            let toastTimer = null;
+            window.showToast = function (message, opts = {}) {
+                const kind = opts.error ? 'error' : '';
+                toast.className = 'fr-toast' + (kind ? ' ' + kind : '');
+                toast.innerHTML = `${icon(opts.error ? 'alert' : 'check', 20)}<span id="toast-message">${esc(message)}</span>${opts.href ? `<a href="${esc(opts.href)}">${esc(opts.label || 'Ver')}</a>` : ''}`;
+                if (opts.href) toast.classList.add('has-action');
+                void toast.offsetWidth;
+                toast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toast.classList.remove('show'), opts.href ? 5000 : 3200);
+            };
+
+            // ---------- Estado ----------
+            const state = {
+                friends: [],      // [user]
+                incoming: [],     // [{requestId, user, createdAt}]
+                sent: [],         // [{requestId, user, createdAt}]
+                suggestions: [],  // [user]
+                errors: { friends: false, requests: false, suggestions: false },
+                loaded: { core: false, suggestions: false },
+                tab: 'friends'
+            };
+            const userCache = {};
+            const cacheUser = (u) => { userCache[u.id] = u; return u; };
+            const animated = { friends: false, requests: false, discover: false };
+
+            const byName = (a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
+
+            function relation(id) {
+                id = String(id);
+                if (state.friends.some(u => u.id === id)) return { type: 'friend' };
+                const inc = state.incoming.find(r => r.user.id === id);
+                if (inc) return { type: 'incoming', requestId: inc.requestId };
+                if (state.sent.some(r => r.user.id === id)) return { type: 'sent' };
+                return { type: 'none' };
+            }
+
+            function relationButtons(u, compact) {
+                const rel = relation(u.id);
+                switch (rel.type) {
+                    case 'friend':
+                        return `<span class="fr-btn friend" aria-label="Ya sois amigos">${icon('check', 16)} Amigos</span>`;
+                    case 'sent':
+                        return `<span class="fr-btn sent" aria-label="Solicitud enviada">${icon('clock', 16)} Solicitud enviada</span>`;
+                    case 'incoming':
+                        return `<button type="button" class="fr-btn primary" data-act="accept" data-req="${esc(rel.requestId)}" data-id="${esc(u.id)}">${icon('check', 16)} Aceptar</button>`;
+                    default:
+                        return `<button type="button" class="fr-btn primary" data-act="add" data-id="${esc(u.id)}">${icon('userPlus', 16)} Añadir</button>`;
+                }
+            }
+
+            // ---------- Datos ----------
+            async function getJSON(url) {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            }
+            const uid = () => encodeURIComponent(userPhoneId);
+
+            async function loadCore() {
+                const [f, r, p] = await Promise.allSettled([
+                    getJSON(`${CONFIG.API_BASE_URL}/api/friends/${uid()}`),
+                    getJSON(`${CONFIG.API_BASE_URL}/api/friends/requests/${uid()}`),
+                    getJSON(`${CONFIG.API_BASE_URL}/api/friends/pending/${uid()}`)
+                ]);
+                state.errors.friends = f.status !== 'fulfilled';
+                state.errors.requests = r.status !== 'fulfilled' && p.status !== 'fulfilled';
+                if (f.status === 'fulfilled') state.friends = f.value.map(u => cacheUser(normUser(u))).sort(byName);
+                if (r.status === 'fulfilled') state.incoming = r.value.map(x => ({ requestId: x.requestId, user: cacheUser(normUser(x.fromUser)), createdAt: x.createdAt }));
+                if (p.status === 'fulfilled') state.sent = p.value.map(x => ({ requestId: x.requestId, user: cacheUser(normUser(x.toUser)), createdAt: x.createdAt }));
+                state.loaded.core = true;
+            }
+
+            async function loadSuggestions() {
+                state.loaded.suggestions = false;
+                try {
+                    const list = await getJSON(`${CONFIG.API_BASE_URL}/api/users/suggestions/${uid()}`);
+                    state.suggestions = list.map(u => cacheUser(normUser(u))).filter(u => u.id !== userPhoneId);
+                    state.errors.suggestions = false;
+                } catch (e) {
+                    state.errors.suggestions = true;
+                }
+                state.loaded.suggestions = true;
+            }
+
+            // ---------- Render ----------
+            const skelRows = (n = 3, card = false) => Array.from({ length: n }, () => `<div class="fr-skel${card ? ' card' : ''}"></div>`).join('');
+
+            function emptyState({ iconName, title, text, buttons = '' }) {
+                return `<div class="fr-empty"><div class="fr-empty-ic">${icon(iconName, 42)}</div><h3>${esc(title)}</h3><p>${esc(text)}</p>${buttons}</div>`;
+            }
+            const retryBtn = (what) => `<button type="button" class="fr-btn soft" data-act="retry" data-what="${what}">${icon('refresh', 16)} Reintentar</button>`;
+
+            function renderBadges() {
+                const set = (id, n, hot) => {
+                    const el = $(id);
+                    const txt = n > 0 ? String(n) : '';
+                    if (el.textContent !== txt) el.textContent = txt;
+                    el.classList.toggle('hot', !!hot && n > 0);
+                };
+                set('badge-friends', state.friends.length, false);
+                set('badge-requests', state.incoming.length, true);
+                set('badge-discover', state.suggestions.filter(u => relation(u.id).type === 'none').length, false);
+                $('tab-requests').classList.toggle('is-hot', state.incoming.length > 0);
+            }
+
+            function friendRow(u, i, anim) {
+                return `<article class="fr-row${anim ? ' fr-in' : ''}" style="--i:${i}" data-friend="${esc(u.id)}">
+                    ${avatarHtml(u)}
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u)}${u.handle ? `<div class="fr-sub">${esc(u.handle)}</div>` : ''}</a></div>
+                    <div class="fr-actions"><a class="fr-btn soft" href="${chatHref(u)}">${icon('message', 17)} Mensaje</a></div>
+                </article>`;
+            }
+
+            function renderFriends() {
+                const box = $('friends-list');
+                if (!state.loaded.core) { box.innerHTML = skelRows(4); return; }
+                if (state.errors.friends) {
+                    box.innerHTML = emptyState({ iconName: 'alert', title: 'No pudimos cargar tus amigos', text: 'Revisa tu conexión e inténtalo de nuevo.', buttons: retryBtn('core') });
+                    return;
+                }
+                if (!state.friends.length) {
+                    box.innerHTML = emptyState({
+                        iconName: 'users', title: 'Todavía no tienes amigos',
+                        text: 'Busca a alguien por su usuario o teléfono, o mira a quién podrías conocer.',
+                        buttons: `<button type="button" class="fr-btn primary" data-act="focus-search">${icon('search', 16)} Busca a alguien por su usuario</button><button type="button" class="fr-btn soft" data-act="tab" data-tab="discover">${icon('compass', 16)} Descubrir gente</button>`
+                    });
+                    animated.friends = true;
+                    return;
+                }
+                const anim = !animated.friends;
+                box.innerHTML = state.friends.map((u, i) => friendRow(u, i, anim)).join('');
+                animated.friends = true;
+            }
+
+            function requestCard(r, i, anim) {
+                const u = r.user;
+                const when = ago(r.createdAt);
+                return `<article class="fr-row fr-req${anim ? ' fr-in' : ''}" style="--i:${i}" data-req-card="${esc(r.requestId)}">
+                    ${avatarHtml(u, 52)}
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u)}<div class="fr-sub">${u.handle ? esc(u.handle) + ' · ' : ''}quiere ser tu amigo${when ? ' · ' + esc(when) : ''}</div></a></div>
+                    <div class="fr-actions">
+                        <button type="button" class="fr-btn primary" data-act="accept" data-req="${esc(r.requestId)}" data-id="${esc(u.id)}">${icon('check', 17)} Aceptar</button>
+                        <button type="button" class="fr-btn ghost" data-act="reject" data-req="${esc(r.requestId)}" data-id="${esc(u.id)}">${icon('x', 17)} Rechazar</button>
+                    </div>
+                </article>`;
+            }
+            function sentRow(r, i, anim) {
+                const u = r.user;
+                const when = ago(r.createdAt);
+                return `<article class="fr-row${anim ? ' fr-in' : ''}" style="--i:${i}" data-sent="${esc(u.id)}">
+                    ${avatarHtml(u)}
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u)}<div class="fr-sub">${u.handle ? esc(u.handle) : (when ? 'Enviada ' + esc(when) : '')}</div></a></div>
+                    <div class="fr-actions"><span class="fr-chip pending">${icon('clock', 14)} Pendiente</span></div>
+                </article>`;
+            }
+
+            function renderRequests() {
+                const box = $('requests-section');
+                if (!state.loaded.core) { box.innerHTML = `<div class="fr-list">${skelRows(2)}</div>`; return; }
+                if (state.errors.requests) {
+                    box.innerHTML = emptyState({ iconName: 'alert', title: 'No pudimos cargar tus solicitudes', text: 'Revisa tu conexión e inténtalo de nuevo.', buttons: retryBtn('core') });
+                    return;
+                }
+                const anim = !animated.requests;
+                let html = '';
+                if (state.incoming.length) {
+                    html += `<div class="fr-sec-head"><h2 class="fr-sec-title">Te han enviado una solicitud</h2></div><div class="fr-list" id="pending-requests-list">${state.incoming.map((r, i) => requestCard(r, i, anim)).join('')}</div>`;
+                }
+                if (state.sent.length) {
+                    if (!state.incoming.length) html += `<p class="fr-note">No tienes solicitudes nuevas.</p>`;
+                    html += `<div class="fr-sec-head"><h2 class="fr-sec-title">Enviadas por ti</h2></div><div class="fr-list" id="sent-requests-list">${state.sent.map((r, i) => sentRow(r, i, anim)).join('')}</div>`;
+                }
+                if (!state.incoming.length && !state.sent.length) {
+                    html = emptyState({
+                        iconName: 'inbox', title: 'No tienes solicitudes pendientes',
+                        text: 'Cuando alguien quiera ser tu amigo, lo verás aquí. También puedes buscar a alguien tú.',
+                        buttons: `<button type="button" class="fr-btn primary" data-act="focus-search">${icon('search', 16)} Busca a alguien por su usuario</button>`
+                    });
+                }
+                box.innerHTML = html;
+                animated.requests = true;
+            }
+
+            function suggestionCard(u, i, anim) {
+                return `<article class="fr-row fr-card${anim ? ' fr-in' : ''}" style="--i:${i}" data-sug="${esc(u.id)}">
+                    ${avatarHtml(u, 68)}
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u, 15)}<div class="fr-sub">${esc(u.handle || ' ')}</div>${u.mutual ? `<div class="fr-mutual">${u.mutual === 1 ? '1 amigo en común' : u.mutual + ' amigos en común'}</div>` : ''}</a></div>
+                    <div class="fr-actions" data-rel="${esc(u.id)}">${relationButtons(u)}</div>
+                </article>`;
+            }
+
+            function renderDiscover() {
+                const box = $('suggestions-wrap');
+                if (!state.loaded.suggestions) { box.innerHTML = `<div class="fr-grid">${skelRows(6, true)}</div>`; return; }
+                if (state.errors.suggestions) {
+                    box.innerHTML = emptyState({ iconName: 'alert', title: 'No pudimos cargar sugerencias', text: 'Inténtalo de nuevo en un momento.', buttons: retryBtn('suggestions') });
+                    return;
+                }
+                if (!state.suggestions.length) {
+                    box.innerHTML = emptyState({
+                        iconName: 'compass', title: 'No hay sugerencias por ahora',
+                        text: 'Ya has visto a todo el mundo. Prueba a buscar a alguien por su usuario o teléfono.',
+                        buttons: `<button type="button" class="fr-btn primary" data-act="focus-search">${icon('search', 16)} Busca a alguien por su usuario</button>`
+                    });
+                    return;
+                }
+                const anim = !animated.discover;
+                box.innerHTML = `<div class="fr-sec-head"><h2 class="fr-sec-title">Personas que quizá conoces</h2><button type="button" class="fr-btn ghost" style="height:34px;padding:0 12px;font-size:13px" data-act="retry" data-what="suggestions">${icon('refresh', 15)} Ver otras</button></div>
+                    <div class="fr-grid" id="friend-suggestions-list">${state.suggestions.map((u, i) => suggestionCard(u, i, anim)).join('')}</div>`;
+                animated.discover = true;
+            }
+
+            function renderAll() { renderBadges(); renderFriends(); renderRequests(); renderDiscover(); }
+
+            // ---------- Pestañas ----------
+            function setTab(name, focus) {
+                if (!['friends', 'requests', 'discover'].includes(name)) name = 'friends';
+                state.tab = name;
+                ['friends', 'requests', 'discover'].forEach(t => {
+                    const on = t === name;
+                    const tab = $('tab-' + t);
+                    tab.setAttribute('aria-selected', on ? 'true' : 'false');
+                    tab.tabIndex = on ? 0 : -1;
+                    $('panel-' + t).hidden = !on;
+                });
+                if (focus) $('tab-' + name).focus();
+            }
+            $('fr-tabs').addEventListener('click', (e) => {
+                const b = e.target.closest('.fr-tab');
+                if (b) setTab(b.dataset.tab);
+            });
+            $('fr-tabs').addEventListener('keydown', (e) => {
+                const order = ['friends', 'requests', 'discover'];
+                const i = order.indexOf(state.tab);
+                if (e.key === 'ArrowRight') { e.preventDefault(); setTab(order[(i + 1) % 3], true); }
+                if (e.key === 'ArrowLeft') { e.preventDefault(); setTab(order[(i + 2) % 3], true); }
+            });
+
+            // ---------- Acciones ----------
+            function refreshRelationUI(userId) {
+                document.querySelectorAll('[data-rel]').forEach(el => {
+                    if (el.dataset.rel === String(userId) && userCache[userId]) el.innerHTML = relationButtons(userCache[userId]);
+                });
+                renderBadges();
+            }
+
+            function collapseAndRemove(el) {
+                if (!el) return Promise.resolve();
+                return new Promise(resolve => {
+                    el.style.maxHeight = el.offsetHeight + 'px';
+                    void el.offsetHeight;
+                    el.classList.add('leaving');
+                    setTimeout(() => { el.remove(); resolve(); }, 300);
+                });
+            }
+
+            async function post(path, body) {
+                const res = await fetch(`${CONFIG.API_BASE_URL}${path}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+                });
+                let data = {};
+                try { data = await res.json(); } catch (e) { /* sin cuerpo */ }
+                if (!res.ok) { const err = new Error(data.message || data.error || 'Error'); err.server = true; throw err; }
+                return data;
+            }
+
+            async function syncQuietly() {
+                await loadCore();
+                renderAll();
+                if (searchState.query) runSearch(true);
+            }
+
+            async function doAdd(userId, btn) {
+                const u = userCache[userId];
+                if (!u || relation(userId).type !== 'none') return;
+                if (btn) btn.classList.add('busy');
+                const entry = { requestId: 'tmp-' + userId, user: u, createdAt: new Date().toISOString() };
+                state.sent.unshift(entry);
+                refreshRelationUI(userId);           // optimista: el botón pasa a "Solicitud enviada"
+                try {
+                    await post('/api/friends/add', { fromUserId: userPhoneId, toUserId: userId });
+                    showToast(`Solicitud enviada a ${u.title}`);
+                    animated.requests = false;
+                    syncQuietly();
+                } catch (err) {
+                    state.sent = state.sent.filter(x => x !== entry);
+                    refreshRelationUI(userId);
+                    showToast(err.server ? err.message : 'Error de conexión. Inténtalo de nuevo.', { error: true });
+                    if (err.server) syncQuietly();
+                }
+            }
+
+            async function doRespond(requestId, accept, btn) {
+                const idx = state.incoming.findIndex(r => String(r.requestId) === String(requestId));
+                if (idx < 0) return;
+                const entry = state.incoming[idx];
+                const u = entry.user;
+                const card = document.querySelector(`[data-req-card="${CSS.escape(String(requestId))}"]`);
+                if (card) card.querySelectorAll('button').forEach(b => b.classList.add('busy'));
+
+                // Actualización optimista
+                state.incoming.splice(idx, 1);
+                if (accept) state.friends = [...state.friends, u].sort(byName);
+                renderBadges();
+                renderFriends();
+                if (searchState.query) refreshSearchRow(u.id);
+                await collapseAndRemove(card);
+                renderRequests();
+
+                try {
+                    await post('/api/friends/respond', { requestId, accept, userId: userPhoneId });
+                    if (accept) showToast('Ahora sois amigos', { href: chatHref(u), label: 'Enviar mensaje' });
+                    else showToast('Solicitud rechazada');
+                } catch (err) {
+                    // Revertir
+                    if (accept) state.friends = state.friends.filter(f => f.id !== u.id);
+                    state.incoming.splice(Math.min(idx, state.incoming.length), 0, entry);
+                    animated.requests = true;
+                    renderAll();
+                    if (searchState.query) refreshSearchRow(u.id);
+                    showToast(err.server ? err.message : 'Error de conexión. Inténtalo de nuevo.', { error: true });
+                }
+            }
+
+            function focusSearch() {
+                const input = $('search-phone-input');
+                window.scrollTo(0, 0);
+                const main = document.querySelector('.main'); if (main) main.scrollTop = 0;
+                input.focus();
+            }
+
+            document.addEventListener('click', (e) => {
+                const el = e.target.closest('[data-act]');
+                if (!el) return;
+                const act = el.dataset.act;
+                if (act === 'add') doAdd(el.dataset.id, el);
+                else if (act === 'accept') doRespond(el.dataset.req, true, el);
+                else if (act === 'reject') doRespond(el.dataset.req, false, el);
+                else if (act === 'focus-search') focusSearch();
+                else if (act === 'tab') setTab(el.dataset.tab);
+                else if (act === 'retry') {
+                    if (el.dataset.what === 'suggestions') {
+                        animated.discover = false; state.loaded.suggestions = false; renderDiscover();
+                        loadSuggestions().then(() => { renderDiscover(); renderBadges(); });
+                    } else {
+                        state.loaded.core = false; renderAll();
+                        loadCore().then(() => { renderAll(); });
+                    }
+                }
+            });
+
+            // ---------- Búsqueda en vivo ----------
+            const input = $('search-phone-input');
+            const resultsBox = $('search-result-container');
+            const searchState = { query: '', seq: 0, timer: null, results: [] };
+
+            function cleanQuery(raw) {
+                let q = raw.trim().replace(/^@+/, '');
+                if (/^[+\d\s().-]+$/.test(q)) q = q.replace(/[\s().-]/g, '');
+                return q;
+            }
+
+            function searchRow(u, i) {
+                const rel = relation(u.id);
+                const hint = rel.type === 'incoming' ? 'Quiere ser tu amigo' : (u.handle || (u.username ? '@' + u.username : ''));
+                return `<article class="fr-row fr-in" style="--i:${i}" data-search-row="${esc(u.id)}">
+                    ${avatarHtml(u)}
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u)}${hint ? `<div class="fr-sub">${esc(hint)}</div>` : ''}</a></div>
+                    <div class="fr-actions" data-rel="${esc(u.id)}">${relationButtons(u)}</div>
+                </article>`;
+            }
+
+            function renderSearchResults() {
+                const list = searchState.results;
+                const q = searchState.query;
+                if (!list.length && searchState.onlySelf) {
+                    resultsBox.innerHTML = emptyState({ iconName: 'users', title: 'Ese eres tú', text: 'Busca a otra persona para enviarle una solicitud de amistad.' });
+                    return;
+                }
+                if (!list.length) {
+                    resultsBox.innerHTML = emptyState({
+                        iconName: 'noresult', title: 'No encontramos a nadie',
+                        text: `No hay resultados para «${q}». Revisa el usuario o escribe el teléfono completo.`
+                    });
+                    return;
+                }
+                resultsBox.innerHTML = `<div class="fr-sec-head"><h2 class="fr-sec-title">${list.length === 1 ? '1 resultado' : list.length + ' resultados'}</h2></div><div class="fr-list">${list.map(searchRow).join('')}</div>`;
+            }
+
+            function refreshSearchRow(userId) {
+                const row = resultsBox.querySelector(`[data-search-row="${CSS.escape(String(userId))}"]`);
+                if (!row) return;
+                const u = userCache[userId];
+                if (!u) return;
+                const sub = row.querySelector('.fr-sub');
+                if (sub && relation(userId).type !== 'incoming') sub.textContent = u.handle || (u.username ? '@' + u.username : '');
+                row.querySelector('[data-rel]').innerHTML = relationButtons(u);
+            }
+
+            async function runSearch(quiet) {
+                const q = searchState.query;
+                const seq = ++searchState.seq;
+                if (q.length < 2) {
+                    resultsBox.innerHTML = `<p class="fr-note" style="text-align:center;padding:18px 0">Escribe al menos 2 caracteres para buscar.</p>`;
+                    return;
+                }
+                if (!quiet) resultsBox.innerHTML = `<div class="fr-list">${skelRows(2)}</div>`;
+                try {
+                    const [list] = await Promise.all([
+                        getJSON(`${CONFIG.API_BASE_URL}/api/users/search/${encodeURIComponent(q)}?viewerId=${uid()}`),
+                        state.loaded.core ? null : loadCore().then(renderAll)
+                    ]);
+                    if (seq !== searchState.seq) return;
+                    searchState.onlySelf = list.length > 0 && list.every(u => String(u.id) === userPhoneId);
+                    searchState.results = list.map(u => cacheUser(normUser(u))).filter(u => u.id !== userPhoneId).slice(0, 30);
+                    renderSearchResults();
+                } catch (err) {
+                    if (seq !== searchState.seq) return;
+                    resultsBox.innerHTML = emptyState({ iconName: 'alert', title: 'Error en la búsqueda', text: 'No pudimos buscar ahora mismo. Inténtalo de nuevo.', buttons: `<button type="button" class="fr-btn soft" data-act="research">${icon('refresh', 16)} Reintentar</button>` });
+                }
+            }
+            resultsBox.addEventListener('click', (e) => { if (e.target.closest('[data-act="research"]')) runSearch(); });
+
+            function onSearchInput() {
+                const raw = input.value;
+                $('fr-search').classList.toggle('has-text', raw.length > 0);
+                const q = cleanQuery(raw);
+                clearTimeout(searchState.timer);
+                if (!q) {
+                    searchState.query = '';
+                    searchState.seq++;
+                    resultsBox.hidden = true;
+                    resultsBox.innerHTML = '';
+                    $('friends-view').classList.remove('fr-searching');
+                    return;
+                }
+                searchState.query = q;
+                $('friends-view').classList.add('fr-searching');
+                resultsBox.hidden = false;
+                searchState.timer = setTimeout(() => runSearch(), 250);
+            }
+            input.addEventListener('input', onSearchInput);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); if (searchState.query) { clearTimeout(searchState.timer); runSearch(); } }
+                if (e.key === 'Escape') { input.value = ''; onSearchInput(); }
+            });
+            $('fr-clear').addEventListener('click', () => { input.value = ''; onSearchInput(); input.focus(); });
+
+            // ---------- Arranque ----------
+            const params = new URLSearchParams(location.search);
+            const wantedTab = params.get('tab');
+            renderAll();   // esqueletos
+
+            try {
+                if (window.serverInitialization) await Promise.race([window.serverInitialization, new Promise(r => setTimeout(r, 4000))]);
+            } catch (e) { /* se usa la URL por defecto */ }
+
+            loadSuggestions().then(() => { renderDiscover(); renderBadges(); });
+            await loadCore();
+            setTab(['friends', 'requests', 'discover'].includes(wantedTab) ? wantedTab : (state.incoming.length ? 'requests' : 'friends'));
+            renderAll();
+
+            // Las solicitudes nuevas llegan sin tener que recargar: se consulta cada 20 s mientras la pantalla está visible.
+            let refreshBusy = false;
+            const refreshRequests = async () => {
+                if (refreshBusy || document.hidden) return;
+                refreshBusy = true;
+                try { await syncQuietly(); } catch (e) { } finally { refreshBusy = false; }
+            };
+            setInterval(refreshRequests, 20000);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshRequests(); });
+        });
+    </script>
+</body>
+</html>

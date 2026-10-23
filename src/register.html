@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Registro - SeeYou</title>
+    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="auth.css?v=1">
+    <script src="js/session_guard.js?v=2"></script>
+    <link rel="icon" type="image/png" href="logotipo.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1B3A5C">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <!-- Verificacion de Google AdSense (solo etiqueta: no carga ni muestra anuncios) -->
+    <meta name="google-adsense-account" content="ca-pub-4230708127921610">
+</head>
+
+<body class="auth-page">
+    <div class="auth-shell">
+        <div class="container" id="reg-card">
+            <div class="auth-progress" id="reg-progress" aria-hidden="true">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+
+            <!-- PASO 1 · Datos de la cuenta -->
+            <section class="auth-step is-active" data-step="form" aria-labelledby="title-form">
+                <div id="install-banner" style="display:none; background: #e8f0fe; padding: 12px; border-radius: 14px; margin-bottom: 18px; align-items: center; gap: 10px; border: 1px solid #1B3A5C; width:100%;" data-i18n="install_banner">
+                    <span class="material-icons-outlined" style="color: #1B3A5C;">download_for_offline</span>
+                    <div style="flex:1; text-align: left;">
+                        <div style="font-weight: 700; color: #1B3A5C; font-size: 13px;">Instalar SeeYou</div>
+                    </div>
+                    <button id="btn-install-banner" style="background: #1B3A5C; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">Instalar</button>
+                </div>
+
+                <header>
+                    <img class="auth-logo" src="logotipo.png" alt="SeeYou">
+                    <h1 id="title-form" data-i18n="create_account">Crear Cuenta</h1>
+                    <p data-i18n="register_subtitle">Regístrate para comenzar</p>
+                </header>
+
+                <form class="register-form" onsubmit="return false;" novalidate>
+                    <div class="input-group">
+                        <span class="material-icons-outlined">person</span>
+                        <div class="field-container">
+                            <input type="text" id="username" placeholder=" " autocomplete="username" required>
+                            <label for="username" data-i18n="label_username">Usuario</label>
+                            <span class="error-message" id="username-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="material-icons-outlined">phone</span>
+                        <div class="field-container">
+                            <div class="prefix-phone-group">
+                                <div id="phone-prefix-container"></div>
+                                <div style="flex:1; position:relative;">
+                                    <input type="tel" id="phone" placeholder=" " autocomplete="tel-national" required>
+                                    <label for="phone" data-i18n="label_phone">Teléfono</label>
+                                </div>
+                            </div>
+                            <span class="error-message" id="phone-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="material-icons-outlined">mail</span>
+                        <div class="field-container">
+                            <input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder=" " required>
+                            <label for="email">Correo electrónico</label>
+                            <span class="error-message" id="email-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="material-icons-outlined">card_giftcard</span>
+                        <div class="field-container">
+                            <input type="text" id="invite-code" name="invite-code" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder=" ">
+                            <label for="invite-code">Código de invitación (opcional)</label>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="material-icons-outlined">lock</span>
+                        <div class="field-container">
+                            <div class="password-input-wrap">
+                                <input type="password" id="password" placeholder=" " autocomplete="new-password" required>
+                                <label for="password" data-i18n="label_password">Contraseña</label>
+                                <button type="button" class="toggle-password" data-target="password" aria-label="Mostrar contraseña">
+                                    <span class="material-icons-outlined">visibility_off</span>
+                                </button>
+                            </div>
+                            <span class="error-message" id="password-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="auth-visibility">
+                        <p data-i18n="profile_visibility">Visibilidad del perfil</p>
+                        <div class="visibility-option-group">
+                            <label id="opt-public" class="active">
+                                <input type="radio" name="visibility" value="public" checked>
+                                <span class="material-icons-outlined" style="font-size:18px">public</span>
+                                <span data-i18n="visibility_public">Público</span>
+                            </label>
+                            <label id="opt-private">
+                                <input type="radio" name="visibility" value="private">
+                                <span class="material-icons-outlined" style="font-size:18px">lock</span>
+                                <span data-i18n="visibility_private">Privado</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-register group animate-field-in" id="btn-register">
+                        <span class="sheen-sweep"></span>
+                        <span data-i18n="btn_register">Registrarse</span>
+                        <span class="material-icons-outlined arrow-icon">arrow_right_alt</span>
+                    </button>
+
+                    <p class="auth-switch" data-i18n="have_account_prompt">
+                        ¿Ya tienes una cuenta? <a href="index.html" data-i18n="link_login">Inicia sesión aquí</a>
+                    </p>
+
+                    <div class="download-app-container">
+                        <div class="download-dropdown-wrapper">
+                            <button type="button" class="download-app-link" id="btn-download-menu" data-i18n="download_app">
+                                <span class="material-icons-outlined">download_for_offline</span>
+                                Descargar SeeYou
+                                <span class="material-icons-outlined dropdown-arrow">expand_more</span>
+                            </button>
+                            <div class="download-dropdown-menu" id="download-menu">
+                                <a href="javascript:void(0)" class="download-dropdown-item" id="download-ios-link" onclick="alert('La app de iOS estará disponible pronto en el App Store')">
+                                    <span class="material-icons-outlined">apple</span>
+                                    iOS (próximamente)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <!-- PASO 2 · Verificación del correo -->
+            <section class="auth-step" data-step="verify" aria-labelledby="title-verify">
+                <div class="auth-step-head">
+                    <div class="auth-step-icon"><span class="material-icons-outlined">mark_email_read</span></div>
+                    <h1 class="auth-title" id="title-verify">Verifica tu correo</h1>
+                    <p class="auth-subtitle">Hemos enviado un código de 6 dígitos a<br><b id="verify-email"></b></p>
+                </div>
+                <div class="auth-step-body">
+                    <input type="text" id="modal-verify-code" class="code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" placeholder="······" aria-label="Código de 6 dígitos">
+                    <span class="error-message" id="verify-error" role="alert"></span>
+                    <div class="auth-step-actions">
+                        <button type="button" id="btn-modal-verify" class="btn-register">
+                            <span>Verificar</span>
+                        </button>
+                        <div class="auth-step-links">
+                            <button type="button" id="btn-resend-code" class="auth-link-btn">Reenviar código</button>
+                            <button type="button" id="btn-modal-cancel" class="auth-link-btn">Cambiar datos</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PASO 3 · Foto de perfil -->
+            <section class="auth-step" data-step="photo" aria-labelledby="title-photo">
+                <div class="auth-step-head" style="margin-bottom:8px;">
+                    <h1 class="auth-title" id="title-photo">¡Bienvenido a SeeYou!</h1>
+                    <p class="auth-subtitle">Elige tu foto de perfil para que tus amigos te reconozcan.</p>
+                </div>
+                <div class="auth-step-body">
+                    <div class="avatar-stage">
+                        <div class="avatar-frame" id="avatar-frame" aria-label="Vista previa de tu foto de perfil">
+                            <span class="material-icons-outlined avatar-placeholder" id="avatar-placeholder-icon">person</span>
+                            <canvas id="avatar-canvas" width="352" height="352"></canvas>
+                        </div>
+                    </div>
+                    <div class="avatar-adjust" id="avatar-adjust">
+                        <span class="material-icons-outlined">zoom_out</span>
+                        <input type="range" id="avatar-zoom" min="1" max="3" step="0.01" value="1" aria-label="Zoom de la foto">
+                        <span class="material-icons-outlined">zoom_in</span>
+                    </div>
+                    <p class="avatar-hint" id="avatar-hint"></p>
+                    <input type="file" id="avatar-input" accept="image/*" hidden>
+                    <div class="auth-step-actions" style="margin-top:4px;">
+                        <button type="button" id="btn-pick-photo" class="auth-btn-secondary">
+                            <span class="material-icons-outlined" style="font-size:20px">photo_camera</span>
+                            <span id="btn-pick-photo-label">Elegir foto</span>
+                        </button>
+                        <button type="button" id="btn-photo-continue" class="btn-register" disabled>
+                            <span>Continuar</span>
+                        </button>
+                        <div class="auth-step-links">
+                            <button type="button" id="btn-photo-skip" class="auth-link-btn">Omitir por ahora</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <a class="auth-back-home" href="/">&larr; Volver a la portada</a>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="toast-notification">
+        <div id="toast-message"></div>
+    </div>
+
+    <!-- SPLASH SCREEN ANIMADO -->
+    <div id="initial-splash" class="splash-screen">
+        <div class="splash-logo-container">
+            <svg class="splash-logo-svg" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                <circle class="c1" cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
+                <circle class="c2" cx="65" cy="30" r="22" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" />
+                <path class="arc" d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
+            </svg>
+        </div>
+        <div class="splash-text" id="splash-status">Conectando con el servidor...</div>
+        <button id="btn-splash-config" class="btn-splash-config">Configurar Servidor</button>
+    </div>
+    <script src="js/splash_ui.js?v=2"></script>
+
+    <script src="config.js?v=16"></script>
+    <script src="js/geo_lang.js?v=2"></script>
+    <script>
+        if (typeof CONFIG !== 'undefined' && typeof CONFIG.initLanguage === 'function') {
+            CONFIG.initLanguage();
+            if (typeof CONFIG.translatePage === 'function') CONFIG.translatePage();
+        }
+        if (window.GeoLang && typeof GeoLang.detectAndApply === 'function') {
+            GeoLang.detectAndApply(function(lang){ CONFIG.setLanguage(lang); });
+        }
+    </script>
+    <script>
+        (async function() {
+            const splash = document.getElementById('initial-splash');
+            const statusText = document.getElementById('splash-status');
+            const configBtn = document.getElementById('btn-splash-config');
+
+            const configTimer = setTimeout(() => {
+                configBtn.style.display = 'block';
+                statusText.innerText = 'Buscando servidor en la red local...';
+            }, 5000);
+
+            configBtn.onclick = (e) => {
+                e.stopPropagation();
+                const url = prompt("Introduce la URL del servidor (ej: 192.168.1.100:3000 o una URL de túnel)");
+                if (url) {
+                    CONFIG.setServerUrl(url);
+                    window.location.reload();
+                }
+            };
+
+            await Promise.race([CONFIG.initServer().catch(function () { }), new Promise(function (resolve) { setTimeout(resolve, 8000); })]);
+            clearTimeout(configTimer);
+            splash.classList.add('hidden');
+            setTimeout(() => splash.remove(), 600);
+        })();
+    </script>
+    <script src="js/countries.js?v=7"></script>
+    <script src="js/script.js?v=12"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js?v=6', { updateViaCache: 'none' }).then(reg => {
+                    console.log('PWA: Service Worker registrado con éxito');
+                }).catch(err => {
+                    console.log('PWA: Error al registrar Service Worker', err);
+                });
+            });
+        }
+
+        // Logic for Install Button
+        let deferredPrompt;
+        const installBanner = document.getElementById('install-banner');
+        const installBtn = document.getElementById('btn-install-banner');
+
+        const isNativeApp = Boolean(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.getPlatform?.() === 'android' || window.Capacitor?.getPlatform?.() === 'ios');
+
+        if (isNativeApp) {
+            installBanner?.remove();
+            document.querySelector('.download-app-container')?.remove();
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            if (isNativeApp) return;
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBanner) installBanner.style.display = 'flex';
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (installBanner) installBanner.style.display = 'none';
+
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        deferredPrompt = null;
+                    });
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCustomCountrySelector('phone-prefix-container');
+
+            // Mostrar / ocultar contraseña
+            const togglePw = document.querySelector('.toggle-password');
+            if (togglePw) {
+                togglePw.addEventListener('click', () => {
+                    const input = document.getElementById(togglePw.dataset.target);
+                    const hidden = input.type === 'password';
+                    input.type = hidden ? 'text' : 'password';
+                    togglePw.querySelector('span').textContent = hidden ? 'visibility' : 'visibility_off';
+                });
+            }
+
+            // Download dropdown menu functionality
+            const downloadBtn = document.getElementById('btn-download-menu');
+            const downloadMenu = document.getElementById('download-menu');
+
+            if (downloadBtn && downloadMenu) {
+                downloadBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    downloadMenu.classList.toggle('open');
+                    downloadBtn.setAttribute('aria-expanded', downloadMenu.classList.contains('open'));
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!downloadBtn.contains(e.target) && !downloadMenu.contains(e.target)) {
+                        downloadMenu.classList.remove('open');
+                        downloadBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        (function () {
+            try {
+                var ref = new URLSearchParams(location.search).get('ref');
+                var box = document.getElementById('invite-code');
+                if (ref && box) { box.value = ref.replace(/^@/, '').slice(0, 40); try { localStorage.setItem('seeyou_ref', box.value); } catch (e) { } }
+            } catch (e) { }
+        })();
+    </script>
+</body>
+
+</html>

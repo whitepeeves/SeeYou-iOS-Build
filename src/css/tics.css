@@ -1,0 +1,207 @@
+/* SeeYou · Tarjetas de Tic */
+.tic-card {
+    --tc-surface: var(--app-surface, #fff);
+    --tc-text: var(--app-text, #1D1B20);
+    --tc-muted: var(--app-muted, #667085);
+    --tc-border: var(--app-border, #E8EAF0);
+    --tc-primary: var(--app-primary, #1B3A5C);
+    --tc-like: #F0446A;
+    position: relative;
+    text-align: left;
+    width: 92%;
+    max-width: 470px;
+    margin: 0 auto 22px;
+    background: var(--tc-surface);
+    color: var(--tc-text);
+    border: 1px solid var(--tc-border);
+    border-radius: 24px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 14px 34px -16px rgba(27, 58, 92, .32);
+    overflow: hidden;
+    padding-bottom: 16px;
+    animation: ticIn .45s cubic-bezier(.2, .8, .25, 1) both;
+}
+@keyframes ticIn { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+
+.tic-head { margin: 0; text-align: left; display: flex; align-items: center; gap: 12px; padding: 14px 16px 12px; background: transparent; position: relative; z-index: 2; }
+.tic-avatar {
+    flex: none; flex-shrink: 0; width: 44px; height: 44px; min-width: 44px; min-height: 44px; aspect-ratio: 1 / 1; border-radius: 50%;
+    display: grid; place-items: center; overflow: hidden;
+    background: linear-gradient(135deg, #1B3A5C, #3B82F6); color: #fff;
+    font-weight: 700; font-size: 17px; text-decoration: none;
+    box-shadow: 0 0 0 2px var(--tc-surface);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+/* El aro azul solo aparece si el autor tiene Tics publicados hoy (ver tics_ui.js: hasTodayTic). */
+.tic-avatar--today { box-shadow: 0 0 0 2px var(--tc-surface), 0 0 0 4px #9CC2F7; cursor: pointer; }
+.tic-avatar:hover { transform: scale(1.05); }
+.tic-avatar:active { transform: scale(.96); }
+.tic-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; border-radius: 50%; -webkit-mask-image: radial-gradient(circle, #fff 100%, #fff 100%); }
+.tic-avatar--xs { width: 30px; height: 30px; min-width: 30px; min-height: 30px; aspect-ratio: 1 / 1; font-size: 13px; box-shadow: none; }
+.tic-who { min-width: 0; flex: 1; }
+.tic-name { color: var(--tc-text); font-weight: 700; font-size: 15px; text-decoration: none; letter-spacing: .005em; }
+.tic-name:hover { color: var(--tc-primary); text-decoration: underline; text-underline-offset: 3px; }
+.tic-sub { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 12.5px; color: var(--tc-muted); margin-top: 2px; }
+.tic-sub span { display: inline-flex; align-items: center; gap: 4px; }
+.tic-sub svg { width: 12px; height: 12px; }
+.tic-dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .5; display: inline-block; }
+
+.tic-media { min-height: 200px; position: relative; overflow: hidden; background: linear-gradient(100deg, #E9EEF5 30%, #F4F7FB 50%, #E9EEF5 70%) 0 0 / 200% 100%; animation: ticSkel 1.3s linear infinite; touch-action: manipulation; -webkit-user-select: none; user-select: none; cursor: pointer; margin: 0 8px; border-radius: 18px; }
+/* El fondo difuminado (.tic-bg) solo se usa en el visor a pantalla completa (ver tic_viewer.css):
+   en las tarjetas pequeñas del feed de scroll, que antes se veian bien recortadas aunque la
+   foto fuera distinta proporcion, se oculta para no cambiar ese aspecto. */
+.tic-bg { display: none; }
+/* La foto se ve tal como se subio. Limites: nunca mas alta que 1,4 veces su ancho (las 9:16 se recortan algo)
+   y nunca mas baja que la mitad de su ancho (las panoramicas finas se recortan por los lados). */
+.tic-img { display: block; width: 100%; height: auto; max-height: min(76vh, 129vw, 658px); min-height: min(46vw, 235px); object-fit: cover; -webkit-touch-callout: none; }
+/* Sin difuminado oscuro al pie de la foto: el chip de música (.tic-chip) ya lleva su propio
+   fondo oscuro, no necesita que se oscurezca también la imagen debajo. */
+.tic-frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; opacity: .2; z-index: 3; }
+.tic-chip { position: absolute; left: 12px; bottom: 12px; z-index: 4; max-width: calc(100% - 24px); display: inline-flex; align-items: center; gap: 7px; padding: 7px 13px 7px 10px; border-radius: 999px; background: rgba(10, 24, 42, .62); color: #fff; font-size: 12.5px; font-weight: 500; }
+.tic-chip svg { width: 14px; height: 14px; flex: none; }
+.tic-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.tic-burst { position: absolute; left: 50%; top: 50%; width: 96px; height: 96px; margin: -48px 0 0 -48px; z-index: 6; pointer-events: none; opacity: 0; transform: scale(.3); }
+.tic-burst svg { width: 100%; height: 100%; fill: #fff; filter: drop-shadow(0 6px 18px rgba(240, 68, 106, .55)); }
+.tic-burst.go { animation: ticBurst .85s cubic-bezier(.2, .9, .3, 1) both; }
+@keyframes ticBurst {
+    0% { opacity: 0; transform: scale(.3) rotate(-10deg); }
+    22% { opacity: 1; transform: scale(1.18) rotate(4deg); }
+    40% { transform: scale(.96) rotate(0); }
+    75% { opacity: 1; transform: scale(1.02); }
+    100% { opacity: 0; transform: scale(1.12) translateY(-24px); }
+}
+
+.tic-actions { display: flex; align-items: center; gap: 4px; padding: 10px 12px 0; }
+.tic-act {
+    display: inline-flex; align-items: center; gap: 8px; border: 0; background: transparent; cursor: pointer;
+    color: var(--tc-text); font: inherit; padding: 8px 12px; border-radius: 999px; transition: background .18s, transform .12s, color .18s;
+    -webkit-tap-highlight-color: transparent;
+}
+.tic-act svg { width: 26px; height: 26px; display: block; }
+.tic-act b { font-size: 14px; font-weight: 700; min-width: 8px; }
+.tic-act:hover { background: rgba(27, 58, 92, .07); }
+.tic-act:active { transform: scale(.92); }
+.tic-like svg { fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linejoin: round; transition: fill .2s, stroke .2s; }
+.tic-like.is-liked { color: var(--tc-like); }
+.tic-like.is-liked svg { fill: var(--tc-like); stroke: var(--tc-like); }
+.tic-like.pop svg { animation: ticPop .5s cubic-bezier(.2, .9, .3, 1.4); }
+@keyframes ticPop { 0% { transform: scale(1); } 35% { transform: scale(1.35); } 65% { transform: scale(.92); } 100% { transform: scale(1); } }
+
+.tic-likes-line { padding: 2px 18px 0; font-size: 13.5px; color: var(--tc-text); min-height: 0; }
+.tic-likes-line:empty { display: none; }
+.tic-likes-line b { font-weight: 700; }
+.tic-caption { margin: 6px 18px 0; font-size: 14.5px; line-height: 1.45; color: var(--tc-text); word-break: break-word; }
+.tic-caption .tic-name { font-size: 14.5px; }
+.tic-tagged { margin: 6px 18px 0; font-size: 13px; color: var(--tc-muted); }
+.tic-tagged a { color: var(--app-accent, #2F6FDD); text-decoration: none; font-weight: 600; }
+.tic-viewcomments { display: block; margin: 8px 18px 0; padding: 0; border: 0; background: none; color: var(--tc-muted); font: inherit; font-size: 13.5px; cursor: pointer; }
+.tic-viewcomments[hidden] { display: none; }
+.tic-viewcomments:hover { color: var(--tc-text); }
+
+.tic-comments { margin: 10px 12px 0; padding: 12px; background: rgba(27, 58, 92, .05); border-radius: 18px; animation: ticIn .25s ease both; display: flex; flex-direction: column; }
+.tic-comments-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex: none; }
+.tic-comments-title { font-size: 13.5px; font-weight: 700; color: var(--tc-text); }
+.tic-comments-title b { font-weight: 700; color: var(--tc-muted); margin-left: 2px; }
+.tic-comments-close { flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: transparent; color: var(--tc-muted); font-size: 20px; line-height: 1; display: grid; place-items: center; cursor: pointer; }
+.tic-comments-close:hover { background: rgba(27, 58, 92, .08); color: var(--tc-text); }
+.tic-comment-list { display: grid; gap: 10px; max-height: 240px; overflow-y: auto; margin-bottom: 4px; flex: 1 1 auto; }
+.tic-comment-list:empty { display: none; }
+.tic-comment { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.4; }
+.tic-comment.is-new { animation: ticIn .35s ease both; }
+.tic-comment-body { min-width: 0; padding-top: 4px; word-break: break-word; }
+.tic-comment-name { font-weight: 700; color: var(--tc-text); text-decoration: none; }
+.tic-comment-form { display: flex; gap: 8px; align-items: flex-end; margin-top: 8px; flex: none; }
+.tic-comment-input { flex: 1; min-width: 0; border: 1px solid var(--tc-border); background: var(--tc-surface); color: var(--tc-text); border-radius: 18px; padding: 11px 16px; font: inherit; font-size: 14px; outline: none; transition: border-color .18s, box-shadow .18s; resize: none; overflow-y: hidden; white-space: pre-wrap; word-break: break-word; max-height: 140px; line-height: 1.3; font-family: inherit; }
+.tic-comment-input:focus { border-color: #7AA7E8; box-shadow: 0 0 0 3px rgba(59, 130, 246, .16); }
+/* Boton "Enviar" del formulario de comentarios: circulo pequeño y discreto (sin color de marca),
+   solo para que se note que es la accion de enviar dentro de un input. */
+.tic-comment-form .tic-send { flex: none; width: 38px; height: 38px; border: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--tc-text); background: var(--tc-border); transition: transform .12s, opacity .2s, background .18s; }
+.tic-comment-form .tic-send svg { width: 17px; height: 17px; }
+.tic-comment-form .tic-send:hover { background: rgba(27, 58, 92, .14); }
+.tic-comment-form .tic-send:active { transform: scale(.92); }
+.tic-comment-form .tic-send:disabled { opacity: .5; }
+
+/* Boton "Enviar" de la fila de acciones (corazon / comentario / enviar): antes era un circulo
+   azul relleno, pedido mas simple y sin color, igual de limpio que el resto de iconos. */
+.tic-act.tic-send { width: auto; height: auto; border-radius: 999px; background: transparent; color: var(--tc-text); }
+.tic-act.tic-send svg { width: 25px; height: 25px; transform: translateY(-1px) rotate(8deg); }
+.tic-act.tic-send:hover { background: rgba(27, 58, 92, .07); }
+.tic-act.tic-send:active { transform: scale(.92); }
+.tic-act.tic-send:disabled { opacity: .5; }
+
+/* Título de sección del feed */
+#vertical-feed .stories-title { max-width: 470px; width: 92%; margin-left: auto; margin-right: auto; }
+
+/* Perfil propio: rejilla de Tics como tarjetas */
+#profile-tics-list .tic-card { width: 100%; max-width: none; margin: 0 0 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .tic-card, .tic-comments, .tic-comment.is-new { animation: none; }
+    .tic-like.pop svg { animation: none; }
+}
+
+@keyframes ticSkel { to { background-position: -200% 0; } }
+.tic-media.is-loaded { min-height: 0; animation: none; background: #E9EEF5; }
+.tic-media.is-broken { animation: none; background: #EEF1F6; display: grid; place-items: center; min-height: 160px; cursor: default; }
+.tic-media.is-broken .tic-img, .tic-media.is-broken .tic-bg, .tic-media.is-broken::after { display: none; }
+.tic-media.is-broken::before { content: "No se pudo cargar la foto"; color: #667085; font-size: 13.5px; }
+.tic-place { min-width: 0; max-width: 100%; }
+.tic-place em { font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tic-sub { flex-wrap: nowrap; }
+.tic-sub > span:last-child { white-space: nowrap; }
+/* Tema del dia del Tic (sustituye a la ubicacion en la cabecera de la tarjeta) */
+.tic-theme { display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; border: 0; background: none; padding: 0; margin: 0; font: inherit; color: #946200; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tic-theme svg { width: 12px; height: 12px; flex: none; }
+.tic-theme em { font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tic-theme:active { opacity: .7; }
+.tic-theme-full { font-size: 12.5px; color: var(--tc-muted); line-height: 1.4; margin: 4px 0 0; padding: 7px 10px; background: #FFF8E8; border: 1px solid #F3E3BC; border-radius: 10px; animation: ticThemeIn .18s ease both; }
+@keyframes ticThemeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+body[data-theme="dark"] .tic-theme-full, body[data-theme="blue"] .tic-theme-full { background: rgba(148, 98, 0, .16); border-color: rgba(148, 98, 0, .35); }
+.tic-img:not([src]) { opacity: 0; min-height: 1px; }
+.tic-img { transition: opacity .3s ease; }
+
+/* Tics de vídeo: insignia de reproducción sobre el póster */
+.tic-play { position: absolute; right: 12px; top: 12px; z-index: 4; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: rgba(8, 20, 36, .55); color: #fff; font-size: 14px; padding-left: 2px; pointer-events: none; backdrop-filter: blur(4px); }
+
+/* Auto-centrado suave al hacer scroll por el feed (ver AAAResumenesAplicacion/tareas de UX) */
+.tic-card { scroll-snap-align: center; }
+
+/* iOS: toques inmediatos en botones y accesos a comentarios */
+.tic-card [data-act], .tic-viewcomments, .tic-send { touch-action: manipulation; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+/* Racha del autor, a la derecha de la cabecera de cada Tic */
+.tic-streak { display: inline-flex; align-items: center; gap: 3px; flex: none; margin-left: auto; padding: 0 2px; color: #E8651A; font-weight: 800; font-size: 15px; line-height: 1; }
+.tic-streak[hidden] { display: none; }
+.tic-streak svg { width: 18px; height: 18px; display: block; }
+.tic-streak b { font-weight: 800; font-variant-numeric: tabular-nums; }
+.tv-slide .tic-streak { color: #FFB27A; text-shadow: 0 1px 4px rgba(0, 0, 0, .5); }
+
+.tic-reply-btn { background: none; border: 0; padding: 2px 0 0; margin: 0; font: inherit; font-size: 12px; font-weight: 700; color: var(--tc-muted, #6b7a90); cursor: pointer; }
+.tic-reply-btn:hover { color: var(--tc-text); }
+.tic-reply-to { font-size: 12px; font-weight: 700; color: #3B82F6; }
+
+/* ---------- Comentarios: boton de stickers, bandeja y sticker dentro de un comentario ---------- */
+.tic-comment-form .tic-stk-btn { flex: none; width: 38px; height: 38px; border: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--tc-text); background: var(--tc-border); transition: background .18s, color .18s; -webkit-tap-highlight-color: transparent; }
+.tic-comment-form .tic-stk-btn svg { width: 19px; height: 19px; }
+.tic-comment-form .tic-stk-btn.is-on { color: #2563eb; background: rgba(59, 130, 246, .18); }
+.tic-stk-tray { flex: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--tc-border); max-height: min(200px, 30vh); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+.tic-stk-tray[hidden] { display: none; }
+.tic-stk-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.tic-stk { position: relative; overflow: hidden; aspect-ratio: 1; border: 0; border-radius: 12px; padding: 4px; background: rgba(27, 58, 92, .06); display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+/* La imagen va fuera del flujo: asi el cuadro siempre es cuadrado, aunque el sticker no lo sea (antes se estiraba y tapaba el texto de ayuda) */
+.tic-stk img { position: absolute; inset: 4px; width: calc(100% - 8px); height: calc(100% - 8px); object-fit: contain; pointer-events: none; }
+.tic-stk-add { border: 1.5px dashed #9aa6b8; background: transparent; color: #6b7686; }
+.tic-stk-add svg { width: 22px; height: 22px; }
+.tic-stk-hint { margin: 8px 2px 0; font-size: 12px; line-height: 1.35; color: #6b7686; }
+.tic-comment-sticker { display: block; width: 92px; height: 92px; object-fit: contain; margin-top: 4px; }
+
+.tic-stk-tabs { display: flex; gap: 4px; padding: 3px; margin-bottom: 9px; border-radius: 14px; background: rgba(27, 58, 92, .07); }
+.tic-stk-tab { flex: 1; height: 32px; border: 0; border-radius: 11px; display: grid; place-items: center; background: transparent; color: #6b7686; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tic-stk-tab svg { width: 18px; height: 18px; }
+.tic-stk-tab.on { background: #fff; color: #2563eb; box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
+.tic-stk-menu { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; padding: 4px; border-radius: 14px; background: #fff; box-shadow: 0 6px 20px rgba(0, 0, 0, .18); }
+.tic-stk-menu button { border: 0; background: transparent; padding: 10px 12px; text-align: left; font: 600 14px system-ui, sans-serif; color: #1b2430; border-radius: 10px; }
+.tic-stk-menu button.danger { color: #dc2626; }
+
+.tic-comment-actions { display: flex; gap: 14px; align-items: center; }
+.tic-report-btn { font-weight: 600; opacity: .75; }

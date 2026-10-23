@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SeeYou</title>
+  <meta name="description" content="SeeYou es la red social para compartir los recuerdos de tu vida con tus amigos a través de Tics: fotos con su historia, su lugar y su música. Crea tu cuenta gratis.">
+  <meta name="theme-color" content="#0f2a44">
+  <link rel="icon" type="image/png" href="/logotipo.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta property="og:title" content="SeeYou">
+  <meta property="og:description" content="Los recuerdos de tu vida, con tus amigos.">
+  <meta property="og:image" content="/AtardecerEditado.png">
+  <style>
+    :root{
+      --ink:#0b1e33;
+      --ink-2:#1B3A5C;
+      --blue:#29a9f0;
+      --text:#fff;
+      --muted:rgba(255,255,255,.86);
+      --glass:rgba(11,30,51,.55);
+      --line:rgba(255,255,255,.18);
+      --radius:20px;
+      --nav-h:92px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 12px)}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);background:var(--ink);line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+    /* Fondo fijo con el atardecer */
+    .bg{position:fixed;inset:0;z-index:-2;background:url("/AtardecerEditado.png") center/cover no-repeat}
+    .bg::after{content:"";position:absolute;inset:0;
+      background:linear-gradient(180deg,rgba(6,18,33,.55) 0%,rgba(6,18,33,.25) 40%,rgba(6,18,33,.65) 100%)}
+    .bg::before{content:"";position:absolute;inset:0;z-index:1;background:rgba(6,18,33,.62);opacity:var(--dim,0);transition:opacity .2s linear}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+    :focus-visible{outline:3px solid #fff;outline-offset:3px;border-radius:8px}
+
+    /* ---------- NAV (cristal) ---------- */
+    .nav{position:fixed;top:14px;left:0;right:0;z-index:50;padding:0 16px;pointer-events:none}
+    .wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
+    .nav .wrap{
+      pointer-events:auto;max-width:1120px;height:64px;padding:0 10px 0 18px;
+      display:flex;align-items:center;gap:28px;border-radius:999px;
+      background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.10));
+      -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+      border:1px solid rgba(255,255,255,.38);
+      box-shadow:0 10px 34px rgba(8,22,38,.20),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(255,255,255,.08);
+      transition:background .3s,box-shadow .3s,border-color .3s}
+    .nav.scrolled .wrap{
+      background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.16));
+      border-color:rgba(255,255,255,.48);
+      box-shadow:0 14px 40px rgba(8,22,38,.28),inset 0 1px 0 rgba(255,255,255,.6)}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.4rem;letter-spacing:-.02em;text-shadow:0 1px 10px rgba(8,22,38,.3)}
+    .brand img{width:38px;height:38px;border-radius:50%;background:#fff;padding:3px;object-fit:contain}
+    .nav-links{display:flex;gap:26px;font-weight:500;color:rgba(255,255,255,.92);text-shadow:0 1px 8px rgba(8,22,38,.35)}
+    .nav-links a:hover{color:#fff}
+    .nav-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border-radius:999px;font-weight:700;font-size:.98rem;transition:transform .15s,background .2s,box-shadow .2s;white-space:nowrap}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-white{background:#fff;color:var(--ink)}
+    .btn-white:hover{box-shadow:0 8px 24px rgba(0,0,0,.25)}
+    .btn-ghost{color:#fff;font-weight:600;text-shadow:0 1px 8px rgba(8,22,38,.35)}
+    .btn-ghost:hover{background:rgba(255,255,255,.14)}
+    .btn-outline{border:1.5px solid rgba(255,255,255,.7);color:#fff}
+    .btn-outline:hover{background:rgba(255,255,255,.14)}
+    .btn-lg{padding:15px 30px;font-size:1.05rem}
+
+    /* ---------- HERO ---------- */
+    .hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;text-align:center;padding:calc(var(--nav-h) + 24px) 24px 72px}
+    .hero-inner{max-width:820px}
+    .hero-logo{width:76px;height:76px;border-radius:50%;background:#fff;padding:6px;margin:0 auto 22px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+    .hero h1{font-size:clamp(2.4rem,6.5vw,4.6rem);line-height:1.05;letter-spacing:-.035em;font-weight:800;text-shadow:0 4px 30px rgba(0,0,0,.35)}
+    .hero p{margin:22px auto 34px;max-width:560px;font-size:clamp(1.05rem,2.2vw,1.25rem);color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.45)}
+    .hero-cta{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+    .scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);opacity:.85;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(6,18,33,.25);animation:bob 2.4s infinite}
+    .past-hero .scroll-hint{opacity:0;pointer-events:none}
+    .scroll-hint{transition:opacity .25s}
+    .scroll-hint svg{width:20px;height:20px}
+    @keyframes bob{50%{transform:translate(-50%,8px)}}
+    .hero{position:relative}
+
+    /* ---------- SECCIONES ---------- */
+    section.block{padding:96px 0}
+    .block .wrap>.eyebrow{display:block;text-align:center;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:.8rem;color:#ffe1bd;margin-bottom:10px}
+    .block h2{text-align:center;font-size:clamp(1.8rem,4vw,2.7rem);letter-spacing:-.02em;line-height:1.15;margin-bottom:14px}
+    .block .lead{text-align:center;color:var(--muted);max-width:640px;margin:0 auto 48px;font-size:1.08rem}
+    .grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .card{background:rgba(6,18,33,.30);border:1px solid rgba(255,255,255,.14);border-radius:var(--radius);padding:28px}
+    .ico{width:48px;height:48px;flex:none;border-radius:14px;display:grid;place-items:center;color:#fff;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16)}
+    .ico svg{width:24px;height:24px}
+    .card h3{font-size:1.15rem;margin-bottom:6px}
+    .card p{color:var(--muted);font-size:.97rem}
+    .step-n{font-size:2.2rem;font-weight:300;line-height:1;color:rgba(255,255,255,.9);letter-spacing:-.02em;margin-bottom:14px}
+
+    .about{max-width:820px;margin:0 auto;text-align:center}
+    .about p{color:var(--muted);font-size:1.08rem;margin-bottom:16px}
+    .cta-band{margin-top:56px;text-align:center}
+    .cta-band .btn{margin:6px}
+
+    /* ---------- FOOTER ---------- */
+    footer{background:rgba(6,18,33,.55);border-top:1px solid rgba(255,255,255,.12);padding:56px 0 28px}
+    .foot-grid{display:grid;gap:36px;grid-template-columns:1.4fr repeat(3,1fr)}
+    .foot-brand p{color:var(--muted);font-size:.93rem;margin-top:12px;max-width:290px}
+    footer h4{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:#ffd9a8;margin-bottom:14px}
+    footer ul{list-style:none;display:grid;gap:9px}
+    footer li a,footer li button{color:var(--muted);font-size:.95rem;text-align:left}
+    footer li a:hover,footer li button:hover{color:#fff;text-decoration:underline}
+    .foot-bottom{margin-top:40px;padding-top:22px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;color:rgba(255,255,255,.6);font-size:.86rem}
+
+    /* ---------- MODALES ---------- */
+    dialog{margin:auto;border:0;border-radius:24px;max-width:720px;width:calc(100% - 32px);max-height:86vh;padding:0;background:#fff;color:#1d2939;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+    dialog::backdrop{background:rgba(5,14,26,.65);backdrop-filter:blur(3px)}
+    .m-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:#fff;border-bottom:1px solid #eaecf0;z-index:1}
+    .m-head h3{font-size:1.25rem;color:var(--ink-2)}
+    .m-close{width:36px;height:36px;border-radius:50%;font-size:1.3rem;line-height:1;background:#f2f4f7}
+    .m-close:hover{background:#e4e7ec}
+    .m-body{padding:22px 28px 30px;font-size:.97rem}
+    .m-body h4{margin:20px 0 6px;color:var(--ink-2);font-size:1.02rem}
+    .m-body p,.m-body li{color:#475467;margin-bottom:8px}
+    .m-body ul{padding-left:20px}
+    .m-body small{color:#98a2b3}
+    /* Agradecimientos (ventana de cristal sobre el atardecer) */
+    .bg,.bg::before,.bg::after{transition:opacity .45s ease}
+    main,footer,.cookie{transition:opacity .45s ease,visibility .45s}
+    html.thanks-open main,html.thanks-open footer,html.thanks-open .cookie{opacity:0;visibility:hidden;pointer-events:none}
+    html.thanks-open .bg::before{opacity:0}
+    html.thanks-open .bg::after{opacity:.55}
+    #m-thanks{max-width:760px;width:calc(100% - 32px);max-height:84vh;max-height:84dvh;color:#fff;background:linear-gradient(160deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.05) 55%,rgba(255,255,255,.10) 100%),rgba(9,24,42,.24);
+      -webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5);
+      border:1px solid rgba(255,255,255,.38);border-radius:28px;
+      box-shadow:0 30px 90px rgba(3,10,20,.45),inset 0 1px 0 rgba(255,255,255,.45);
+      animation:thIn .45s cubic-bezier(.2,.8,.25,1);scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.4) transparent}
+    #m-thanks[open]{display:flex;flex-direction:column;overflow:hidden}
+    #m-thanks::backdrop{background:transparent;animation:none}
+    @keyframes thIn{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+    #m-thanks .m-head{position:relative;flex:none;padding:28px 32px 22px;background:rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.26);align-items:flex-start;gap:16px}
+    #m-thanks .m-head h3{font-size:1.8rem;letter-spacing:-.02em;line-height:1.15;color:#fff;text-shadow:0 2px 14px rgba(6,18,33,.45)}
+    #m-thanks .m-head p{margin-top:6px;font-size:.96rem;color:rgba(255,255,255,.88);text-shadow:0 1px 10px rgba(6,18,33,.5)}
+    #m-thanks .m-head::after{content:"";position:absolute;left:32px;bottom:-1px;width:64px;height:3px;border-radius:3px;background:linear-gradient(90deg,#ffd9a8,#29a9f0)}
+    #m-thanks .m-close{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);transition:background .2s,transform .2s}
+    #m-thanks .m-close:hover{background:rgba(255,255,255,.34);transform:scale(1.06)}
+    #m-thanks .m-body{flex:1 1 auto;min-height:0;-webkit-overflow-scrolling:touch;overflow-y:auto;overscroll-behavior:contain;padding:30px 32px 36px;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 22px,#000 calc(100% - 30px),transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 22px,#000 calc(100% - 30px),transparent 100%);scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.4) transparent}
+    #m-thanks .m-body p{position:relative;padding-left:22px;margin-bottom:24px;font-size:1.03rem;line-height:1.85;color:#fff;text-shadow:0 1px 12px rgba(6,18,33,.55)}
+    #m-thanks .m-body p::before{content:"";position:absolute;left:0;top:.35em;bottom:.35em;width:3px;border-radius:3px;background:linear-gradient(180deg,#ffd9a8,rgba(255,217,168,.12))}
+    #m-thanks .m-body p:last-child{margin-bottom:0}
+    @media (max-width:640px){#m-thanks{border-radius:22px}#m-thanks .m-head{padding:22px 20px 18px}#m-thanks .m-head::after{left:20px}#m-thanks .m-body{padding:22px 20px 28px}#m-thanks .m-body p{font-size:.98rem;line-height:1.75}}
+    @media (prefers-reduced-motion:reduce){#m-thanks,.bg,.bg::before,.bg::after,main,footer{animation:none;transition:none}}
+
+    .toggle-row{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:14px 0;border-bottom:1px solid #eaecf0}
+    .toggle-row:last-of-type{border-bottom:0}
+    .toggle-row strong{display:block;color:#1d2939}
+    .toggle-row span.d{color:#667085;font-size:.9rem}
+    .sw{position:relative;flex:none;width:46px;height:26px}
+    .sw input{opacity:0;position:absolute;inset:0;width:100%;height:100%;cursor:pointer;z-index:1}
+    .sw i{position:absolute;inset:0;border-radius:99px;background:#cfd4dc;transition:.2s}
+    .sw i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+    .sw input:checked+i{background:var(--ink-2)}
+    .sw input:checked+i::after{transform:translateX(20px)}
+    .sw input:disabled+i{opacity:.55}
+    .m-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px}
+    .btn-dark{background:var(--ink-2);color:#fff}
+    .btn-light{background:#f2f4f7;color:#1d2939}
+
+    /* ---------- BANNER COOKIES ---------- */
+    .cookie{position:fixed;left:16px;right:16px;bottom:16px;z-index:60;max-width:760px;margin:0 auto;background:rgba(8,22,38,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px;padding:18px 22px;display:none;gap:18px;align-items:center;flex-wrap:wrap;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+    .cookie.show{display:flex}
+    .cookie p{flex:1 1 320px;font-size:.92rem;color:var(--muted)}
+    .cookie p a{text-decoration:underline;color:#fff;cursor:pointer}
+    .cookie .btns{display:flex;gap:8px;flex-wrap:wrap}
+    .cookie .btn{padding:9px 18px;font-size:.9rem}
+
+    /* ---------- QUÉ ES: texto + ejemplo de Tic ---------- */
+    .split{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+    .split-copy .eyebrow{display:block;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:.8rem;color:#ffe1bd;margin-bottom:10px}
+    .split-copy h2{text-align:left;margin-bottom:16px}
+    .split-copy .lead{text-align:left;margin:0 0 34px;max-width:560px}
+    .feature-list{list-style:none;display:grid;gap:22px}
+    .feature-list li{display:flex;gap:16px;align-items:flex-start}
+    .feature-list h3{font-size:1.06rem;margin-bottom:2px}
+    .feature-list p{color:var(--muted);font-size:.96rem}
+    .split-copy h2,.split-copy .lead,.feature-list h3,.feature-list p{text-shadow:0 1px 14px rgba(6,18,33,.35)}
+    .tic{margin:0;width:100%;max-width:400px;justify-self:center;border-radius:26px;overflow:hidden;
+      background:rgba(6,18,33,.42);border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 24px 56px rgba(4,12,24,.35)}
+    .tic-photo{position:relative;aspect-ratio:4/4.2;background:url("/AtardecerEditado.png") 62% 72%/cover no-repeat}
+    .tic figcaption{padding:18px 20px 20px}
+    .tic-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .tic-head img{width:40px;height:40px;border-radius:50%;background:#fff;padding:4px;object-fit:contain}
+    .tic-head strong{display:block;font-size:.98rem;line-height:1.2}
+    .tic-head span{font-size:.82rem;color:var(--muted)}
+    .tic p{font-size:1rem;color:#fff;margin-bottom:14px}
+    .tic-meta{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+    .tic-meta li{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font-size:.82rem;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}
+    .tic-meta svg{width:15px;height:15px}
+    .btn svg{width:16px;height:16px}
+
+    @media (max-width:980px){
+      .split{grid-template-columns:1fr;gap:44px}
+      .tic{transform:none}
+    }
+    @media (max-width:860px){
+      .nav-links{display:none}
+      .foot-grid{grid-template-columns:1fr 1fr}
+      .foot-brand{grid-column:1/-1}
+    }
+    @media (max-width:520px){
+      .wrap{padding:0 16px}
+      .hero{padding-top:calc(var(--nav-h) + 8px)}
+      .nav{top:10px;padding:0 10px}
+      .nav .wrap{gap:12px;height:58px;padding:0 8px 0 12px}
+      .brand span{display:none}
+      .btn{padding:10px 16px;font-size:.92rem}
+      .foot-grid{grid-template-columns:1fr}
+      section.block{padding:72px 0}
+    }
+    @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.scroll-hint{animation:none}}
+  </style>
+    <!-- Verificacion de Google AdSense (solo etiqueta: no carga ni muestra anuncios) -->
+    <meta name="google-adsense-account" content="ca-pub-4230708127921610">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4230708127921610"
+      crossorigin="anonymous"></script>
+</head>
+<body>
+  <script src="/js/session_guard.js?v=2"></script>
+  <script src="/config.js?v=16"></script>
+  <script src="/js/geo_lang.js?v=2"></script>
+  <script>
+    // Si ya hay sesión iniciada, ir directo a la app (comportamiento anterior de "/")
+    try{
+      if(localStorage.getItem('current_user') && localStorage.getItem('current_user_id') &&
+        (localStorage.getItem('seeYou_auth_token') || localStorage.getItem('seeYou_session_persistent')==='1')){
+        location.replace('/home.html?section=actividades');
+      }
+    }catch(e){}
+
+    // Idioma: aplica el guardado (o el detectado por IP si es la primera visita)
+    try{
+      CONFIG.initLanguage();
+      CONFIG.translatePage();
+      GeoLang.detectAndApply(function(lang){ CONFIG.setLanguage(lang); });
+    }catch(e){ console.warn('[SeeYou] No se pudo inicializar el idioma:', e); }
+  </script>
+  <div class="bg" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <header class="nav" id="nav">
+    <div class="wrap">
+      <a href="/" class="brand" aria-label="SeeYou inicio"><img src="/logotipo.png" alt=""><span>SeeYou</span></a>
+      <nav class="nav-links" aria-label="Principal">
+        <a href="#que-es" data-i18n="landing_nav_que_es">Qué es SeeYou</a>
+        <a href="#sobre-nosotros" data-i18n="landing_nav_sobre_nosotros">Sobre nosotros</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="/index.html" class="btn btn-ghost" data-i18n="btn_login">Iniciar sesión</a>
+        <a href="/register.html" class="btn btn-white" data-i18n="link_register">Registrarse</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <img class="hero-logo" src="/logotipo.png" alt="Logotipo de SeeYou">
+        <h1 data-i18n="landing_hero_title">Los recuerdos de tu vida, con tus amigos.</h1>
+        <p data-i18n="landing_hero_subtitle">SeeYou es la red social para compartir tus momentos a través de Tics: fotos con su historia, su lugar y su música.</p>
+        <div class="hero-cta">
+          <a href="/register.html" class="btn btn-white btn-lg" data-i18n="landing_hero_cta_register">Crear cuenta gratis</a>
+        </div>
+      </div>
+      <a href="#que-es" class="scroll-hint" aria-label="Ir a la siguiente sección"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a>
+    </section>
+
+    <!-- QUÉ ES -->
+    <section class="block" id="que-es">
+      <div class="wrap split">
+        <div class="split-copy">
+          <span class="eyebrow" data-i18n="landing_que_es_eyebrow">Qué es SeeYou</span>
+          <h2 data-i18n="landing_que_es_title">Una red social para guardar lo que importa</h2>
+          <p class="lead" data-i18n="landing_que_es_lead">En SeeYou no se trata de acumular seguidores, sino de compartir lo que vives con las personas que forman parte de tu vida.</p>
+          <ul class="feature-list">
+            <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2a1 1 0 0 0 .8-.4l.9-1.2A1 1 0 0 1 10.2 4h3.6a1 1 0 0 1 .8.4l.9 1.2a1 1 0 0 0 .8.4h1.2A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.4"/></svg></span><div><h3 data-i18n="landing_feat1_title">Tics: tus momentos en una foto</h3><p data-i18n="landing_feat1_desc">Un Tic reúne una foto y todo lo que la rodea: una descripción, el lugar donde ocurrió y la música que lo acompaña.</p></div></li>
+            <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v3M15.5 3.5v3"/></svg></span><div><h3 data-i18n="landing_feat2_title">Tus recuerdos, ordenados</h3><p data-i18n="landing_feat2_desc">Cada Tic queda guardado en tu perfil con su fecha, para que puedas volver a él cuando quieras.</p></div></li>
+            <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16 14.2a4.6 4.6 0 0 1 4.5 4.3"/></svg></span><div><h3 data-i18n="landing_feat3_title">Compartidos con tus amigos</h3><p data-i18n="landing_feat3_desc">Conecta con tu gente, mira sus Tics y responde a lo que comparten.</p></div></li>
+            <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V15h-.5A2.5 2.5 0 0 1 4 12.5z"/></svg></span><div><h3 data-i18n="landing_feat4_title">Conversaciones privadas</h3><p data-i18n="landing_feat4_desc">Chats individuales y grupos con nombre, foto y fondo personalizados para seguir hablando de lo vivido.</p></div></li>
+          </ul>
+        </div>
+        <figure class="tic" aria-label="Ejemplo de un Tic">
+          <div class="tic-photo" role="img" aria-label="Fotografía de un atardecer"></div>
+          <figcaption>
+            <div class="tic-head"><img src="/logotipo.png" alt=""><div><strong>SeeYou</strong><span>19 de septiembre</span></div></div>
+            <p data-i18n="landing_tic_caption">El último atardecer del verano, con los de siempre.</p>
+            <ul class="tic-meta"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s6-5.6 6-11a6 6 0 1 0-12 0c0 5.4 6 11 6 11z"/><circle cx="12" cy="10" r="2.2"/></svg><span data-i18n="landing_tic_place">Cádiz, España</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><span data-i18n="landing_tic_music">Música del momento</span></li></ul>
+          </figcaption>
+        </figure>
+      </div>
+      <div class="cta-band">
+        <a href="/register.html" class="btn btn-white btn-lg" data-i18n="landing_cta_register">Registrarse</a>
+        <a href="/index.html" class="btn btn-outline btn-lg" data-i18n="landing_cta_have_account">Ya tengo cuenta</a>
+      </div>
+    </section>
+
+    <!-- SOBRE NOSOTROS -->
+    <section class="block" id="sobre-nosotros">
+      <div class="wrap">
+        <span class="eyebrow" data-i18n="landing_about_eyebrow">Sobre nosotros</span>
+        <h2 data-i18n="landing_about_title">Hecha para conservar recuerdos y acercar personas</h2>
+        <div class="about card" style="padding:36px;margin-top:28px">
+          <p data-i18n="landing_about_p1">SeeYou nace con una idea sencilla: que compartir los momentos importantes con tus amigos sea fácil, cercano y seguro.</p>
+          <p data-i18n="landing_about_p2">Creemos que una red social debería servir para conservar recuerdos y estar cerca de quienes importan. Por eso cada Tic reúne una foto, su historia, el lugar y la música de ese momento.</p>
+          <p data-i18n="landing_about_p3">Trabajamos para ofrecer una experiencia cuidada en web y Android, respetando tu privacidad y dándote control sobre tus datos.</p>
+          <p style="margin-bottom:0"><span data-i18n="landing_about_p4">¿Tienes dudas o sugerencias? Escríbenos a</span> <a href="mailto:soporte@seeyouonline.net" style="text-decoration:underline;color:#fff">soporte@seeyouonline.net</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <a href="/" class="brand"><img src="/logotipo.png" alt=""><span>SeeYou</span></a>
+          <p data-i18n="landing_footer_tagline">La red social para compartir los recuerdos de tu vida con tus amigos.</p>
+        </div>
+        <div>
+          <h4 data-i18n="landing_footer_product">Producto</h4>
+          <ul>
+            <li><a href="#que-es" data-i18n="landing_nav_que_es">Qué es SeeYou</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="landing_footer_account">Cuenta</h4>
+          <ul>
+            <li><a href="/index.html" data-i18n="btn_login">Iniciar sesión</a></li>
+            <li><a href="/register.html" data-i18n="link_register">Registrarse</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="landing_footer_company">Compañía y legal</h4>
+          <ul>
+            <li><a href="#sobre-nosotros" data-i18n="landing_nav_sobre_nosotros">Sobre nosotros</a></li>
+            <li><a href="/como-funciona">Cómo funciona</a></li>
+            <li><a href="/preguntas-frecuentes">Preguntas frecuentes</a></li>
+            <li><a href="/novedades">Novedades</a></li>
+            <li><button type="button" data-open="m-thanks" data-i18n="landing_footer_thanks">Agradecimientos</button></li>
+            <li><button type="button" data-open="m-terms" data-i18n="landing_footer_terms">Términos de servicio</button></li>
+            <li><a href="/privacidad" data-i18n="landing_footer_privacy">Política de privacidad</a></li>
+            <li><button type="button" data-open="m-cookies" data-i18n="landing_footer_cookies">Configuración de cookies</button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year"></span> SeeYou. <span data-i18n="landing_footer_rights">Todos los derechos reservados.</span></span>
+        <span>seeyouonline.net</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL: AGRADECIMIENTOS -->
+  <dialog id="m-thanks" aria-labelledby="t-thanks">
+    <div class="m-head"><div><h3 id="t-thanks">Agradecimientos</h3><p>Gracias a quienes han hecho posible SeeYou.</p></div><button class="m-close" data-close aria-label="Cerrar">×</button></div>
+    <div class="m-body">
+      <p>Lo primero, dar las gracias a mi familia. A mis padres por darme la vida, por apoyarme, por estar siempre encima a pesar de las dificultades. Mis hermanos por escucharme, por los juegos juntos y por interesarse mucho. A mis abuelos por estar tan pendientes de mí, por sus mensajes y por sus comidas. A todos mis primos y tíos que han estado aquí siempre también para ayudarme.</p>
+      <p>Gracias a mis amigos que me han apoyado en los momentos más difíciles, sobre todo los últimos meses. Gracias a Quique por, a pesar de vernos tan poco, preocuparte siempre e interesarte por mí y llamarme. A Marcos, cuando nos conocimos no nos llevábamos muy bien pero poco a poco al final se fue forjando una amistad que será para toda la vida. A Paula por hacerme ver que de todos los problemas se sale, por sacarme una sonrisa hasta en los peores días. Alvaro S, aunque no nos hubiéramos visto en casi los últimos 7 años, volvimos a reencontrarnos literalmente como toda la vida, gracias por estar siempre siendo mi amigo. A Marghe por siempre ser tan amable, por perdonarme tanto, por hacerme sentir abrazado a pesar de la distancia y por hacerme sentir querido aún cuando me siento solo. A Giulia por todas tus palabras, por tus consejos, por confiar en mí y darme la esperanza de que la vida nos tiene algo preparado para cada uno. A Carmen L por llamarme, por contarme sus cosas, por su empatía y por su alegría contagiosa. A Anwar por ser alegre siempre e integrarme a todo. A Nico por preocuparse por mí, por decir la verdad siempre aunque duela, por sus bromas y su manera de afrontar la vida. A Juanma por abrazarme y escucharme en los días malos, por enseñarme programación y por reírse mucho. A Alvaro A por siempre echar unas risas y preocuparse mucho por mí. A Albita por su cariño y la alegría que deja ver a los demás. A Javi y Santi por preocuparse, por encontrar el momento para reír y por los buenos momentos en la vida que hemos pasado. A Jorge P por llamarme, por ayudarme en la vida siempre a pesar de no tener porqué hacerlo, por sus conversaciones y por sus amaneceres. A Nacho C por estar tan pendiente de mí y quererme tanto, por sus oraciones. A Pilar por poder contar siempre con ella para todo y por su ayuda incondicional. Martu por estar siempre pendiente de que esté bien y por su buen corazón. A Goyo por conseguir que vea siempre lo más positivo incluso en lo difícil. A Jorge por haberme dado los mejores consejos. A Carmen por sus conversaciones, por confiar en mí y por ser tan amable siempre. A Juan y Lucía, por haber sido un apoyo incondicional desde que nos conocimos, por escuchar, por ofrecer sus hombros, y por siempre decir la verdad. A Andrés M, por ser un ejemplo de vida, de esperanza, y de alegría, que me enseñó que, aún la vida siendo complicada, se puede sonreír siempre. A Juan V, por su alegría y por haber sido un ejemplo de vida.</p>
+      <p>Y mil millones de gracias a los que me integrasteis en el maravilloso mundo de la informática, a Jézer por ser desde siempre alguien en quien puedo contarle todo sin preocupación, a Cris por ayudarme con mis problemas y por aconsejarme siempre bien, a Robert por preguntarme siempre y preocuparse por mí, a Daniel L por, sin quererlo, hacerme dar el primer paso a la ciberseguridad, a los FFCCSS que me enseñaron que el mundo no siempre está lleno de personas buenas, a Héctor por darme una oportunidad siempre para todo y no dejarme en los peores momentos, a Gabs por solucionarme dudas un poco absurdas.</p>
+      <p>Gracias a los amigos que en los días más complicados de mi vida se quedaron conmigo, me llamaron, e hicieron que me sintiera acogido de nuevo, Pilar, Giulia, Marghe, Marcos, Nacho C, Alberto (GT), Cris, Jézer, Robert, Héctor, Quique, Jorge P, mis padres y mis abuelos.</p>
+      <p>Dar las gracias también a personas que, aunque la mayoría seguramente nunca vayan a leer este mensaje, fueron y siguen siendo un referente importante en mi vida: Kevin Mitnick (DEP), Daniel L, Chema A, Antonio S, David Aliagas, A.E., R.O., Cris, Robert y Jézer, A.W., Saúl T.</p>
+      <p>Un último agradecimiento, no por ello menos importante, para Lu. Porque a pesar de no conocernos tampoco desde hace mucho, he tenido la oportunidad de conocer a una persona con un gran corazón, con una gran sonrisa y alguien que irradia felicidad. Si tuviera que repetir un día en mi vida, ese sería el día que le conocí. SeeYou no sería este proyecto sin ella, así que como no podría ser de otra manera, SeeYou va dedicada especialmente a ella.</p>
+    </div>
+  </dialog>
+
+  <!-- MODAL: TÉRMINOS -->
+  <dialog id="m-terms" aria-labelledby="t-terms">
+    <div class="m-head"><h3 id="t-terms">Términos de servicio</h3><button class="m-close" data-close aria-label="Cerrar">×</button></div>
+    <div class="m-body">
+      <p><small>Última actualización: septiembre de 2026</small></p>
+      <h4>1. Aceptación</h4>
+      <p>Al crear una cuenta o usar SeeYou aceptas estos términos. Si no estás de acuerdo, no utilices el servicio.</p>
+      <h4>2. Tu cuenta</h4>
+      <p>Debes facilitar datos veraces y mantener la confidencialidad de tu contraseña. Eres responsable de la actividad realizada desde tu cuenta. Debes tener la edad mínima exigida por la ley de tu país para usar servicios en línea.</p>
+      <h4>3. Uso aceptable</h4>
+      <ul>
+        <li>No publiques contenido ilegal, violento, de odio, acoso o que vulnere derechos de terceros.</li>
+        <li>No suplantes a otras personas ni accedas a cuentas ajenas.</li>
+        <li>No intentes dañar, saturar o vulnerar la seguridad del servicio.</li>
+      </ul>
+      <h4>4. Tu contenido</h4>
+      <p>Conservas la propiedad de lo que publicas. Nos concedes una licencia limitada para almacenarlo y mostrarlo dentro del servicio a las personas que elijas.</p>
+      <h4>5. Moderación y suspensión</h4>
+      <p>Podemos retirar contenido o suspender cuentas que incumplan estos términos, así como bloquear accesos tras intentos fallidos repetidos de inicio de sesión por motivos de seguridad.</p>
+      <h4>6. Limitación de responsabilidad</h4>
+      <p>El servicio se ofrece «tal cual». No garantizamos disponibilidad ininterrumpida y no somos responsables de los contenidos publicados por los usuarios.</p>
+      <h4>7. Cambios y contacto</h4>
+      <p>Podemos actualizar estos términos; te avisaremos de los cambios relevantes. Para cualquier consulta: soporte@seeyouonline.net.</p>
+    </div>
+  </dialog>
+
+  <!-- MODAL: PRIVACIDAD -->
+  <dialog id="m-privacy" aria-labelledby="t-priv">
+    <div class="m-head"><h3 id="t-priv">Política de privacidad</h3><button class="m-close" data-close aria-label="Cerrar">×</button></div>
+    <div class="m-body">
+      <p><small>Última actualización: 30 de septiembre de 2026</small></p>
+      <h4>Responsable del tratamiento</h4>
+      <p>Santiago Cabrera Gutiérrez, como persona física, en calidad de desarrollador y responsable de la aplicación SeeYou. Contacto: <a href="mailto:soporte@seeyouonline.net">soporte@seeyouonline.net</a>.</p>
+      <h4>Datos que recogemos</h4>
+      <ul>
+        <li>Datos de registro y cuenta: correo electrónico, nombre de usuario y foto de perfil.</li>
+        <li>Contenido que publicas: fotos y vídeos ("tics"), junto con la fecha y hora de publicación.</li>
+        <li>Datos de uso: rachas, likes, comentarios, mensajes y demás interacciones dentro de la App.</li>
+        <li>Datos técnicos: tipo de dispositivo, sistema operativo e identificadores de instalación, recogidos a través de nuestros proveedores técnicos.</li>
+      </ul>
+      <h4>Para qué los usamos</h4>
+      <p>Para crear y gestionar tu cuenta, permitir la publicación y visualización de contenido entre tú y tus amigos o tu comunidad, mantener el funcionamiento de las rachas, enviarte notificaciones, prevenir fraude o abuso, y mejorar la App.</p>
+      <h4>Con quién los compartimos</h4>
+      <p>No vendemos tus datos personales. Usamos proveedores técnicos de confianza para el alojamiento, el almacenamiento y las notificaciones push. Otros usuarios de la App verán el contenido que publiques según la configuración de privacidad que elijas (amigos, comunidad/seguidores, etc.).</p>
+      <h4>Cuánto tiempo los conservamos</h4>
+      <p>Mientras tu cuenta esté activa. Si solicitas la baja, eliminamos o anonimizamos tus datos en un plazo máximo de 30 días, salvo obligación legal de conservarlos.</p>
+      <h4>Menores de edad</h4>
+      <p>SeeYou permite el registro a partir de 13 años. Para usuarios menores de 14 años (o la edad que establezca la normativa de tu país), el registro requiere el consentimiento verificable de un padre, madre o tutor legal, conforme al RGPD y la LOPDGDD. Recomendamos a los padres y tutores supervisar el uso que los menores a su cargo hacen de SeeYou.</p>
+      <h4>Tus derechos</h4>
+      <p>Puedes acceder, rectificar, suprimir, limitar, oponerte al tratamiento, solicitar la portabilidad de tus datos, o retirar tu consentimiento en cualquier momento, escribiendo a <a href="mailto:soporte@seeyouonline.net">soporte@seeyouonline.net</a>. También puedes reclamar ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>).</p>
+      <h4>Seguridad</h4>
+      <p>Aplicamos medidas técnicas y organizativas razonables para proteger tus datos. Ningún sistema es 100% seguro, por lo que no podemos garantizar su seguridad absoluta.</p>
+      <h4>Cambios en esta política</h4>
+      <p>Podemos actualizar esta Política de Privacidad. Notificaremos los cambios relevantes desde la propia App o por correo electrónico, e indicaremos la fecha de la última actualización arriba.</p>
+      <h4>Contacto</h4>
+      <p>Para cualquier duda, escríbenos a <a href="mailto:soporte@seeyouonline.net">soporte@seeyouonline.net</a>.</p>
+    </div>
+
+  </dialog>
+
+  <!-- MODAL: COOKIES -->
+  <dialog id="m-cookies" aria-labelledby="t-cook">
+    <div class="m-head"><h3 id="t-cook">Configuración de cookies</h3><button class="m-close" data-close aria-label="Cerrar">×</button></div>
+    <div class="m-body">
+      <p>Usamos cookies y almacenamiento local para que SeeYou funcione y, si lo permites, para mejorarlo. Puedes cambiar tu elección cuando quieras.</p>
+      <div class="toggle-row">
+        <div><strong>Necesarias</strong><span class="d">Sesión, seguridad e idioma. Siempre activas.</span></div>
+        <label class="sw"><input type="checkbox" checked disabled><i></i></label>
+      </div>
+      <div class="toggle-row">
+        <div><strong>Preferencias</strong><span class="d">Recuerdan opciones como el tema o el idioma.</span></div>
+        <label class="sw"><input type="checkbox" id="ck-pref"><i></i></label>
+      </div>
+      <div class="toggle-row">
+        <div><strong>Analíticas</strong><span class="d">Estadísticas anónimas de uso para mejorar el servicio.</span></div>
+        <label class="sw"><input type="checkbox" id="ck-ana"><i></i></label>
+      </div>
+      <div class="m-actions">
+        <button class="btn btn-light" id="ck-reject-all">Solo necesarias</button>
+        <button class="btn btn-dark" id="ck-save">Guardar selección</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- BANNER COOKIES -->
+  <div class="cookie" id="cookie" role="dialog" aria-label="Aviso de cookies">
+    <p><span data-i18n="landing_cookie_text">Usamos cookies para que SeeYou funcione y, con tu permiso, para mejorar tu experiencia.</span> <a data-open="m-cookies" data-i18n="landing_cookie_configure">Configurar</a> · <a data-open="m-privacy" data-i18n="landing_cookie_privacy">Privacidad</a></p>
+    <div class="btns">
+      <button class="btn btn-outline" id="cb-reject" data-i18n="landing_cookie_reject">Rechazar</button>
+      <button class="btn btn-white" id="cb-accept" data-i18n="landing_cookie_accept">Aceptar todas</button>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var $=function(s,c){return (c||document).querySelector(s)};
+      $('#year').textContent=new Date().getFullYear();
+
+      // Nav con fondo al hacer scroll
+      var nav=$('#nav');
+      function onScroll(){nav.classList.toggle('scrolled',window.scrollY>30);document.documentElement.classList.toggle('past-hero',window.scrollY>80);var d=Math.min(1,window.scrollY/(window.innerHeight*.7));document.documentElement.style.setProperty('--dim',d.toFixed(2))}
+      onScroll();addEventListener('scroll',onScroll,{passive:true});
+
+      // Modales
+      document.addEventListener('click',function(e){
+        var o=e.target.closest('[data-open]');
+        if(o){e.preventDefault();var d=document.getElementById(o.getAttribute('data-open'));if(d&&d.showModal){if(d.id==='m-cookies')loadPrefs();if(d.id==='m-thanks')document.documentElement.classList.add('thanks-open');d.showModal()}return}
+        if(e.target.closest('[data-close]')){e.target.closest('dialog').close();return}
+        if(e.target.tagName==='DIALOG'){e.target.close()}
+      });
+
+      var thanks=document.getElementById('m-thanks');
+      if(thanks)thanks.addEventListener('close',function(){document.documentElement.classList.remove('thanks-open')});
+
+      // Cookies
+      var KEY='seeyou_cookie_consent';
+      function read(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+      function save(p,a){
+        try{localStorage.setItem(KEY,JSON.stringify({necessary:true,preferences:p,analytics:a,date:new Date().toISOString()}))}catch(e){}
+        $('#cookie').classList.remove('show');
+      }
+      function loadPrefs(){var c=read()||{};$('#ck-pref').checked=!!c.preferences;$('#ck-ana').checked=!!c.analytics}
+      if(!read())$('#cookie').classList.add('show');
+      $('#cb-accept').onclick=function(){save(true,true)};
+      $('#cb-reject').onclick=function(){save(false,false)};
+      $('#ck-reject-all').onclick=function(){save(false,false);$('#m-cookies').close()};
+      $('#ck-save').onclick=function(){save($('#ck-pref').checked,$('#ck-ana').checked);$('#m-cookies').close()};
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "name": "SeeYou",
+  "short_name": "SeeYou",
+  "description": "Tu red social de música y fotos en cadena",
+  "id": "seeyou-app-final",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1B3A5C",
+  "icons": [
+    {
+      "src": "logotipo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logotipo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logotipo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

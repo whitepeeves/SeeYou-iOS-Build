@@ -1,0 +1,19 @@
+node_modules/
+
+# Copias nativas generadas por "cap sync" (se regeneran en CI)
+ios/App/App/public/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+ios/App/App/capacitor.config.json
+
+# Build artifacts
+android/.gradle/
+android/app/build/
+android/build/
+android/.idea/
+android/local.properties
+ios/App/Pods/
+ios/App/build/
+ios/DerivedData/
+*.xcuserstate
+.DS_Store

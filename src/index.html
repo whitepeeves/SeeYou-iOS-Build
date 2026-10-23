@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SeeYou</title>
+    <link rel="stylesheet" href="style.css"> <!-- Reusamos el estilo de registro -->
+    <link rel="stylesheet" href="auth.css?v=1">
+    <script src="js/session_guard.js?v=3"></script>
+    <link rel="icon" type="image/png" href="logotipo.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1B3A5C">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <!-- Verificacion de Google AdSense (solo etiqueta: no carga ni muestra anuncios) -->
+    <meta name="google-adsense-account" content="ca-pub-4230708127921610">
+</head>
+
+<body class="auth-page">
+    <div id="install-banner" style="display:none; position:fixed; top:0; left:0; right:0; background: #e8f0fe; padding: 12px 20px; z-index: 10000; align-items: center; gap: 12px; border-bottom: 2px solid #1B3A5C; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <span class="material-icons-outlined" style="color: #1B3A5C;">download_for_offline</span>
+        <div style="flex:1; text-align: left;">
+            <div style="font-weight: 700; color: #1B3A5C; font-size: 14px;" data-i18n="download_app">Descargar SeeYou</div>
+            <div style="font-size: 11px; color: #49454F;" data-i18n="install_banner">Instala la app para una mejor experiencia</div>
+        </div>
+        <button id="btn-install-banner" data-i18n="btn_install" style="background: #1B3A5C; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer;">Instalar</button>
+        <span class="material-icons-outlined" onclick="this.parentElement.style.display='none'" style="font-size: 20px; color: #79747E; cursor: pointer;">close</span>
+    </div>
+
+    <div class="auth-shell">
+    <div class="container">
+        <header>
+            <img class="auth-logo" src="logotipo.png" alt="SeeYou">
+            <h1 data-i18n="welcome_title">Bienvenido</h1>
+            <p data-i18n="login_subtitle">Inicia sesión para continuar</p>
+            <label for="login-language-select" data-i18n="select_language" style="display:block; margin-top:12px; font-size:12px; color:#667085;">Selecciona el idioma</label>
+            <select id="login-language-select" aria-label="Idioma" style="margin-top:6px; padding:8px 12px; border:1px solid #D0D5DD; border-radius:10px; background:#fff; color:#1D2939;">
+                <option value="es">Español</option>
+                <option value="en">English</option>
+                <option value="it">Italiano</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+                <option value="pt">Português</option>
+                <option value="ca">Català</option>
+                <option value="ro">Română</option>
+                <option value="nl">Nederlands</option>
+                <option value="pl">Polski</option>
+                <option value="ru">Русский</option>
+                <option value="uk">Українська</option>
+                <option value="tr">Türkçe</option>
+                <option value="ar">العربية</option>
+                <option value="hi">हिन्दी</option>
+                <option value="zh">中文</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+            </select>
+            <!-- Dev badge removed in production UI -->
+        </header>
+
+        <form class="register-form" id="login-form" onsubmit="return false;">
+            <div id="login-fields-wrapper">
+                <div class="input-group" id="login-phone-group">
+                    <span class="material-icons-outlined">phone</span>
+                    <div class="field-container">
+                        <div class="prefix-phone-group">
+                            <div id="phone-prefix-container"></div>
+                            <div style="flex:1; position:relative;">
+                                <input type="tel" id="telefono" placeholder=" " required>
+                                <label for="telefono" data-i18n="phone_label">Teléfono</label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="telefono-error"></span>
+                    </div>
+                </div>
+
+                <!-- Mientras el teléfono no es obligatorio (interruptor en el panel de admin),
+                     se entra con correo electrónico o nombre de usuario en su lugar. -->
+                <div class="input-group" id="login-identifier-group" style="display:none;">
+                    <span class="material-icons-outlined">person</span>
+                    <div class="field-container">
+                        <input type="text" id="login-identifier" name="username" placeholder=" " autocomplete="username" autocapitalize="none" spellcheck="false">
+                        <label for="login-identifier">Correo electrónico o usuario</label>
+                        <span class="error-message" id="login-identifier-error"></span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <span class="material-icons-outlined">lock</span>
+                    <div class="field-container">
+                        <div class="password-input-wrap">
+                            <input type="password" id="password" name="password" placeholder=" " autocomplete="current-password" required>
+                            <label for="password" data-i18n="password_label">Contraseña</label>
+                            <button type="button" class="toggle-password" data-target="password" aria-label="Mostrar contraseña" data-i18n-aria-label="show_password">
+                                <span class="material-icons-outlined">visibility_off</span>
+                            </button>
+                        </div>
+                        <span class="error-message" id="password-error"></span>
+                    </div>
+                </div>
+
+                <div class="forgot-password-link-wrapper">
+                    <label class="remember-me" for="remember-me">
+                        <input type="checkbox" id="remember-me" checked>
+                        <span class="box" aria-hidden="true"></span>
+                        <span>Recordarme</span>
+                    </label>
+                    <a href="#" id="forgot-password-link" data-i18n="forgot_password">¿Has olvidado tu contraseña?</a>
+                </div>
+            </div>
+
+            <div id="password-recovery-panel" class="password-recovery-panel" style="display:none;">
+                <div class="recovery-header">
+                    <a href="#" id="back-to-login-link" class="back-to-login-link" data-i18n="back_to_login">Volver al inicio</a>
+                </div>
+
+                <div class="recovery-step" data-recovery-step="email">
+                    <div class="input-group recovery-input-group">
+                        <span class="material-icons-outlined">mail</span>
+                        <div class="field-container">
+                            <input type="email" id="recover-email" placeholder=" " required>
+                            <label for="recover-email" data-i18n="email_label">Correo electrónico</label>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-register btn-recovery" id="btn-send-reset-code">
+                        <span class="sheen-sweep"></span>
+                        <span data-i18n="send_code">Enviar código</span>
+                    </button>
+                </div>
+
+                <div class="recovery-step" data-recovery-step="code" style="display:none;">
+                    <div class="input-group recovery-input-group">
+                        <span class="material-icons-outlined">pin</span>
+                        <div class="field-container">
+                            <input type="text" id="recover-code" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+                            <label for="recover-code" data-i18n="verification_code">Código de verificación</label>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-register btn-recovery" id="btn-verify-code">
+                        <span class="sheen-sweep"></span>
+                        <span data-i18n="confirm_code">Confirmar código</span>
+                    </button>
+                </div>
+
+                <div class="recovery-step" data-recovery-step="new-password" style="display:none;">
+                    <div class="input-group recovery-input-group">
+                        <span class="material-icons-outlined">lock</span>
+                        <div class="field-container">
+                            <div class="password-input-wrap">
+                                <input type="password" id="new-password" placeholder=" " required>
+                                <label for="new-password" data-i18n="new_password">Nueva contraseña</label>
+                                <button type="button" class="toggle-password" data-target="new-password" aria-label="Mostrar nueva contraseña">
+                                    <span class="material-icons-outlined">visibility_off</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group recovery-input-group">
+                        <span class="material-icons-outlined">lock_reset</span>
+                        <div class="field-container">
+                            <div class="password-input-wrap">
+                                <input type="password" id="confirm-new-password" placeholder=" " required>
+                                <label for="confirm-new-password" data-i18n="confirm_password">Confirmar contraseña</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-register btn-recovery" id="btn-save-new-password">
+                        <span class="sheen-sweep"></span>
+                        <span data-i18n="save_password">Guardar contraseña</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="login-actions-wrapper">
+                <button type="submit" class="btn-register group animate-field-in" id="btn-login">
+                    <span class="sheen-sweep"></span>
+                    <span data-i18n="btn_login">Entrar</span>
+                    <span class="material-icons-outlined arrow-icon">arrow_right_alt</span>
+                </button>
+                <p class="auth-switch">
+                    <span data-i18n="no_account_label">¿No tienes cuenta? </span><a href="register.html" data-i18n="link_register">Regístrate</a>
+                </p>
+            </div>
+        </form>
+        <div class="download-app-container">
+            <div class="download-dropdown-wrapper">
+                <button class="download-app-link" id="btn-download-menu">
+                    <span class="material-icons-outlined">download_for_offline</span>
+                    <span data-i18n="download_app">Descargar SeeYou</span>
+                    <span class="material-icons-outlined dropdown-arrow">expand_more</span>
+                </button>
+                <div class="download-dropdown-menu" id="download-menu">
+                    <a href="javascript:void(0)" class="download-dropdown-item" id="download-ios-link" onclick="alert('La app de iOS estará disponible pronto en el App Store')">
+                        <span class="material-icons-outlined">apple</span>
+                        <span data-i18n="download_ios">iOS (próximamente)</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <a class="auth-back-home" href="/">&larr; Volver a la portada</a>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="toast-notification">
+        <div id="toast-message"></div>
+    </div>
+
+    <!-- SPLASH SCREEN ANIMADO -->
+    <div id="initial-splash" class="splash-screen">
+        <div class="splash-logo-container">
+            <svg class="splash-logo-svg" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                <circle class="c1" cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
+                <circle class="c2" cx="65" cy="30" r="22" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" />
+                <path class="arc" d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
+            </svg>
+        </div>
+        <div class="splash-text" id="splash-status" data-i18n="connecting_server">Conectando con el servidor...</div>
+        <button id="btn-splash-config" class="btn-splash-config" data-i18n="configure_server">Configurar Servidor</button>
+        <button id="btn-hard-reset" class="btn-splash-reset" data-i18n="btn_hard_reset">LIMPIAR TODO Y REINTENTAR</button>
+    </div>
+    <script src="js/splash_ui.js?v=2"></script>
+
+    <script src="config.js?v=16"></script>
+    <script src="js/geo_lang.js?v=2"></script>
+    <script src="js/countries.js?v=5"></script>
+    <script src="js/local_db.js?v=1"></script>
+    <script src="js/login_script.js?v=13"></script>
+    <script>
+        (async function initializeLoginLanguage() {
+            if (typeof CONFIG !== 'undefined' && typeof CONFIG.initLanguage === 'function') {
+                await CONFIG.initLanguage();
+                if (typeof CONFIG.translatePage === 'function') CONFIG.translatePage();
+                const languageSelect = document.getElementById('login-language-select');
+                if (languageSelect) languageSelect.value = CONFIG.currentLanguage;
+                if (window.GeoLang && typeof GeoLang.detectAndApply === 'function') {
+                    GeoLang.detectAndApply(function(lang){
+                        CONFIG.setLanguage(lang);
+                        if (languageSelect) languageSelect.value = CONFIG.currentLanguage;
+                    });
+                }
+            }
+        })();
+    </script>
+    <script>
+        (function(){
+            const existing = document.getElementById('cookie-consent');
+            if (!existing) {
+                const consentHtml = `
+                    <div id="cookie-consent" style="position:fixed; left:12px; right:12px; bottom:12px; background:rgba(255,255,255,0.98); border:1px solid #e6e6e6; padding:16px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.08); z-index:10000; display:none;">
+                        <div style="display:flex; align-items:flex-start; gap:12px;">
+                            <div style="font-size:24px;">🍪</div>
+                            <div style="flex:1">
+                                <div style="font-weight:700; margin-bottom:6px;" data-i18n="cookie_title">Preferencias de cookies</div>
+                                        <div style="font-size:13px; color:#555;" data-i18n="cookie_text">Usamos cookies para mantener tu sesión iniciada y mejorar la experiencia.</div>
+                                <div style="margin-top:10px; display:flex; gap:8px;">
+                                            <button id="cookie-accept" data-i18n="cookie_accept" style="background:#1B3A5C;color:white;padding:8px 12px;border-radius:8px;border:none;">Aceptar todas</button>
+                                            <button id="cookie-reject" data-i18n="cookie_reject" style="background:transparent;color:#1B3A5C;padding:8px 12px;border-radius:8px;border:1px solid #1B3A5C;">Rechazar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                document.body.insertAdjacentHTML('beforeend', consentHtml);
+                if (typeof CONFIG !== 'undefined') CONFIG.translatePage(document.getElementById('cookie-consent'));
+            }
+            function showConsentIfNeeded(){
+                const consent = localStorage.getItem('seeYou_cookie_consent');
+                if (!consent) document.getElementById('cookie-consent').style.display='block';
+            }
+            if (!localStorage.getItem('seeYou_device_fingerprint')) {
+                localStorage.setItem('seeYou_device_fingerprint', `${navigator.userAgent}||${navigator.platform}`);
+            }
+            const acceptBtn = document.getElementById('cookie-accept');
+            const rejectBtn = document.getElementById('cookie-reject');
+            if (acceptBtn) acceptBtn.onclick = () => { localStorage.setItem('seeYou_cookie_consent','accepted'); document.getElementById('cookie-consent').style.display='none'; };
+            if (rejectBtn) rejectBtn.onclick = () => { localStorage.setItem('seeYou_cookie_consent','rejected'); document.getElementById('cookie-consent').style.display='none'; };
+            showConsentIfNeeded();
+        })();
+    </script>
+    <script>
+        (async function() {
+            const splash = document.getElementById('initial-splash');
+            const statusText = document.getElementById('splash-status');
+            const configBtn = document.getElementById('btn-splash-config');
+
+            const configTimer = setTimeout(() => {
+                configBtn.style.display = 'block';
+                statusText.innerText = 'Buscando servidor en la red local...';
+            }, 5000);
+
+            configBtn.onclick = (e) => {
+                e.stopPropagation();
+                const url = prompt("Introduce la URL del servidor (ej: 192.168.1.100:3000 o una URL de túnel)");
+                if (url) {
+                    CONFIG.setServerUrl(url);
+                    window.location.reload();
+                }
+            };
+
+            const resetBtn = document.getElementById('btn-hard-reset');
+            resetBtn.onclick = async (e) => {
+                e.stopPropagation();
+                if (confirm("Esto borrará la caché del navegador y cerrará tu sesión para arreglar la conexión. ¿Continuar?")) {
+                    if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        for (let reg of regs) await reg.unregister();
+                    }
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        for (let key of keys) await caches.delete(key);
+                    }
+                    localStorage.clear();
+                    alert("Limpieza completada. La página se recargará ahora.");
+                    window.location.reload();
+                }
+            };
+
+            // Inicializar demo offline si está disponible
+            if (window.LocalDB && typeof LocalDB.initDemoUser === 'function') {
+                try { LocalDB.initDemoUser(); } catch(e){ console.error('init demo', e); }
+            }
+
+            // Esperar a que el servidor sea encontrado por CONFIG
+            await Promise.race([CONFIG.initServer().catch(function () { }), new Promise(function (resolve) { setTimeout(resolve, 8000); })]);
+            clearTimeout(configTimer);
+            splash.classList.add('hidden');
+            setTimeout(() => splash.remove(), 600);
+        })();
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js?v=6', { updateViaCache: 'none' }).then(reg => {
+                    console.log('PWA: Service Worker registrado con éxito');
+                }).catch(err => {
+                    console.log('PWA: Error al registrar Service Worker', err);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCustomCountrySelector('phone-prefix-container');
+
+            const languageSelect = document.getElementById('login-language-select');
+            if (languageSelect) {
+                languageSelect.value = CONFIG.currentLanguage;
+                languageSelect.addEventListener('change', event => CONFIG.setLanguage(event.target.value));
+            }
+
+            // Logic for Install Button
+            let deferredPrompt;
+            const installBanner = document.getElementById('install-banner');
+            const installBtn = document.getElementById('btn-install-banner');
+
+            const isNativeApp = Boolean(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.getPlatform?.() === 'android' || window.Capacitor?.getPlatform?.() === 'ios');
+
+            if (isNativeApp) {
+                installBanner?.remove();
+                document.querySelector('.download-app-container')?.remove();
+            }
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                if (isNativeApp) return;
+                e.preventDefault();
+                deferredPrompt = e;
+                if (installBanner) installBanner.style.display = 'flex';
+            });
+
+            if (installBtn) {
+                installBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (installBanner) installBanner.style.display = 'none';
+                    
+                    // if they are accessing via browser to "install" it.
+                    
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        deferredPrompt.userChoice.then((choiceResult) => {
+                            deferredPrompt = null;
+                        });
+                    }
+                });
+            }
+
+            const downloadBtn = document.getElementById('btn-download-menu');
+            const downloadMenu = document.getElementById('download-menu');
+            if (downloadBtn && downloadMenu) {
+                downloadBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    downloadMenu.classList.toggle('open');
+                    downloadBtn.setAttribute('aria-expanded', downloadMenu.classList.contains('open'));
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!downloadBtn.contains(e.target) && !downloadMenu.contains(e.target)) {
+                        downloadMenu.classList.remove('open');
+                        downloadBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

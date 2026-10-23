@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /home.html
+Disallow: /chat.html
+Disallow: /profile.html
+Disallow: /friends.html
+Disallow: /panel-admin
+Disallow: /api/
+
+Sitemap: https://seeyouonline.net/sitemap.xml

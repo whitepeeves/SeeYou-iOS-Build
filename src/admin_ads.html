@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Anuncios patrocinados · SeeYou Admin</title>
+    <style>
+        :root { --bg:#F4F6FB; --card:#fff; --text:#1D1B20; --muted:#667085; --line:#E4E8F0; --primary:#1B3A5C; --accent:#2F6FDD; --ok:#15803D; --bad:#B91C1C; --warn:#B45309; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
+        header { background: var(--primary); color: #fff; padding: 16px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        header h1 { margin: 0; font-size: 19px; flex: 1; }
+        header a { color: #CFE3FF; font-size: 14px; }
+        .wrap { max-width: 1180px; margin: 0 auto; padding: 18px; }
+        .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+        h2 { margin: 0 0 12px; font-size: 16px; }
+        .top { display: grid; gap: 14px; margin-bottom: 18px; }
+        @media (min-width: 900px) { .top { grid-template-columns: 1fr 1.4fr; } }
+        .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .kpi { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+        .kpi b { display: block; font-size: 22px; color: var(--primary); } .kpi span { font-size: 12px; color: var(--muted); }
+        .range { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+        .range h2 { margin: 0; flex: 1; }
+        .chip { font: inherit; font-size: 12.5px; font-weight: 700; border: 1.5px solid #C9DAF7; background: #fff; color: var(--accent); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+        .chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
+        @media (min-width: 900px) { .grid { grid-template-columns: 380px 1fr; align-items: start; } .sticky { position: sticky; top: 12px; } }
+        label { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin: 10px 0 4px; }
+        label small { font-weight: 500; float: right; }
+        input, textarea, select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; background: #fff; color: var(--text); }
+        textarea { min-height: 76px; resize: vertical; }
+        .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { font: inherit; font-weight: 700; border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer; }
+        .btn { background: linear-gradient(135deg, #1B3A5C, #2F6FDD); color: #fff; }
+        .ghost { background: transparent; color: var(--accent); border: 1.5px solid #C9DAF7; }
+        .danger { background: transparent; color: var(--bad); border: 1.5px solid #F3C4C4; }
+        .sm { padding: 6px 12px; font-size: 13px; }
+        .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+        .langs { display: flex; flex-wrap: wrap; gap: 6px; }
+        .langs label { display: inline-flex; align-items: center; gap: 5px; margin: 0; padding: 4px 10px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 12.5px; color: var(--text); cursor: pointer; }
+        .langs input { width: auto; margin: 0; }
+        .langs label:has(input:checked) { border-color: var(--accent); background: #EEF4FF; color: var(--accent); }
+        .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+        .toolbar input { flex: 1; min-width: 150px; max-width: 260px; }
+        .toolbar select { width: auto; }
+        .ad { display: grid; grid-template-columns: 120px 1fr; gap: 14px; padding: 14px 0; border-top: 1px solid var(--line); }
+        .ad:first-of-type { border-top: 0; }
+        .ad > div:first-child img { width: 120px; height: 80px; object-fit: cover; border-radius: 10px; background: #E9EEF5; display: block; }
+        .ad h3 { margin: 0 0 2px; font-size: 15px; } .ad small { color: var(--muted); }
+        .stats { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0; font-size: 13px; }
+        .stats b { font-size: 15px; }
+        .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 800; vertical-align: 2px; }
+        .s-live { background: #DCFCE7; color: var(--ok); } .s-paused { background: #F1F5F9; color: var(--muted); }
+        .s-scheduled { background: #E0ECFF; color: var(--accent); } .s-ended { background: #F1F5F9; color: var(--muted); } .s-exhausted { background: #FEF3C7; color: var(--warn); }
+        .bar { height: 6px; border-radius: 99px; background: #E8ECF3; overflow: hidden; margin: 4px 0 2px; max-width: 280px; } .bar i { display: block; height: 100%; background: linear-gradient(90deg,#3B82F6,#7EBCFF); }
+        .detail { grid-column: 1 / -1; border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: #FBFCFE; }
+        .detail table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+        .detail th, .detail td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; } .detail th:first-child, .detail td:first-child { text-align: left; }
+        .detail th { color: var(--muted); font-size: 11.5px; text-transform: uppercase; }
+        .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 4px; } .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; }
+        .msg { font-size: 13.5px; margin-top: 10px; min-height: 18px; } .msg.err { color: var(--bad); } .msg.ok { color: var(--ok); }
+        .hint { font-size: 12.5px; color: var(--muted); line-height: 1.45; margin-top: 8px; }
+        .prevwrap { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 12px; }
+        /* Vista previa: mismo aspecto que la tarjeta del feed */
+        .sy-ad { background:#fff; border:1px solid #E8EAF0; border-radius:24px; box-shadow:0 14px 34px -16px rgba(27,58,92,.32); overflow:hidden; max-width:360px; margin:6px auto 0; }
+        .sy-ad-head { display:flex; align-items:center; gap:10px; padding:12px 16px 10px; }
+        .sy-ad-logo { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#1B3A5C,#3B82F6); color:#fff; display:grid; place-items:center; font-weight:800; font-size:14px; flex:none; }
+        .sy-ad-who b { display:block; font-size:14.5px; line-height:1.2; word-break:break-word; }
+        .sy-ad-tag { font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#667085; }
+        .sy-ad-img { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; background:#E9EEF5; }
+        .sy-ad-body { padding:12px 16px 4px; } .sy-ad-body h4 { margin:0 0 4px; font-size:16px; } .sy-ad-body p { margin:0; font-size:14px; line-height:1.45; color:#667085; word-break:break-word; }
+        .sy-ad-foot { padding:10px 16px 14px; } .sy-ad-cta { display:block; text-align:center; font:800 14.5px system-ui,sans-serif; color:#fff; background:linear-gradient(135deg,#1B3A5C,#2F6FDD); border-radius:999px; padding:11px 16px; }
+
+        html.embed header { display: none; }
+        html.embed body { background: transparent; }
+        html.embed .wrap { padding: 0; max-width: none; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .tab { font: inherit; font-weight: 800; border: 1.5px solid #C9DAF7; background: #fff; color: var(--accent); border-radius: 12px; padding: 10px 18px; cursor: pointer; }
+        .tab.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .help { background: #F2F7FF; border: 1px solid #C9DAF7; border-radius: 16px; padding: 4px 16px; margin-bottom: 16px; }
+        .help summary { cursor: pointer; font-weight: 800; color: var(--primary); padding: 10px 0; }
+        .help ol, .help ul { margin: 4px 0 12px 20px; padding: 0; line-height: 1.55; font-size: 14px; }
+        .help h4 { margin: 10px 0 2px; font-size: 14px; color: var(--primary); }
+        .steps { counter-reset: s; list-style: none; margin: 8px 0 !important; }
+        .steps li { counter-increment: s; position: relative; padding-left: 34px; margin-bottom: 8px; }
+        .steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: 13px; text-align: center; line-height: 24px; }
+        .quick { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin: 10px 0 14px; }
+        .quick .card { padding: 12px 14px; border-radius: 14px; }
+        .quick p { margin: 4px 0 8px; font-size: 13px; color: var(--muted); }
+        .check { margin: 8px 0 0; padding: 0; list-style: none; font-size: 13.5px; }
+        .check li { margin: 3px 0; } .check .ok { color: var(--ok); } .check .no { color: var(--warn); }
+    </style>
+</head>
+<script>try{if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add('embed');}catch(e){}</script>
+<body>
+<header>
+    <h1>Anuncios patrocinados</h1>
+    <a href="/panel-admin">← Panel de administración</a>
+</header>
+<div class="wrap">
+    <div class="tabs" role="tablist">
+        <button class="tab on" type="button" data-tab="own" role="tab">Anuncios de patrocinadores</button>
+        <button class="tab" type="button" data-tab="admob" role="tab">Videos con recompensa (Google AdMob) <span id="am-dot" class="pill s-paused" style="margin-left:6px">OFF</span></button>
+        <button class="tab" type="button" data-tab="coins" role="tab">Regalo diario de monedas</button>
+    </div>
+    <div id="tab-own">
+    <details class="help" open>
+        <summary>¿Cómo funciona? (léelo una vez)</summary>
+        <h4>Qué son los anuncios de patrocinadores</h4>
+        <p style="margin:2px 0 6px;font-size:14px">Una marca te paga (fuera de la app) por salir en SeeYou. Tú creas su tarjeta aquí y aparece <b>entre los Tics del feed</b> con la etiqueta «Patrocinado». Cada persona los ve en su idioma si lo has limitado.</p>
+        <h4>Cómo crear uno (3 pasos)</h4>
+        <ol class="steps">
+            <li>Rellena el formulario de la izquierda: marca, título, texto, enlace y una imagen. Abajo verás la <b>vista previa</b> tal y como se ve en el feed.</li>
+            <li>Si quieres, elige fechas de inicio y fin, un tope de vistas o idiomas. Si lo dejas vacío, sale siempre y a todo el mundo.</li>
+            <li>Pulsa <b>Guardar campaña</b>. Está activo al instante. Para pararlo, ponlo en «Pausado» o pulsa Pausar en la lista.</li>
+        </ol>
+        <h4>Qué significan las cifras</h4>
+        <ul>
+            <li><b>Impresión:</b> la tarjeta apareció en pantalla.</li>
+            <li><b>Vista válida:</b> la persona la tuvo a la vista al menos 5 segundos.</li>
+            <li><b>Clic:</b> pulsó el botón del anuncio. <b>CTR</b> = clics ÷ impresiones.</li>
+            <li><b>Informe:</b> en cada campaña, el botón de informe te da una página para imprimir o guardar en PDF y un CSV, para enseñárselo al anunciante.</li>
+        </ul>
+    </details>
+    <div class="top">
+        <section class="card">
+            <div class="range"><h2>Resumen</h2><span id="sumrange"></span></div>
+            <div class="kpis" id="kpis"></div>
+        </section>
+        <section class="card">
+            <div class="range"><h2>Actividad diaria (todas las campañas)</h2>
+                <button class="chip" data-days="7">7 días</button><button class="chip on" data-days="30">30 días</button><button class="chip" data-days="90">90 días</button></div>
+            <div id="chart"></div>
+            <div class="legend"><span><i style="background:#BFD4F6"></i>Impresiones</span><span><i style="background:#2F6FDD"></i>Vistas válidas</span><span><i style="background:#F5B82E"></i>Clics</span></div>
+        </section>
+    </div>
+    <div class="grid">
+        <section class="card sticky">
+            <h2 id="form-title">Nueva campaña</h2>
+            <form id="f">
+                <input type="hidden" id="id">
+                <label>Patrocinador (nombre de la marca)</label><input id="sponsor" maxlength="120" placeholder="Café Central">
+                <label>Título <small id="c-title"></small></label><input id="title" maxlength="120" placeholder="2x1 en cafés esta semana">
+                <label>Texto <small id="c-body"></small></label><textarea id="body" maxlength="400" placeholder="Descripción corta"></textarea>
+                <div class="row2">
+                    <div><label>Texto del botón</label><input id="cta" maxlength="40" value="Saber más"></div>
+                    <div><label>Enlace (https://…)</label><input id="link" type="url" placeholder="https://ejemplo.com"></div>
+                </div>
+                <label>Imagen (se reduce a 1200 px)</label><input id="file" type="file" accept="image/*">
+                <div class="row2">
+                    <div><label>Prioridad (1-10)</label><input id="weight" type="number" min="1" max="10" value="1"></div>
+                    <div><label>Estado</label><select id="active"><option value="true">Activo</option><option value="false">Pausado</option></select></div>
+                </div>
+                <div class="row2">
+                    <div><label>Empieza (opcional)</label><input id="starts" type="date"></div>
+                    <div><label>Termina (opcional, incluido)</label><input id="ends" type="date"></div>
+                </div>
+                <label>Tope de vistas válidas (opcional)</label><input id="maxviews" type="number" min="0" step="1" placeholder="Sin tope · p. ej. 5000">
+                <label>Idiomas de la app <small>vacío = todos</small></label>
+                <div class="langs" id="langs"></div>
+                <div class="actions"><button class="btn" type="submit">Guardar campaña</button><button class="ghost" type="button" id="reset">Nueva</button></div>
+                <div id="msg" class="msg"></div>
+                <div class="prevwrap"><label style="margin-top:0">Vista previa en el feed</label><div id="preview"></div></div>
+                <p class="hint">Se muestra como tarjeta «Patrocinado» tras el 4.º Tic y luego cada 5. <b>Impresión</b>: la tarjeta aparece en pantalla. <b>Vista válida</b>: la persona permanece 5 s con ella visible; suma un punto de actividad (5 puntos = 1 moneda). Solo para anuncios propios: no uses este sistema con anuncios de Google.</p>
+            </form>
+        </section>
+        <section class="card">
+            <h2>Campañas</h2>
+            <div class="toolbar">
+                <input id="q" type="search" placeholder="Buscar marca o título…">
+                <select id="status"><option value="all">Todos los estados</option><option value="live">Activas</option><option value="scheduled">Programadas</option><option value="paused">Pausadas</option><option value="ended">Finalizadas</option><option value="exhausted">Tope alcanzado</option></select>
+                <select id="sort"><option value="new">Más recientes</option><option value="views">Más vistas</option><option value="ctr">Mejor CTR</option><option value="clicks">Más clics</option></select>
+            </div>
+            <div id="list"><p class="hint">Cargando…</p></div>
+        </section>
+    </div>
+    </div><!-- /tab-own -->
+    <div id="tab-admob" style="display:none">
+    <details class="help" open>
+        <summary>¿Cómo funciona? (léelo una vez)</summary>
+        <p style="margin:2px 0 6px;font-size:14px">Es publicidad de <b>Google</b> (no de patrocinadores). Solo existe en las apps de <b>Android e iOS</b>. En el perfil, dentro de la hoja de monedas, sale el botón <b>«Ver un vídeo»</b>: la persona ve un anuncio de Google y, cuando lo termina, gana monedas. Tú cobras de Google por cada vídeo visto.</p>
+        <h4>Para ver anuncios de prueba (sin cuenta de AdMob)</h4>
+        <ol class="steps">
+            <li>Pulsa <b>«Activar modo pruebas»</b> aquí abajo. Sale un vídeo de ejemplo de Google, no genera ingresos.</li>
+            <li>Instala la app Android o iOS actualizada (compilada con la versión nueva) e inicia sesión.</li>
+            <li>Abre tu perfil → monedas → <b>Ver un vídeo</b>. Al terminar recibes las monedas.</li>
+        </ol>
+        <h4>Para ganar dinero de verdad</h4>
+        <ol class="steps">
+            <li>Crea tu cuenta en <b>admob.google.com</b> y registra la app (Android e iOS). Crea una <b>unidad de anuncio recompensado</b> para cada una.</li>
+            <li>Pega aquí los dos IDs de unidad (empiezan por <code>ca-app-pub-</code>).</li>
+            <li>En AdMob, en esa unidad, activa la <b>verificación del servidor</b> y pega la URL que aparece más abajo.</li>
+            <li>Pulsa <b>«Pasar a anuncios reales»</b>. A partir de ahí las monedas solo se dan si Google confirma el vídeo.</li>
+        </ol>
+    </details>
+    <section class="card" style="margin-bottom:18px">
+        <div class="range"><h2>Estado y ajustes</h2><span id="am-state" class="pill s-paused">Apagado</span></div>
+        <div id="am-banner" style="border-radius:14px;padding:14px 16px;font-weight:800;font-size:16px;background:#F1F5F9;color:#475569;margin-bottom:10px">Cargando…</div>
+        <style>
+            .am-switch{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;margin-bottom:12px;background:#fff}
+            .am-switch b{font-size:15px}.am-switch small{display:block;color:var(--muted);font-weight:500;margin-top:2px}
+            .am-tgl{position:relative;width:62px;height:34px;flex:none;margin-left:auto}
+            .am-tgl input{opacity:0;width:100%;height:100%;position:absolute;inset:0;margin:0;cursor:pointer;z-index:2}
+            .am-tgl span{position:absolute;inset:0;border-radius:999px;background:#CBD5E1;transition:.2s}
+            .am-tgl span:after{content:"";position:absolute;left:4px;top:4px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.2s}
+            .am-tgl input:checked+span{background:#16A34A}.am-tgl input:checked+span:after{transform:translateX(28px)}
+            .am-seg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+            .am-seg button{border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;font:inherit}
+            .am-seg button b{display:block;font-size:15px}.am-seg button span{font-size:12.5px;color:var(--muted)}
+            .am-seg button.on{border-color:#1B3A5C;background:#EEF4FB}
+            details.am-adv{margin-top:8px}details.am-adv summary{cursor:pointer;font-weight:800;font-size:15px;padding:6px 0}
+        </style>
+        <div class="am-switch">
+            <div><b>Vídeos con recompensa en la app</b><small id="am-sw-txt">—</small></div>
+            <label class="am-tgl"><input type="checkbox" id="am-toggle" aria-label="Encender o apagar los vídeos"><span></span></label>
+        </div>
+        <div class="am-seg">
+            <button type="button" id="am-test"><b>Modo pruebas</b><span>Anuncios de ejemplo de Google. No dan dinero, pero siempre funcionan. Ideal para comprobar que todo va.</span></button>
+            <button type="button" id="am-real"><b>Anuncios reales</b><span>Tus anuncios de AdMob (cobras). Necesita pegar abajo el ID de la unidad y que Google confirme cada vídeo.</span></button>
+        </div>
+        <ul class="check" id="am-check"></ul>
+        <h2 style="margin:14px 0 4px;font-size:15px">¿Qué ve la app?</h2>
+        <p class="hint" style="margin:0 0 6px">Se rellena cuando alguien abre en la app <b>Perfil → monedas</b>. Si aquí pone que nunca ha abierto, instala la app nueva y ábrela.</p>
+        <ul class="check" id="am-apps"><li>Cargando…</li></ul>
+        <details class="am-adv" open><summary>Ajustes y IDs de AdMob</summary>
+        <div class="row2" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+            <div><label>Monedas por vídeo</label><input id="am-coins" type="number" min="1" max="10"></div>
+            <div><label>Vídeos con premio al día</label><input id="am-cap" type="number" min="1" max="30"></div>
+            <div><label>Verificación de Google (SSV)</label><select id="am-ssv"><option value="true">Obligatoria (recomendado)</option><option value="false">Desactivada · solo pruebas</option></select></div>
+        </div>
+        <div class="row2" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+            <div><label>ID de la unidad recompensada · Android <small>ca-app-pub-…/…</small></label><input id="am-and" placeholder="vacío = prueba de Google"></div>
+            <div><label>ID de la unidad recompensada · iOS</label><input id="am-ios" placeholder="vacío = prueba de Google"></div>
+        </div>
+        <div class="actions"><button class="btn" id="am-save" type="button">Guardar ajustes</button><span id="am-msg" class="msg" style="margin:0;align-self:center"></span></div>
+        <p class="hint">URL para la verificación en AdMob (unidad recompensada → «Verificación del servidor»): <code id="am-url"></code></p>
+        </details>
+    </section>
+    </div><!-- /tab-admob -->
+    <div id="tab-coins" style="display:none">
+    <details class="help" open>
+        <summary>¿Cómo funciona? (léelo una vez)</summary>
+        <p style="margin:2px 0 6px;font-size:14px">Cada día puedes regalar una cantidad de monedas gratis a todo el mundo. Se reclama una vez al día desde la hoja de monedas del perfil. Si pones <b>0</b> (o no pones nada), ese día la app no muestra nada sobre el regalo: es como si no existiera.</p>
+    </details>
+    <section class="card" style="margin-bottom:18px">
+        <div class="range"><h2>Regalo de hoy</h2><span id="dg-today" class="pill s-scheduled"></span></div>
+        <div class="row2" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+            <div><label>Monedas gratis para hoy <small>0 = no se regala nada</small></label><input id="dg-amount" type="number" min="0" max="999" value="0"></div>
+        </div>
+        <div class="actions"><button class="btn" id="dg-save" type="button">Guardar regalo de hoy</button><span id="dg-msg" class="msg" style="margin:0;align-self:center"></span></div>
+        <h2 style="margin:16px 0 4px;font-size:15px">Últimos días configurados</h2>
+        <div id="dg-history" class="hint">Cargando…</div>
+    </section>
+    </div><!-- /tab-coins -->
+</div>
+<script>
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var LANGS = { es: 'Español', en: 'English', it: 'Italiano', fr: 'Français', de: 'Deutsch', pt: 'Português', ca: 'Català', ro: 'Română', nl: 'Nederlands', pl: 'Polski', ar: 'العربية' };
+    var STATUS = { live: 'Activa', scheduled: 'Programada', paused: 'Pausada', ended: 'Finalizada', exhausted: 'Tope alcanzado' };
+    var ads = [], imageData = null, existingImage = '', summaryDays = 30, openDetail = {};
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function num(n) { return Number(n || 0).toLocaleString('es-ES'); }
+    function pct(a, b) { return b > 0 ? ((a / b) * 100).toFixed(1).replace('.', ',') + ' %' : '–'; }
+    function say(text, cls) { var m = $('msg'); m.textContent = text || ''; m.className = 'msg ' + (cls || ''); }
+    function api(url, opts) {
+        opts = opts || {}; opts.credentials = 'same-origin';
+        opts.headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+        return fetch(url, opts).then(function (r) {
+            if (r.status === 401) { location.href = '/panel-admin'; throw new Error('Sesión de administrador requerida'); }
+            return r.json().then(function (j) { if (!r.ok) throw new Error(j.message || 'Error'); return j; });
+        });
+    }
+    function img(u) { return !u ? '' : (/^https?:|^data:/.test(u) ? u : '/' + String(u).replace(/^\/?/, '')); }
+    function day5(d) { var p = String(d).split('-'); return p[2] + '/' + p[1]; }
+
+    /* ---------- gráfico ---------- */
+    function chart(rows, withClicks) {
+        var W = 700, H = 170, pl = 34, pb = 20, pt = 8, n = rows.length;
+        var max = Math.max(1, Math.max.apply(null, rows.map(function (r) { return r.impressions; })));
+        var bw = (W - pl) / n, out = '';
+        [0, 0.5, 1].forEach(function (f) {
+            var y = H - pb - (H - pb - pt) * f;
+            out += '<line x1="' + pl + '" x2="' + W + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="#E4E8F0"/><text x="' + (pl - 5) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="10" fill="#667085">' + Math.round(max * f) + '</text>';
+        });
+        rows.forEach(function (r, i) {
+            var x = pl + i * bw, bh = H - pb - pt;
+            var hi = bh * r.impressions / max, hv = bh * r.views / max, hc = bh * r.clicks / max;
+            out += '<rect x="' + (x + bw * 0.12).toFixed(1) + '" y="' + (H - pb - hi).toFixed(1) + '" width="' + (bw * 0.76).toFixed(1) + '" height="' + hi.toFixed(1) + '" rx="2" fill="#BFD4F6"><title>' + day5(r.day) + ': ' + r.impressions + ' impresiones</title></rect>';
+            out += '<rect x="' + (x + bw * 0.12).toFixed(1) + '" y="' + (H - pb - hv).toFixed(1) + '" width="' + (bw * 0.76).toFixed(1) + '" height="' + hv.toFixed(1) + '" rx="2" fill="#2F6FDD"><title>' + day5(r.day) + ': ' + r.views + ' vistas válidas</title></rect>';
+            if (withClicks && r.clicks) out += '<rect x="' + (x + bw * 0.12).toFixed(1) + '" y="' + (H - pb - hc).toFixed(1) + '" width="' + (bw * 0.76).toFixed(1) + '" height="' + hc.toFixed(1) + '" rx="2" fill="#F5B82E"><title>' + day5(r.day) + ': ' + r.clicks + ' clics</title></rect>';
+        });
+        var every = Math.max(1, Math.ceil(n / 8));
+        rows.forEach(function (r, i) { if (i % every === 0 || i === n - 1) out += '<text x="' + (pl + i * bw + bw / 2).toFixed(1) + '" y="' + (H - 5) + '" text-anchor="middle" font-size="10" fill="#667085">' + day5(r.day) + '</text>'; });
+        return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="Actividad diaria">' + out + '</svg>';
+    }
+    function loadSummary() {
+        return api('/api/admin/ads-stats/summary?days=' + summaryDays).then(function (d) {
+            var rows = d.days || [], t = { impressions: 0, views: 0, clicks: 0 };
+            rows.forEach(function (r) { t.impressions += r.impressions; t.views += r.views; t.clicks += r.clicks; });
+            $('chart').innerHTML = chart(rows, true);
+            $('sumrange').textContent = 'últimos ' + summaryDays + ' días';
+            var live = ads.filter(function (a) { return a.status === 'live'; }).length;
+            $('kpis').innerHTML = [[num(t.impressions), 'Impresiones'], [num(t.views), 'Vistas válidas'], [num(t.clicks), 'Clics'], [pct(t.clicks, t.impressions), 'CTR'], [live + ' / ' + ads.length, 'Campañas activas']]
+                .map(function (k) { return '<div class="kpi"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>'; }).join('');
+        }).catch(function () { $('kpis').innerHTML = '<p class="hint">Las estadísticas diarias no están disponibles todavía.</p>'; });
+    }
+
+    /* ---------- lista ---------- */
+    function filtered() {
+        var q = $('q').value.trim().toLowerCase(), st = $('status').value, sort = $('sort').value;
+        var list = ads.filter(function (a) { return (st === 'all' || a.status === st) && (!q || (String(a.title || '') + ' ' + String(a.sponsor || '')).toLowerCase().indexOf(q) >= 0); });
+        var ctr = function (a) { return a.impressions ? a.clicks / a.impressions : 0; };
+        if (sort === 'views') list.sort(function (a, b) { return b.views - a.views; });
+        else if (sort === 'clicks') list.sort(function (a, b) { return b.clicks - a.clicks; });
+        else if (sort === 'ctr') list.sort(function (a, b) { return ctr(b) - ctr(a); });
+        return list;
+    }
+    function render() {
+        var list = filtered();
+        if (!ads.length) { $('list').innerHTML = '<p class="hint">Todavía no hay campañas. Crea la primera con el formulario.</p>'; return; }
+        if (!list.length) { $('list').innerHTML = '<p class="hint">Ninguna campaña coincide con el filtro.</p>'; return; }
+        $('list').innerHTML = list.map(function (a) {
+            var avg = a.views ? (Number(a.dwell_ms) / a.views / 1000).toFixed(1).replace('.', ',') + ' s' : '–';
+            var max = Number(a.max_views) || 0;
+            var langs = (a.langs && a.langs.length) ? ' · ' + a.langs.join(', ').toUpperCase() : ' · todos los idiomas';
+            return '<div class="ad" data-id="' + esc(a.id) + '"><div>' + (a.image_url ? '<img src="' + esc(img(a.image_url)) + '" alt="">' : '') + '</div><div>' +
+                '<h3>' + esc(a.title || '(sin título)') + ' <span class="pill s-' + a.status + '">' + STATUS[a.status] + '</span></h3>' +
+                '<small>' + esc(a.sponsor || '') + ' · prioridad ' + (a.weight || 1) + (a.starts_at ? ' · desde ' + esc(String(a.starts_at).slice(0, 10)) : '') + (a.ends_at ? ' · hasta ' + esc(String(a.ends_at).slice(0, 10)) : '') + langs + '</small>' +
+                '<div class="stats"><span><b>' + num(a.impressions) + '</b> impresiones</span><span><b>' + num(a.views) + '</b> vistas válidas</span><span><b>' + avg + '</b> tiempo medio</span><span><b>' + num(a.clicks) + '</b> clics (' + pct(a.clicks, a.impressions) + ')</span></div>' +
+                (max ? '<div class="bar"><i style="width:' + Math.min(100, a.views / max * 100).toFixed(0) + '%"></i></div><small>' + num(a.views) + ' / ' + num(max) + ' vistas del tope</small>' : '') +
+                '<div class="actions" style="margin-top:8px"><button class="ghost sm" data-a="edit">Editar</button><button class="ghost sm" data-a="dup">Duplicar</button><button class="ghost sm" data-a="toggle">' + (a.active ? 'Pausar' : 'Activar') + '</button>' +
+                '<button class="ghost sm" data-a="stats">Estadísticas</button><button class="ghost sm" data-a="report">Informe</button><button class="ghost sm" data-a="csv">CSV</button><button class="danger sm" data-a="del">Borrar</button></div></div>' +
+                '<div class="detail" id="d-' + esc(a.id) + '" style="display:' + (openDetail[a.id] ? 'block' : 'none') + '"></div></div>';
+        }).join('');
+        Object.keys(openDetail).forEach(function (id) { if (openDetail[id]) loadDetail(id); });
+    }
+    function loadDetail(id, days) {
+        var box = $('d-' + id); if (!box) return;
+        days = days || openDetail[id + ':days'] || 30; openDetail[id + ':days'] = days;
+        box.innerHTML = '<p class="hint">Cargando…</p>';
+        api('/api/admin/ads/' + encodeURIComponent(id) + '/daily?days=' + days).then(function (d) {
+            var rows = d.days || [], t = { impressions: 0, views: 0, clicks: 0, dwell_ms: 0 };
+            rows.forEach(function (r) { t.impressions += r.impressions; t.views += r.views; t.clicks += r.clicks; t.dwell_ms += r.dwell_ms; });
+            var body = rows.filter(function (r) { return r.impressions || r.views || r.clicks; }).reverse().map(function (r) {
+                return '<tr><td>' + day5(r.day) + '</td><td>' + num(r.impressions) + '</td><td>' + num(r.views) + '</td><td>' + num(r.clicks) + '</td><td>' + pct(r.clicks, r.impressions) + '</td></tr>';
+            }).join('') || '<tr><td colspan="5" style="text-align:center;color:#667085">Sin actividad en este periodo</td></tr>';
+            box.innerHTML = '<div class="range"><b style="flex:1">Últimos ' + days + ' días</b>' + [7, 30, 90].map(function (n) { return '<button class="chip' + (n === days ? ' on' : '') + '" data-dd="' + n + '">' + n + ' d</button>'; }).join('') + '</div>' +
+                chart(rows, true) + '<div class="legend"><span><i style="background:#BFD4F6"></i>Impresiones</span><span><i style="background:#2F6FDD"></i>Vistas válidas</span><span><i style="background:#F5B82E"></i>Clics</span></div>' +
+                '<table><thead><tr><th>Día</th><th>Impresiones</th><th>Vistas</th><th>Clics</th><th>CTR</th></tr></thead><tbody>' + body + '</tbody></table>';
+        }).catch(function (e) { box.innerHTML = '<p class="hint">' + esc(e.message) + '</p>'; });
+    }
+    function load() {
+        return api('/api/admin/ads').then(function (l) { ads = l; render(); return loadSummary(); })
+            .catch(function (e) { $('list').innerHTML = '<p class="hint">' + esc(e.message) + '</p>'; });
+    }
+
+    /* ---------- formulario ---------- */
+    function counters() { $('c-title').textContent = $('title').value.length + '/120'; $('c-body').textContent = $('body').value.length + '/400'; }
+    function preview() {
+        counters();
+        var im = imageData || img(existingImage), sp = $('sponsor').value || $('title').value || 'Patrocinador';
+        $('preview').innerHTML = '<article class="sy-ad"><div class="sy-ad-head"><div class="sy-ad-logo">' + esc(sp.charAt(0).toUpperCase()) + '</div><div class="sy-ad-who"><b>' + esc($('sponsor').value || 'Patrocinador') + '</b><span class="sy-ad-tag">Patrocinado</span></div></div>' +
+            (im ? '<img class="sy-ad-img" src="' + esc(im) + '" alt="">' : '') +
+            (($('title').value || $('body').value) ? '<div class="sy-ad-body">' + ($('title').value ? '<h4>' + esc($('title').value) + '</h4>' : '') + ($('body').value ? '<p>' + esc($('body').value) + '</p>' : '') + '</div>' : '') +
+            '<div class="sy-ad-foot"><span class="sy-ad-cta">' + esc($('cta').value || 'Saber más') + '</span></div></article>';
+    }
+    function langChecks(selected) {
+        $('langs').innerHTML = Object.keys(LANGS).map(function (c) {
+            return '<label><input type="checkbox" value="' + c + '"' + (selected && selected.indexOf(c) >= 0 ? ' checked' : '') + '>' + esc(LANGS[c]) + '</label>';
+        }).join('');
+    }
+    function selectedLangs() { return Array.prototype.map.call($('langs').querySelectorAll('input:checked'), function (i) { return i.value; }); }
+    function resetForm() {
+        $('f').reset(); $('id').value = ''; imageData = null; existingImage = ''; $('form-title').textContent = 'Nueva campaña'; $('cta').value = 'Saber más'; langChecks([]); say(''); preview();
+    }
+    function fill(a, asCopy) {
+        $('id').value = asCopy ? '' : a.id; $('sponsor').value = a.sponsor || ''; $('title').value = (a.title || '') + (asCopy ? ' (copia)' : ''); $('body').value = a.body || ''; $('cta').value = a.cta || 'Saber más';
+        $('link').value = a.link_url || ''; $('weight').value = a.weight || 1; $('active').value = (asCopy ? false : a.active) ? 'true' : 'false';
+        $('starts').value = !asCopy && a.starts_at ? String(a.starts_at).slice(0, 10) : ''; $('ends').value = !asCopy && a.ends_at ? String(a.ends_at).slice(0, 10) : '';
+        $('maxviews').value = a.max_views || ''; langChecks(a.langs || []);
+        imageData = null; existingImage = a.image_url || '';
+        $('form-title').textContent = asCopy ? 'Duplicar campaña (queda pausada)' : 'Editar campaña'; say(''); preview();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    $('file').addEventListener('change', function () {
+        var f = this.files && this.files[0]; if (!f) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+            var im = new Image();
+            im.onload = function () {
+                var s = Math.min(1, 1200 / Math.max(im.width, im.height)), c = document.createElement('canvas');
+                c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+                c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+                imageData = c.toDataURL('image/jpeg', 0.85); preview();
+            };
+            im.src = reader.result;
+        };
+        reader.readAsDataURL(f);
+    });
+    ['sponsor', 'title', 'body', 'cta'].forEach(function (id) { $(id).addEventListener('input', preview); });
+    $('f').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var s = $('starts').value, en = $('ends').value;
+        if (s && en && en < s) { say('La fecha de fin es anterior a la de inicio.', 'err'); return; }
+        var link = $('link').value.trim();
+        if (link && !/^https?:\/\//i.test(link)) { say('El enlace debe empezar por http:// o https://', 'err'); return; }
+        say('Guardando…');
+        var payload = { id: $('id').value || undefined, sponsor: $('sponsor').value, title: $('title').value, body: $('body').value, cta: $('cta').value || 'Saber más',
+            link_url: link, weight: $('weight').value, active: $('active').value === 'true', starts_at: s || '', ends_at: en || '', max_views: $('maxviews').value || '', langs: selectedLangs() };
+        if (imageData) payload.image_url = imageData;
+        else if (!payload.id && existingImage) payload.image_url = existingImage;   // duplicado: reutiliza la imagen
+        api('/api/admin/ads', { method: 'POST', body: JSON.stringify(payload) }).then(function () { say('Guardado', 'ok'); resetForm(); return load(); })
+            .catch(function (err) { say(err.message, 'err'); });
+    });
+    $('reset').addEventListener('click', resetForm);
+
+    /* ---------- eventos ---------- */
+    $('list').addEventListener('click', function (e) {
+        var dd = e.target.closest('[data-dd]');
+        if (dd) { var box = dd.closest('.ad'); loadDetail(box.dataset.id, Number(dd.dataset.dd)); return; }
+        var b = e.target.closest('[data-a]'); if (!b) return;
+        var id = b.closest('.ad').dataset.id, ad = ads.find(function (x) { return x.id === id; }); if (!ad) return;
+        var a = b.dataset.a;
+        if (a === 'edit') fill(ad, false);
+        else if (a === 'dup') fill(ad, true);
+        else if (a === 'toggle') api('/api/admin/ads', { method: 'POST', body: JSON.stringify({ id: id, active: !ad.active }) }).then(load);
+        else if (a === 'stats') { openDetail[id] = !openDetail[id]; var box2 = $('d-' + id); box2.style.display = openDetail[id] ? 'block' : 'none'; if (openDetail[id]) loadDetail(id); }
+        else if (a === 'report') window.open('/api/admin/ads/' + encodeURIComponent(id) + '/report?days=30', '_blank', 'noopener');
+        else if (a === 'csv') window.location.href = '/api/admin/ads/' + encodeURIComponent(id) + '/report?format=csv&days=90';
+        else if (a === 'del' && window.confirm('¿Borrar esta campaña y todas sus estadísticas? No se puede deshacer.')) api('/api/admin/ads/' + encodeURIComponent(id), { method: 'DELETE' }).then(function () { delete openDetail[id]; return load(); });
+    });
+    ['q', 'status', 'sort'].forEach(function (id) { $(id).addEventListener('input', render); });
+    document.querySelectorAll('.top [data-days]').forEach(function (b) {
+        b.addEventListener('click', function () {
+            summaryDays = Number(b.dataset.days);
+            document.querySelectorAll('.top [data-days]').forEach(function (x) { x.classList.toggle('on', x === b); });
+            loadSummary();
+        });
+    });
+    /* ---------- ajustes de AdMob ---------- */
+    function loadAdmob() {
+        $('am-url').textContent = location.origin + '/api/ads/ssv-callback';
+        api('/api/admin/settings').then(function (st) {
+            $('am-coins').value = st.admob_rewarded_coins || 1; $('am-cap').value = st.admob_rewarded_daily_cap || 3;
+            $('am-ssv').value = st.admob_ssv_required === false ? 'false' : 'true'; $('am-and').value = st.admob_rewarded_android || ''; $('am-ios').value = st.admob_rewarded_ios || '';
+            var on = !!st.admob_enabled; var real = !!(st.admob_rewarded_android || st.admob_rewarded_ios);
+            $('am-toggle').checked = on; $('am-sw-txt').textContent = on ? 'ENCENDIDO: en la app aparece el botón «Ver un vídeo».' : 'APAGADO: la app no muestra vídeos.';
+            $('am-test').classList.toggle('on', on && !real); $('am-real').classList.toggle('on', on && real);
+            $('am-state').textContent = !on ? 'Apagado' : (real ? 'Encendido · anuncios reales' : 'Encendido · modo pruebas'); $('am-state').className = 'pill ' + (on ? 's-live' : 's-paused');
+            var ck = [[on, 'Vídeos con recompensa ' + (on ? 'encendidos' : 'apagados (pulsa «Activar modo pruebas» para empezar)')],
+                [real, real ? 'Tienes IDs de AdMob: se usarán anuncios reales' : 'Sin IDs de AdMob: se usan anuncios de prueba de Google'],
+                [st.admob_ssv_required !== false, st.admob_ssv_required !== false ? 'Verificación de Google activa (las monedas solo se dan si Google confirma)' : 'Verificación desactivada: modo pruebas, no la dejes así con anuncios reales']];
+            var ban = $('am-banner');
+            ban.textContent = !on ? '● APAGADO · la app no muestra vídeos' : (real ? '● ENCENDIDO · anuncios reales' : '● ENCENDIDO · modo pruebas (anuncios de ejemplo de Google)');
+            ban.style.background = !on ? '#F1F5F9' : '#DCFCE7'; ban.style.color = !on ? '#475569' : '#15803D';
+            $('am-dot').textContent = on ? 'ON' : 'OFF'; $('am-dot').className = 'pill ' + (on ? 's-live' : 's-paused');
+            $('am-check').innerHTML = ck.map(function (c) { return '<li class="' + (c[0] ? 'ok' : 'no') + '">' + (c[0] ? '✔ ' : '• ') + esc(c[1]) + '</li>'; }).join('');
+        }).catch(function () { });
+    }
+    function checkUnitId(v, plat) {
+        v = String(v || '').trim();
+        if (!v) return '';
+        if (/^ca-app-pub-\d{10,20}~\d+$/.test(v)) return 'Ese es el ID de la APLICACIÓN (lleva «~»). Aquí va el ID de la UNIDAD de anuncio (lleva «/»), por ejemplo ca-app-pub-1234567890123456/1234567890. Lo ves en AdMob → Unidades de anuncio.';
+        if (!/^ca-app-pub-\d{10,20}\/\d{6,20}$/.test(v)) return 'El ID de ' + plat + ' no tiene un formato válido. Debe ser como ca-app-pub-1234567890123456/1234567890 (con «/»).';
+        return '';
+    }
+    function badUnit() {
+        var e = checkUnitId($('am-and').value, 'Android') || checkUnitId($('am-ios').value, 'iOS');
+        if (e) { $('am-msg').className = 'msg err'; $('am-msg').textContent = e; }
+        return !!e;
+    }
+    $('am-save').addEventListener('click', function () {
+        if (badUnit()) return;
+        $('am-msg').className = 'msg'; $('am-msg').textContent = 'Guardando…';
+        api('/api/admin/settings', { method: 'PUT', body: JSON.stringify({ admob_enabled: $('am-toggle').checked, admob_rewarded_coins: $('am-coins').value, admob_rewarded_daily_cap: $('am-cap').value,
+            admob_ssv_required: $('am-ssv').value === 'true', admob_rewarded_android: $('am-and').value, admob_rewarded_ios: $('am-ios').value }) })
+            .then(function () { $('am-msg').className = 'msg ok'; $('am-msg').textContent = 'Guardado'; loadAdmob(); loadApps(); })
+            .catch(function (e) { $('am-msg').className = 'msg err'; $('am-msg').textContent = e.message; });
+    });
+    function ago(d) { var m = Math.round((Date.now() - new Date(d).getTime()) / 60000); return m < 1 ? 'hace menos de 1 min' : m < 60 ? 'hace ' + m + ' min' : m < 1440 ? 'hace ' + Math.round(m / 60) + ' h' : 'hace ' + Math.round(m / 1440) + ' días'; }
+    function loadApps() {
+        api('/api/admin/ads/admob-status').then(function (r) {
+            var by = {}; (r.pings || []).forEach(function (p) { by[p.platform] = p; });
+            $('am-apps').innerHTML = ['android', 'ios'].map(function (pl) {
+                var p = by[pl], name = pl === 'android' ? 'Android' : 'iOS';
+                if (!p) return '<li class="no">• ' + name + ': ninguna app ha abierto todavía la hoja de monedas (¿app sin actualizar?).</li>';
+                if (p.plugin === false) return '<li class="no">• ' + name + ': la app instalada es una versión VIEJA sin anuncios (' + ago(p.seen_at) + '). Hay que compilar e instalar la nueva.</li>';
+                return '<li class="ok">✔ ' + name + ': app nueva detectada (' + ago(p.seen_at) + ').' + (p.shown ? ' Ya se mostró algún vídeo.' : ' Aún no se ha mostrado ningún vídeo.') + (p.last_error ? ' <span style="color:#B45309">Último error: ' + esc(p.last_error) + '</span>' : '') + '</li>';
+            }).join('');
+        }).catch(function () { $('am-apps').innerHTML = '<li class="no">• No se pudo consultar.</li>'; });
+    }
+    function putSettings(patch, okText) {
+        $('am-msg').className = 'msg'; $('am-msg').textContent = 'Guardando…';
+        return api('/api/admin/settings', { method: 'PUT', body: JSON.stringify(patch) })
+            .then(function () { $('am-msg').className = 'msg ok'; $('am-msg').textContent = okText || 'Guardado'; loadAdmob(); })
+            .catch(function (e) { $('am-msg').className = 'msg err'; $('am-msg').textContent = e.message; });
+    }
+    $('am-test').addEventListener('click', function () {
+        putSettings({ admob_enabled: true, admob_ssv_required: false, admob_rewarded_android: '', admob_rewarded_ios: '' }, 'Modo pruebas activado. Abre la app actualizada para verlo.');
+    });
+    $('am-real').addEventListener('click', function () {
+        if (badUnit()) return;
+        var a = $('am-and').value.trim(), i = $('am-ios').value.trim();
+        if (!a && !i) { $('am-msg').className = 'msg err'; $('am-msg').textContent = 'Pega primero al menos un ID de unidad de AdMob (Android y/o iOS) y vuelve a pulsar.'; return; }
+        putSettings({ admob_enabled: true, admob_ssv_required: true, admob_rewarded_android: a, admob_rewarded_ios: i }, 'Anuncios reales activados con verificación de Google.');
+    });
+    $('am-toggle').addEventListener('change', function () { var on = $('am-toggle').checked; putSettings({ admob_enabled: on }, on ? 'Vídeos encendidos.' : 'Vídeos apagados.'); });
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
+        b.addEventListener('click', function () {
+            var t = b.getAttribute('data-tab');
+            Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (x) { x.classList.toggle('on', x === b); });
+            $('tab-own').style.display = t === 'own' ? '' : 'none';
+            $('tab-admob').style.display = t === 'admob' ? '' : 'none';
+            $('tab-coins').style.display = t === 'coins' ? '' : 'none';
+            if (t === 'coins') loadDailyGift();
+        });
+    });
+    /* ---------- Regalo diario de monedas ---------- */
+    function todayKeyMadrid() {
+        try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
+        catch (e) { return new Date().toISOString().slice(0, 10); }
+    }
+    var dgMap = {};
+    function loadDailyGift() {
+        $('dg-today').textContent = todayKeyMadrid();
+        api('/api/admin/settings').then(function (st) {
+            dgMap = (st && st.daily_coin_gift_map) || {};
+            $('dg-amount').value = dgMap[todayKeyMadrid()] || 0;
+            var days = Object.keys(dgMap).sort().reverse().slice(0, 14);
+            $('dg-history').innerHTML = days.length ? days.map(function (d) { return '<div>' + esc(d) + ': <b>' + esc(dgMap[d]) + '</b> moneda' + (Number(dgMap[d]) === 1 ? '' : 's') + '</div>'; }).join('') : 'Todavía no se ha configurado ningún día.';
+        }).catch(function (e) { $('dg-history').textContent = e.message || 'No se pudo cargar'; });
+    }
+    $('dg-save').addEventListener('click', function () {
+        var day = todayKeyMadrid();
+        var amount = Math.max(0, Math.min(999, Math.floor(Number($('dg-amount').value)) || 0));
+        var next = Object.assign({}, dgMap);
+        next[day] = amount;
+        var m = $('dg-msg'); m.textContent = 'Guardando…'; m.className = 'msg';
+        api('/api/admin/settings', { method: 'PUT', body: JSON.stringify({ daily_coin_gift_map: next }) }).then(function (st) {
+            dgMap = (st && st.daily_coin_gift_map) || next;
+            m.textContent = amount > 0 ? ('Guardado: hoy se regalan ' + amount + ' moneda' + (amount === 1 ? '' : 's') + '.') : 'Guardado: hoy no se regala nada.';
+            m.className = 'msg ok';
+            loadDailyGift();
+        }).catch(function (e) { m.textContent = e.message || 'No se pudo guardar'; m.className = 'msg err'; });
+    });
+    langChecks([]); preview(); load(); loadAdmob(); loadApps();
+    setInterval(function () { if (document.visibilityState === 'visible' && !$('id').value) load(); }, 60000);
+})();
+</script>
+</body>
+</html>

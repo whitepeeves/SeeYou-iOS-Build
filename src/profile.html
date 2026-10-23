@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <script src="js/perf_probe.js?v=1"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Perfil - SeeYou</title>
+    <link rel="icon" type="image/png" href="logotipo.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1B3A5C">
+    <script defer src="js/session_guard.js?v=3"></script>
+    <link rel="stylesheet" href="style.css?v=4">
+    <script src="js/palette.js?v=2"></script>
+    <script src="js/banner_drops.js?v=3"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="css/tics.css?v=17">
+    <script defer src="js/auth_fetch.js?v=3"></script>
+    <script defer src="config.js?v=16"></script>
+    <script defer src="js/back_button.js?v=3"></script>
+    <script defer src="js/daily_themes.js?v=3"></script>
+    <script defer src="js/tics_ui.js?v=40"></script>
+    <script defer src="js/badges_ui.js?v=7"></script>
+    <script defer src="js/qr_mini.js?v=1"></script>
+    <script defer src="js/coins_ui.js?v=32"></script>
+    <script defer src="js/coin_shop_ui.js?v=2"></script>
+    <script defer src="js/admob_ui.js?v=4"></script>
+    <script defer src="js/tics_archive.js?v=2"></script>
+    <script defer src="js/notifications_system.js?v=10"></script>
+    <style>
+        :root {
+            --primary: #1B3A5C;
+            --surface: #fef7ff;
+            --on-surface: #1D1B20;
+            --outline: #CAC4D0;
+            --blue-glow: rgba(103, 158, 244, 0.4);
+        }
+
+        body {
+            background-color: var(--app-bg, var(--surface));
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            color: var(--app-text, var(--on-surface));
+        }
+
+        /* --- SIDEBAR (Convertido en Nav Vertical) --- */
+        .sidebar {
+            width: 80px;
+            background-color: #fff;
+            border-right: 1px solid var(--outline);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 0;
+            z-index: 200;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary);
+            margin-bottom: 60px;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        .header {
+            position: fixed !important;
+            top: 24px !important;
+            right: 24px !important;
+            z-index: 999 !important;
+            display: flex;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .user-section {
+            pointer-events: auto;
+            position: relative;
+            cursor: pointer;
+            background: white;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eee;
+        }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #fff;
+            border-top: 1px solid var(--outline);
+            padding: 12px 0 8px;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        /* Esfera del apartado activo: centrada (en horizontal y en vertical) sobre icono + texto.
+           El botón activo sube 3px (translateY(-3px)), así que la esfera sube con él. Los botones
+           reparten el ancho a partes iguales para que su centro coincida con el de cada cuarto. */
+        .bottom-nav-indicator {
+            position: absolute;
+            left: 0;
+            top: 12px;
+            bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+            width: 20%;
+            pointer-events: none;
+            transform: translateX(calc(var(--nav-index, 0) * 100%));
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 0;
+        }
+
+        .bottom-nav-indicator::before {
+            content: '';
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            left: 50%;
+            top: calc(var(--nav-cy, 34px) - 12px);
+            border-radius: 50%;
+            background: rgba(27, 58, 92, 0.12);
+            transform: translate(-50%, -50%) scale(0.72);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
+        }
+
+        .bottom-nav-bar.is-ready .bottom-nav-indicator::before {
+            transform: translate(-50%, -50%) scale(1);
+            background: rgba(27, 58, 92, 0.14);
+        }
+
+        .bottom-nav-bar .nav-btn { flex: 1 1 0; min-width: 0; padding-left: 2px; padding-right: 2px; white-space: nowrap; }
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #79747E;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: 'Roboto', sans-serif;
+            padding: 6px 12px;
+            border-radius: 16px;
+            position: relative;
+            z-index: 1;
+            transition: color 0.2s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(27, 58, 92, 0.08);
+            color: var(--primary);
+        }
+
+        .bottom-nav-bar .nav-btn:hover, .bottom-nav-bar .nav-btn.active {
+            background: transparent;
+            color: var(--primary);
+            transform: translateY(-3px);
+            font-weight: 700;
+        }
+
+        .bottom-nav-bar .nav-btn.active .material-icons-outlined { transform: scale(1.08); }
+        .nav-btn .material-icons-outlined { font-size: 24px; }
+
+        @media (min-width: 901px) {
+            .sidebar { display: flex; }
+            .main {
+                margin-left: 80px;
+            }
+            .bottom-nav-bar { display: none; }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .bottom-nav-bar { left: 0; display: flex; }
+            .main { margin-left: 0; }
+            .mobile-header,
+            .header {
+                display: none !important;
+            }
+        }
+
+
+        /* ---------- PERFIL ---------- */
+        .pf-page { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 0 120px; }
+        .pf-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 10px; padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 8px 22px; pointer-events: none; }
+        .pf-back { pointer-events: auto; width: 42px; height: 42px; border-radius: 50%; border: 0; display: grid; place-items: center; cursor: pointer; background: rgba(255, 255, 255, .92); color: #1B3A5C; box-shadow: 0 4px 14px rgba(15, 23, 42, .16); transition: transform .15s; }
+        .pf-back:active { transform: scale(.92); }
+        .pf-back[hidden] { display: none; }
+        .pf-back svg { width: 22px; height: 22px; }
+        .pf-hero { position: relative; margin: -60px 14px 0; border-radius: 28px; background: var(--app-surface, #fff); border: 1px solid var(--app-border, #E8EAF0); box-shadow: 0 18px 40px -22px rgba(27, 58, 92, .4); overflow: hidden; text-align: center; padding: 0 20px 22px; animation: pfIn .5s cubic-bezier(.2, .8, .25, 1) both; }
+        @keyframes pfIn { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+        .pf-cover { height: 132px; margin: 0 -20px; background:
+            radial-gradient(120% 140% at 15% 0%, rgba(59, 130, 246, .85) 0%, rgba(59, 130, 246, 0) 55%),
+            radial-gradient(110% 130% at 100% 100%, rgba(126, 188, 255, .75) 0%, rgba(126, 188, 255, 0) 60%),
+            linear-gradient(135deg, #1B3A5C, #24528A); }
+        .pf-avatar { width: 112px; height: 112px; margin: -56px auto 0; border-radius: 50%; border: 5px solid var(--app-surface, #fff); background: linear-gradient(135deg, #1B3A5C, #3B82F6); color: #fff; display: grid; place-items: center; font-size: 44px; font-weight: 700; overflow: hidden; box-shadow: 0 10px 26px -8px rgba(27, 58, 92, .5); position: relative; }
+        .pf-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pf-name { margin: 14px 0 0; font-size: 26px; line-height: 1.15; font-weight: 800; color: var(--app-text, #1D1B20); letter-spacing: -.01em; }
+        .pf-handle { margin-top: 3px; font-size: 14.5px; color: var(--app-muted, #667085); }
+        .pf-bio { margin: 12px auto 0; max-width: 460px; font-size: 14.5px; line-height: 1.5; color: var(--app-text, #1D1B20); word-break: break-word; }
+        .pf-mutual { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 10px 18px 0; font-size: 13.5px; line-height: 1.35; color: var(--app-muted, #5b6577); text-align: center; }
+        .pf-mutual b { color: var(--app-text, #1b3a5c); font-weight: 700; }
+        .pf-mutual-av { display: flex; }
+        .pf-mutual-av span { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--app-card, #fff); margin-left: -8px; overflow: hidden; background: #cfd8e6; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+        .pf-mutual-av span:first-child { margin-left: 0; }
+        .pf-mutual-av img { width: 100%; height: 100%; object-fit: cover; }
+        .pf-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
+        .pf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 999px; font-size: 13px; font-weight: 600; background: rgba(27, 58, 92, .07); color: var(--app-primary, #1B3A5C); }
+        .pf-chip svg { width: 15px; height: 15px; }
+        .pf-chip--streak { background: rgba(245, 130, 32, .13); color: #B45309; }
+        .pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px 0 0; padding: 14px 0; border-top: 1px solid var(--app-border, #EEF0F4); border-bottom: 1px solid var(--app-border, #EEF0F4); }
+        .pf-stat b { display: block; font-size: 20px; font-weight: 800; color: var(--app-text, #1D1B20); }
+        .pf-stat span { font-size: 12.5px; color: var(--app-muted, #667085); }
+        .pf-stat + .pf-stat { border-left: 1px solid var(--app-border, #EEF0F4); }
+        .pf-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
+        .pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; flex: 1 1 auto; max-width: 220px; padding: 12px 18px; border-radius: 999px; border: 1.5px solid transparent; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; transition: transform .12s, box-shadow .2s, background .2s, opacity .2s; -webkit-tap-highlight-color: transparent; }
+        .pf-btn svg { width: 18px; height: 18px; }
+        .pf-btn:active { transform: scale(.96); }
+        .pf-btn--primary { color: #fff; background: linear-gradient(135deg, #1B3A5C, #2F6FDD); box-shadow: 0 10px 22px -10px rgba(27, 58, 92, .7); }
+        .pf-btn--ghost { color: var(--app-primary, #1B3A5C); background: transparent; border-color: rgba(27, 58, 92, .28); }
+        .pf-btn--ghost:hover { background: rgba(27, 58, 92, .06); }
+        .pf-btn--done { color: #166534; background: rgba(22, 163, 74, .12); border-color: rgba(22, 163, 74, .18); cursor: default; }
+        .pf-btn--wait { color: var(--app-muted, #667085); background: rgba(27, 58, 92, .06); cursor: default; }
+        .pf-btn[disabled] { opacity: .6; pointer-events: none; }
+
+        .pf-section { margin: 26px 14px 0; }
+        .pf-section h2 { margin: 0 4px 12px; font-size: 17px; font-weight: 800; color: var(--app-text, #1D1B20); display: flex; align-items: center; gap: 8px; }
+        .pf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .pf-cell { position: relative; aspect-ratio: 1 / 1.18; border: 0; padding: 0; border-radius: 14px; overflow: hidden; cursor: pointer; background: #E9EEF5; animation: pfIn .45s cubic-bezier(.2, .8, .25, 1) both; }
+        .pf-cell img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+        .pf-cell:hover img { transform: scale(1.05); }
+        .pf-cell-meta { position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 10px; padding: 18px 9px 7px; color: #fff; font-size: 12px; font-weight: 700; background: linear-gradient(to top, rgba(8, 20, 36, .6), rgba(8, 20, 36, 0)); opacity: 0; transition: opacity .2s; }
+        .pf-cell-meta span { display: inline-flex; align-items: center; gap: 4px; }
+        .pf-cell-meta svg { width: 13px; height: 13px; fill: currentColor; }
+        .pf-cell:hover .pf-cell-meta, .pf-cell:focus-visible .pf-cell-meta { opacity: 1; }
+        @media (hover: none) { .pf-cell-meta { opacity: 1; } }
+        .pf-empty { text-align: center; padding: 40px 24px; border-radius: 22px; background: var(--app-surface, #fff); border: 1px dashed var(--app-border, #D9DEE7); color: var(--app-muted, #667085); font-size: 14.5px; line-height: 1.5; }
+        .pf-empty svg { width: 40px; height: 40px; color: #8FA6C2; margin-bottom: 8px; }
+        .pf-empty b { display: block; color: var(--app-text, #1D1B20); font-size: 16px; margin-bottom: 4px; }
+        .pf-skel { background: linear-gradient(100deg, #E9EEF5 30%, #F5F8FC 50%, #E9EEF5 70%); background-size: 200% 100%; animation: pfSkel 1.3s linear infinite; border-radius: 14px; }
+        @keyframes pfSkel { to { background-position: -200% 0 } }
+        .pf-skel-line { height: 14px; margin: 10px auto 0; width: 40%; }
+
+        /* visor */
+        /* Sin aspa: se cierra tocando fuera del Tic. Animacion de "crecer/encoger" en vez de aparecer de golpe. */
+        .pf-viewer { position: fixed; inset: 0; z-index: 500; display: none; background: rgba(8, 18, 32, .72); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: calc(64px + env(safe-area-inset-top, 0px)) 0 40px; }
+        .pf-viewer.open { display: block; animation: pfFade .22s ease both; }
+        .pf-viewer .tic-card { margin-bottom: 0; transform: scale(.86); opacity: 0; transition: transform .26s cubic-bezier(.22,.61,.36,1), opacity .22s ease; }
+        .pf-viewer.open .tic-card { transform: scale(1); opacity: 1; }
+        @keyframes pfFade { from { opacity: 0 } to { opacity: 1 } }
+
+        .pf-toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; z-index: 900; padding: 12px 20px; border-radius: 14px; color: #fff; font-size: 14px; font-weight: 600; background: linear-gradient(135deg, #1B3A5C, #2A5580); box-shadow: 0 10px 30px rgba(27, 58, 92, .4); transition: transform .3s, opacity .3s; pointer-events: none; }
+        .pf-toast.show { transform: translate(-50%, 0); opacity: 1; }
+        @media (min-width: 901px) { .pf-top { padding-top: 22px; } .pf-toast { bottom: 32px; } .pf-viewer { padding-left: 80px; } }
+        @media (prefers-reduced-motion: reduce) { .pf-hero, .pf-cell, .pf-skel, .pf-viewer.open { animation: none; } .pf-viewer .tic-card { transition: none; } }
+    </style>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4230708127921610"
+     crossorigin="anonymous"></script>
+    <script defer src="js/keyboard_ui.js?v=1"></script>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="logo-section" style="cursor:pointer; margin-bottom: 30px; display:flex; justify-content:center;" onclick="window.location.href='home.html'">
+            <svg width="40" height="24" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" />
+                <circle cx="65" cy="30" r="22" fill="none" stroke="#1B3A5C" stroke-width="8" />
+                <path d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
+            </svg>
+        </div>
+
+        <button class="nav-btn" onclick="window.location.href='home.html'" style="margin-bottom:12px;" data-i18n-title="nav_home">
+            <span class="material-icons-outlined">home</span>
+            <span style="font-size:10px;" data-i18n="nav_home">Inicio</span>
+        </button>
+        <button class="nav-btn active" onclick="window.location.href='friends.html'" style="margin-bottom:12px;" data-i18n-title="nav_friends">
+            <span class="material-icons-outlined">group</span>
+            <span style="font-size:10px;" data-i18n="nav_friends">Amigos</span>
+        </button>
+        <button class="nav-btn" onclick="window.location.href='chat.html'" style="margin-bottom:12px;" data-i18n-title="nav_chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="width:24px;height:24px;display:block;flex:none"><path d="M21.4 3.2 2.9 10.4a.6.6 0 0 0 0 1.1l6.9 2.6 2.6 6.9a.6.6 0 0 0 1.1 0L21.4 3.2z"/><path d="m9.8 14.1 5.3-5.3"/></svg>
+            <span style="font-size:10px;" data-i18n="nav_chat">Chat</span>
+        </button>
+        <button class="nav-btn" onclick="window.location.href='home.html?section=actividades-map'" style="margin-bottom:12px;" data-i18n-title="nav_map">
+            <span class="material-icons-outlined">map</span>
+            <span style="font-size:10px;" data-i18n="nav_map">Mapa</span>
+        </button>
+
+        <div style="margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:16px; padding-bottom:24px;">
+            <button class="nav-btn" id="nav-perfil-side" onclick="window.location.href='home.html?section=perfil'" title="Perfil" data-i18n-title="nav_profile">
+                <span class="material-icons-outlined">person</span>
+            </button>
+            <button class="nav-btn" onclick="copyProfileId()" title="Copiar ID" data-i18n-title="copy_profile_id_title">
+                <span class="material-icons-outlined">share</span>
+            </button>
+            <button class="nav-btn" id="logout-btn" title="Cerrar sesión" data-i18n-title="logout_title">
+                <span class="material-icons-outlined" style="color:#ff4444;">logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="pf-page" id="pf-page">
+            <div class="pf-top">
+                <button type="button" class="pf-back" id="pf-back" aria-label="Volver">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <span style="flex:1"></span>
+                <button type="button" class="pf-back pf-more" id="pf-more" hidden aria-label="Más opciones (bloquear o reportar)" title="Bloquear o reportar">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg>
+                </button>
+            </div>
+            <section class="pf-hero" id="pf-hero" aria-live="polite">
+                <div class="pf-cover"></div>
+                <div class="pf-avatar pf-skel" id="pf-avatar"></div>
+                <div class="pf-skel pf-skel-line" style="width:46%;height:22px"></div>
+                <div class="pf-skel pf-skel-line"></div>
+            </section>
+            <section class="pf-section" id="pf-badges" hidden></section>
+
+            <section class="pf-section" id="pf-tics-section">
+                <h2>Tics</h2>
+                <div class="pf-grid" id="pf-grid">
+                    <div class="pf-cell pf-skel"></div><div class="pf-cell pf-skel"></div><div class="pf-cell pf-skel"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="pf-viewer" id="pf-viewer" role="dialog" aria-modal="true" aria-label="Tic"></div>
+    <div class="pf-toast" id="pf-toast" role="status"></div>
+
+    <nav class="bottom-nav-bar">
+        <span class="bottom-nav-indicator" aria-hidden="true"></span>
+        <button class="nav-btn" id="nav-inicio" onclick="sessionStorage.setItem('seeyou_nav_index', 0); window.location.href='home.html'">
+            <span class="material-icons-outlined">home</span>
+            <span data-i18n="nav_home">Inicio</span>
+        </button>
+        <button class="nav-btn active" id="nav-amigos" onclick="sessionStorage.setItem('seeyou_nav_index', 1); window.location.href='friends.html'">
+            <span class="material-icons-outlined">group</span>
+            <span data-i18n="nav_friends">Amigos</span>
+        </button>
+        <button class="nav-btn" id="nav-chat" onclick="sessionStorage.setItem('seeyou_nav_index', 2); window.location.href='chat.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="width:24px;height:24px;display:block;flex:none"><path d="M21.4 3.2 2.9 10.4a.6.6 0 0 0 0 1.1l6.9 2.6 2.6 6.9a.6.6 0 0 0 1.1 0L21.4 3.2z"/><path d="m9.8 14.1 5.3-5.3"/></svg>
+            <span data-i18n="nav_chat">Chat</span>
+        </button>
+        <button class="nav-btn" id="nav-actividades" onclick="sessionStorage.setItem('seeyou_nav_index', 3); window.location.href='home.html?section=actividades-map'">
+            <span class="material-icons-outlined">map</span>
+            <span data-i18n="nav_map">Mapa</span>
+        </button>
+        <button class="nav-btn" id="nav-perfil" onclick="sessionStorage.setItem('seeyou_nav_index', 4); window.location.href='home.html?section=perfil'">
+            <span class="material-icons-outlined">person_outline</span>
+            <span data-i18n="nav_profile">Perfil</span>
+        </button>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        (async function () {
+            'use strict';
+            var params = new URLSearchParams(location.search);
+            var profileId = params.get('id') || params.get('user') || '';
+            var me = localStorage.getItem('current_user_id') || '';
+            if (!localStorage.getItem('current_user') || !me) { location.replace('index.html'); return; }
+            if (!profileId) { location.replace('friends.html'); return; }
+            if (String(profileId) === String(me)) { location.replace('home.html?section=perfil'); return; }
+
+            try { var th = localStorage.getItem('seeYou_theme'); if (th === 'dark' || th === 'blue') document.body.dataset.theme = th; } catch (e) { }
+            try { CONFIG.initLanguage && CONFIG.initLanguage(); CONFIG.translatePage && CONFIG.translatePage(); } catch (e) { }
+            var logout = document.getElementById('logout-btn');
+            if (logout) logout.onclick = function (e) { e.preventDefault(); CONFIG.logout(); };
+            window.copyProfileId = function () {
+                if (navigator.clipboard) navigator.clipboard.writeText(String(me)).then(function () { toast('ID copiado. Envíaselo a un amigo.'); });
+            };
+
+            // barra inferior
+            (function () {
+                var nav = document.querySelector('.bottom-nav-bar');
+                if (!nav) return;
+                requestAnimationFrame(function () { nav.classList.add('is-ready'); nav.style.setProperty('--nav-index', 1); });
+            })();
+
+            var esc = SocialUI.esc;
+            function toast(msg) {
+                var t = document.getElementById('pf-toast');
+                t.textContent = msg; t.classList.add('show');
+                clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2600);
+            }
+            document.getElementById('pf-back').onclick = function () {
+                if (document.referrer && history.length > 1 && new URL(document.referrer).origin === location.origin) history.back();
+                else location.href = 'friends.html';
+            };
+
+            var ICON = {
+                follow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+                userPlus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>',
+                check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+                clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+                msg: SocialUI.icons.comment,
+                flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s5 4.2 5 9.2a5 5 0 0 1-10 0c0-1.6.6-2.9 1.4-4C9 8.3 10 9 10.6 9.4 10.8 6.6 11 4.6 12 2zm0 20a6 6 0 0 1-6-6c0-.9.2-1.7.5-2.4C7.6 14.8 9 15.6 10.4 15.6c2.6 0 4.3-1.9 4.3-4.4 0 0 2.3 1.9 2.3 4.8A6 6 0 0 1 12 22z" opacity=".9"/></svg>',
+                lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+                camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+                ghost: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9.5 15.5c1.5-1 3.5-1 5 0"/></svg>'
+            };
+
+            // Fondos de banner que el usuario puede elegir en Configuracion > Editar perfil.
+            // Si no hay ninguno guardado (banner vacio) se usa el degradado azul de siempre (CSS .pf-cover).
+            window.PROFILE_BANNERS = window.PROFILE_BANNERS || {
+                azul: 'radial-gradient(120% 140% at 15% 0%, rgba(59,130,246,.85) 0%, rgba(59,130,246,0) 55%), radial-gradient(110% 130% at 100% 100%, rgba(126,188,255,.75) 0%, rgba(126,188,255,0) 60%), linear-gradient(135deg, #1B3A5C, #24528A)',
+                noche: 'linear-gradient(135deg, #0B1A2E, #1B3A5C)',
+                atardecer: 'linear-gradient(135deg, #F97316, #FB7185 60%, #7C3AED)',
+                bosque: 'linear-gradient(135deg, #0F5132, #2E8B57 60%, #86C58B)',
+                rosa: 'linear-gradient(135deg, #BE185D, #F472B6 60%, #FBCFE8)',
+                lila: 'linear-gradient(135deg, #5B21B6, #8B5CF6 60%, #C4B5FD)'
+            };
+            try { await Promise.race([CONFIG.initServer().catch(function () { }), new Promise(function (resolve) { setTimeout(resolve, 8000); })]); } catch (e) { }
+            var API = CONFIG.API_BASE_URL;
+            function j(url) { return fetch(API + url, { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
+
+            var user = await j('/api/users/' + encodeURIComponent(profileId));
+            // Si es tu propio perfil y tienes un banner con imagen propia, se comprueba (y cobra,
+            // una vez al dia) la moneda diaria que lo mantiene activo. Si no hay saldo, el servidor
+            // lo desactiva solo y aqui se refleja volviendo a pedir los datos del usuario.
+            if (user && String(me) === String(user.id || profileId) && user.banner === 'imagen') {
+                try {
+                    var tok = localStorage.getItem('seeYou_auth_token');
+                    if (tok) {
+                        var chargeRes = await fetch(API + '/api/users/' + encodeURIComponent(me) + '/banner-image-charge', {
+                            method: 'POST', headers: { 'Authorization': 'Bearer ' + tok }
+                        });
+                        var chargeData = await chargeRes.json().catch(function () { return null; });
+                        if (chargeData && chargeData.reverted) {
+                            user.banner = ''; user.banner_image_url = '';
+                            if (window.showToast) showToast('Te quedaste sin monedas y tu banner con imagen se desactivó.');
+                        }
+                    }
+                } catch (e) { }
+            }
+            if (!user) { await new Promise(function (r) { setTimeout(r, 1200); }); user = await j('/api/users/' + encodeURIComponent(profileId)); }
+            if (user && user.hidden) user = null; // bloqueado (en cualquier sentido): se muestra como si no existiera
+            // Si abriste tu propio perfil con tu @usuario (mencion), profileId no coincide con tu id: se detecta aqui y vas a tu perfil.
+            if (user && String(user.id) === String(me)) { location.replace('home.html?section=perfil'); return; }
+            var hero = document.getElementById('pf-hero');
+            if (!user) {
+                hero.innerHTML = '<div class="pf-empty" style="border:0;margin:0">' + ICON.ghost + '<b>Usuario no encontrado</b>Puede que haya cambiado su nombre o ya no esté en SeeYou.<div class="pf-actions"><a class="pf-btn pf-btn--primary" href="friends.html" style="text-decoration:none">Ir a Amigos</a></div></div>';
+                document.getElementById('pf-tics-section').hidden = true;
+                return;
+            }
+            var uid = user.id;
+            document.title = (user.name || user.username || 'Perfil') + ' - SeeYou';
+
+            var PAGE = 24; // solo se cargan los Tics mas recientes; el resto, con "Mostrar más" o en el archivo
+            var state = { friends: [], sent: [], received: [], theirFriends: [], following: [] };
+            var rel = await Promise.all([
+                j('/api/friends/' + encodeURIComponent(me)),
+                j('/api/friends/pending/' + encodeURIComponent(me)),
+                j('/api/friends/requests/' + encodeURIComponent(me)),
+                j('/api/friends/' + encodeURIComponent(uid)),
+                j('/api/publicaciones/usuario/' + encodeURIComponent(uid) + '?viewerId=' + encodeURIComponent(me) + '&limit=' + PAGE),
+                j('/api/follows/' + encodeURIComponent(me))
+            ]);
+            state.following = (rel[5] && Array.isArray(rel[5].following)) ? rel[5].following : [];
+            state.friends = rel[0] || []; state.sent = rel[1] || []; state.received = rel[2] || []; state.theirFriends = rel[3] || [];
+            var tics = (rel[4] || []).slice().sort(function (a, b) { return new Date(b.customDate || b.createdAt || b.date || 0) - new Date(a.customDate || a.createdAt || a.date || 0); });
+
+            function relation() {
+                if (state.friends.some(function (f) { return String(f.id) === String(uid); })) return { t: 'friend' };
+                var r = state.received.find(function (x) { return x.fromUser && String(x.fromUser.id) === String(uid); });
+                if (r) return { t: 'received', requestId: r.requestId };
+                if (state.sent.some(function (x) { return x.toUser && String(x.toUser.id) === String(uid); })) return { t: 'sent' };
+                return { t: 'none' };
+            }
+
+            function mutualLine() {
+                if (String(me) === String(uid) || relation().t === 'friend') return '';
+                var mine = {};
+                state.friends.forEach(function (f) { mine[String(f.id)] = 1; });
+                var m = state.theirFriends.filter(function (f) { return mine[String(f.id)]; });
+                if (!m.length) return '';
+                var nm = function (f) { return '<b>' + esc(f.name || f.username || 'Usuario') + '</b>'; };
+                var who = esc(user.name || user.username || 'Usuario');
+                var txt;
+                if (m.length === 1) txt = nm(m[0]) + ' es amigo de ' + who;
+                else if (m.length === 2) txt = nm(m[0]) + ' y ' + nm(m[1]) + ' son amigos de ' + who;
+                else txt = nm(m[0]) + ', ' + nm(m[1]) + ' y <b>' + (m.length - 2) + ' más</b> son amigos de ' + who;
+                var avs = m.slice(0, 3).map(function (f) {
+                    var a = f.avatar && !/6VBx3io/.test(f.avatar) ? f.avatar : '';
+                    var src = a ? (/^https?:|^data:/.test(a) ? a : API + '/' + a.replace(/^\/?/, '')) : '';
+                    return '<span>' + (src ? '<img src="' + esc(src) + '" alt="">' : esc(String(f.name || f.username || '?').charAt(0).toUpperCase())) + '</span>';
+                }).join('');
+                return '<div class="pf-mutual"><div class="pf-mutual-av">' + avs + '</div><div>' + txt + '</div></div>';
+            }
+
+            function renderHero() {
+                var rl = relation();
+                var isPrivate = (user.visibilidad || 'public') === 'private' && rl.t !== 'friend';
+                var name = user.name || user.username || 'Usuario';
+                var avatarUrl = user.avatar && !/6VBx3io/.test(user.avatar) ? user.avatar : '';
+                var av = avatarUrl ? '<img src="' + esc(/^https?:|^data:/.test(avatarUrl) ? avatarUrl : API + '/' + avatarUrl.replace(/^\/?/, '')) + '" alt="Foto de ' + esc(name) + '">' : '<span>' + esc(name.charAt(0).toUpperCase()) + '</span>';
+                var actions = '';
+                if (rl.t === 'friend') actions = '<span class="pf-btn pf-btn--done">' + ICON.check + 'Amigos</span><a class="pf-btn pf-btn--primary" style="text-decoration:none" href="chat.html?user=' + encodeURIComponent(uid) + '">' + ICON.msg + 'Enviar mensaje</a>';
+                else if (rl.t === 'received') actions = '<button type="button" class="pf-btn pf-btn--primary" data-do="accept">' + ICON.check + 'Aceptar solicitud</button><button type="button" class="pf-btn pf-btn--ghost" data-do="reject">Rechazar</button>';
+                else if (rl.t === 'sent') actions = '<span class="pf-btn pf-btn--wait">' + ICON.clock + 'Solicitud enviada</span>';
+                else actions = '<button type="button" class="pf-btn pf-btn--primary" data-do="add">' + ICON.userPlus + 'Añadir amigo</button>';
+                // Perfil publico: ademas de pedir amistad (mutua) se puede solo seguir (la otra persona no te sigue a ti).
+                if ((rl.t === 'none' || rl.t === 'sent') && (user.visibilidad || 'public') !== 'private') {
+                    var following = state.following.some(function (f) { return String(f.id) === String(uid); });
+                    actions += following
+                        ? '<button type="button" class="pf-btn pf-btn--ghost" data-do="unfollow">' + ICON.check + 'Siguiendo</button>'
+                        : '<button type="button" class="pf-btn pf-btn--ghost" data-do="follow">' + ICON.follow + 'Seguir</button>';
+                }
+                var moreBtn = document.getElementById('pf-more');
+                if (moreBtn) moreBtn.hidden = String(me) === String(uid);
+                var chips = '';
+                if (user.streak_days > 0) chips += '<span class="pf-chip pf-chip--streak">' + ICON.flame + 'Racha de ' + user.streak_days + (user.streak_days === 1 ? ' día' : ' días') + '</span>';
+                if (isPrivate) chips += '<span class="pf-chip">' + ICON.lock + 'Perfil privado</span>';
+                var bannerStyle = '';
+                if (user.banner === 'imagen' && user.banner_image_url) {
+                    var bImg = /^https?:|^data:/.test(user.banner_image_url) ? user.banner_image_url : API + '/' + user.banner_image_url.replace(/^\/?/, '');
+                    bannerStyle = ' style="background-image:url(\'' + esc(bImg) + '\');background-size:cover;background-position:center"';
+                } else {
+                    var bannerBg = window.PROFILE_BANNERS[user.banner || ''];
+                    if (bannerBg) bannerStyle = ' style="background:' + bannerBg + '"';
+                }
+                try { var oldCv = hero.querySelector('.pf-cover'); if (oldCv && window.SeeYouBannerDrops) SeeYouBannerDrops.apply(oldCv, null, false); } catch (e) { }
+                hero.innerHTML =
+                    '<div class="pf-cover"' + bannerStyle + '></div>' +
+                    '<div class="pf-avatar">' + av + '</div>' +
+                    '<h1 class="pf-name">' + esc(name) + (user.verificado ? CONFIG.getVerifiedBadge(20) : '') + '</h1>' +
+                    (user.username ? '<div class="pf-handle">@' + esc(user.username) + '</div>' : '') +
+                    mutualLine() +
+                    (user.bio ? '<p class="pf-bio">' + esc(user.bio) + '</p>' : '') +
+                    (chips ? '<div class="pf-chips">' + chips + '</div>' : '') +
+                    '<div class="pf-stats"><div class="pf-stat"><b>' + (isPrivate ? '–' : total) + '</b><span>Tics</span></div>' +
+                    '<div class="pf-stat"><b>' + state.theirFriends.length + '</b><span>Amigos</span></div>' +
+                    '<div class="pf-stat"><b>' + (user.streak_days || 0) + '</b><span>Racha</span></div></div>' +
+                    '<div class="pf-actions">' + actions + '</div>';
+                // Efecto "gotas" del banner (si esta persona lo tiene activado)
+                try { if (window.SeeYouBannerDrops) SeeYouBannerDrops.apply(hero.querySelector('.pf-cover'), hero.querySelector('.pf-name'), user.banner_fx === 'drops'); } catch (e) { }
+                var bsec = document.getElementById('pf-badges');
+                if (bsec && window.SeeYouBadges) {
+                    if (isPrivate) bsec.hidden = true;
+                    else if (!bsec.dataset.done) { bsec.dataset.done = '1'; SeeYouBadges.mount(bsec, { userId: uid, own: false }); }
+                }
+                var img = hero.querySelector('.pf-avatar img');
+                if (img) img.onerror = function () { img.replaceWith(Object.assign(document.createElement('span'), { textContent: name.charAt(0).toUpperCase() })); };
+                renderTics(isPrivate);
+            }
+
+            function normalise(item) {
+                var img = item.imageUrl || item.image_url || item.data || '';
+                if (img && !/^https?:|^data:/.test(img)) img = API + '/' + img.replace(/^\/?/, '');
+                var loc = item.location;
+                if (typeof loc === 'string') { try { loc = JSON.parse(loc); } catch (e) { loc = null; } }
+                return {
+                    id: item.id, imgUrl: img, author: user.name || user.username || '', authorAvatar: user.avatar || '', userId: uid,
+                    caption: item.caption || '', date: new Date(item.customDate || item.createdAt || item.created_at || item.date || 0),
+                    likes: Array.isArray(item.likes) ? item.likes : [], comments: Array.isArray(item.comments) ? item.comments : [],
+                    taggedUserIds: item.taggedUserIds || item.tagged_user_ids || [],
+                    visibility: item.visibility || 'public',
+                    music: item.spotifyInfo && item.spotifyInfo.title ? item.spotifyInfo.title : null,
+                    location: loc && typeof loc === 'object' ? loc : null, frameOverlayUrl: item.frameOverlayUrl || null,
+                    imgAlt: [item.originalImageUrl, item.original_image_url, item.data, item.image_url, item.imageUrl]
+                };
+            }
+            function visible(t) { return !t.hidden && !t.isHidden; }
+            var items = tics.filter(visible).map(normalise);
+            window.publicationPhotos = items;
+            var total = tics.length;
+            var archiveOpts = {
+                userId: uid, viewerId: me,
+                title: 'Tics de ' + (user.name || user.username || 'usuario'),
+                toCard: normalise,
+                register: function (raw) {
+                    var known = window.publicationPhotos || [];
+                    (raw || []).forEach(function (r) {
+                        if (!known.some(function (k) { return String(k.id) === String(r.id); })) known.push(normalise(r));
+                    });
+                    window.publicationPhotos = known;
+                }
+            };
+            // El total real llega del resumen ligero (una peticion pequeña, sin fotos).
+            if (window.TicsArchive) {
+                TicsArchive.summary(archiveOpts).then(function (list) {
+                    total = list.length;
+                    var b = hero.querySelector('.pf-stat b');
+                    if (b && b.textContent !== '–') b.textContent = total;
+                    renderTools();
+                }).catch(function () { });
+            }
+
+            var heartSvg = '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+            var cmtSvg = '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>';
+            function renderTics(isPrivate) {
+                var grid = document.getElementById('pf-grid');
+                if (isPrivate) {
+                    grid.outerHTML = '<div class="pf-empty" id="pf-grid">' + ICON.lock + '<b>Este perfil es privado</b>Envía una solicitud de amistad para ver sus Tics.</div>';
+                    return;
+                }
+                if (!items.length) {
+                    grid.outerHTML = '<div class="pf-empty" id="pf-grid">' + ICON.camera + '<b>Aún no hay Tics</b>' + esc(user.name || user.username || 'Este usuario') + ' todavía no ha compartido ningún Tic.</div>';
+                    return;
+                }
+                grid.outerHTML = '<div class="pf-grid" id="pf-grid">' + items.map(function (it, i) {
+                    return '<button type="button" class="pf-cell" data-i="' + i + '" style="animation-delay:' + Math.min(i * 40, 400) + 'ms" aria-label="Abrir Tic ' + (i + 1) + '">' +
+                        '<img src="' + esc(window.TicsArchive ? TicsArchive.thumbUrl(it.imgUrl, 360) : it.imgUrl) + '" data-full="' + esc(it.imgUrl) + '" alt="" loading="lazy" decoding="async" onerror="if(!this.dataset.r&&this.dataset.full){this.dataset.r=1;this.src=this.dataset.full}">' +
+                        '<div class="pf-cell-meta"><span>' + heartSvg + it.likes.length + '</span><span>' + cmtSvg + it.comments.length + '</span></div></button>';
+                }).join('') + '</div>';
+                renderTools();
+            }
+
+            function renderTools() {
+                var section = document.getElementById('pf-tics-section');
+                var old = document.getElementById('pf-tools');
+                if (old) old.remove();
+                var hasGrid = !!document.querySelector('#pf-tics-section .pf-grid');
+                if (!hasGrid || !window.TicsArchive || !total) return;
+                var box = document.createElement('div');
+                box.id = 'pf-tools';
+                box.innerHTML = (items.length < total ? '<button type="button" class="tarc-more" data-tool="more">Mostrar más</button>' : '') +
+                    '<button type="button" class="tarc-cta" data-tool="archive">Ver todos por fecha o lugar</button>';
+                section.appendChild(box);
+            }
+            async function loadMoreTics() {
+                // El cursor es la fecha de creacion MAS ANTIGUA de lo ya cargado (no la del ultimo de la lista, que puede ir ordenada por otra fecha:
+                // con Tics de fecha retrasada se pedia la misma pagina otra vez y la rejilla repetia fotos).
+                var before = '';
+                var oldestMs = null;
+                tics.forEach(function (t) {
+                    var raw = t.createdAt || t.created_at || t.date || '';
+                    var ms = Date.parse(raw);
+                    if (isFinite(ms) && (oldestMs === null || ms < oldestMs)) { oldestMs = ms; before = raw; }
+                });
+                var more = await j('/api/publicaciones/usuario/' + encodeURIComponent(uid) + '?viewerId=' + encodeURIComponent(me) + '&limit=' + PAGE + '&before=' + encodeURIComponent(before));
+                if (more && more.length) {
+                    var knownIds = {};
+                    tics.forEach(function (t) { knownIds[String(t.id)] = true; });
+                    more = more.filter(function (t) { return !knownIds[String(t.id)]; });
+                }
+                if (more && more.length) {
+                    tics = tics.concat(more);
+                    items = items.concat(more.filter(visible).map(normalise));
+                    window.publicationPhotos = items;
+                    renderTics(false);
+                } else {
+                    total = items.length;
+                    renderTools();
+                }
+            }
+            document.getElementById('pf-tics-section').addEventListener('click', function (e) {
+                var b = e.target.closest('[data-tool]');
+                if (!b) return;
+                if (b.dataset.tool === 'archive') TicsArchive.open(archiveOpts);
+                else { b.disabled = true; loadMoreTics(); }
+            });
+
+            // visor de Tics
+            var viewer = document.getElementById('pf-viewer');
+            function openViewer(i) {
+                viewer.innerHTML = '';
+                items.forEach(function (it) { });
+                viewer.innerHTML = SocialUI.ticCardHTML(items[i], { eager: true });
+                viewer.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                viewer.scrollTop = 0;
+                SocialUI.hydrate(viewer);
+                viewer.dataset.i = i;
+            }
+            function closeViewer() {
+                viewer.classList.remove('open'); document.body.style.overflow = '';
+                // refrescar contadores de la rejilla
+                document.querySelectorAll('.pf-cell').forEach(function (cell) {
+                    var it = items[cell.dataset.i]; if (!it) return;
+                    var spans = cell.querySelectorAll('.pf-cell-meta span');
+                    if (spans[0]) spans[0].lastChild.textContent = it.likes.length;
+                    if (spans[1]) spans[1].lastChild.textContent = it.comments.length;
+                });
+            }
+            // Sin boton de aspa: se cierra tocando fuera del Tic (el fondo del visor).
+            viewer.addEventListener('click', function (e) { if (e.target === viewer) closeViewer(); });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && viewer.classList.contains('open')) closeViewer();
+            });
+            document.getElementById('pf-page').addEventListener('click', function (e) {
+                var cell = e.target.closest('.pf-cell');
+                if (cell && cell.dataset.i != null) openViewer(Number(cell.dataset.i));
+            });
+
+            var pfMore = document.getElementById('pf-more');
+            if (pfMore) pfMore.addEventListener('click', function () { if (window.SocialUI) SocialUI.openUserMenu(uid, user.name || user.username || 'este usuario'); });
+
+            // acciones de amistad
+            hero.addEventListener('click', async function (e) {
+                var btn = e.target.closest('[data-do]');
+                if (!btn) return;
+                var act = btn.dataset.do;
+                if (act === 'more') { if (window.SocialUI) SocialUI.openUserMenu(uid, user.name || user.username || 'este usuario'); return; }
+                btn.disabled = true;
+                try {
+                    if (act === 'add') {
+                        var r = await fetch(API + '/api/friends/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fromUserId: me, toUserId: uid }) });
+                        var d = await r.json().catch(function () { return {}; });
+                        if (!r.ok && !/pendiente/i.test(d.message || '')) throw new Error(d.message || 'error');
+                        if (d.accepted) { state.friends.push({ id: uid }); state.theirFriends.push({ id: me }); toast('Ahora sois amigos'); renderHero(); return; }
+                        state.sent.push({ toUser: { id: uid } });
+                        toast('Solicitud enviada a ' + (user.name || user.username));
+                    } else if (act === 'follow' || act === 'unfollow') {
+                        var rf = await fetch(API + '/api/follows', { method: act === 'follow' ? 'POST' : 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fromUserId: me, toUserId: uid }) });
+                        var df = await rf.json().catch(function () { return {}; });
+                        if (!rf.ok && !/Ya sigues/i.test(df.message || '')) throw new Error(df.message || 'error');
+                        state.following = state.following.filter(function (f) { return String(f.id) !== String(uid); });
+                        if (act === 'follow') { state.following.push({ id: uid }); toast('Ahora sigues a ' + (user.name || user.username)); }
+                        else toast('Has dejado de seguir a ' + (user.name || user.username));
+                    } else {
+                        var rq = relation();
+                        var accept = act === 'accept';
+                        var r2 = await fetch(API + '/api/friends/respond', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: me, requestId: rq.requestId, accept: accept }) });
+                        if (!r2.ok) throw new Error('error');
+                        state.received = state.received.filter(function (x) { return String(x.requestId) !== String(rq.requestId); });
+                        if (accept) { state.friends.push({ id: uid }); state.theirFriends.push({ id: me }); toast('Ahora sois amigos'); }
+                        else toast('Solicitud rechazada');
+                        if (accept) { var again = await j('/api/publicaciones/usuario/' + encodeURIComponent(uid) + '?viewerId=' + encodeURIComponent(me) + '&limit=' + PAGE); tics = again || tics; items = tics.filter(visible).map(normalise); window.publicationPhotos = items; total = tics.length; if (window.TicsArchive) { TicsArchive.invalidate(); TicsArchive.summary(archiveOpts).then(function (l) { total = l.length; renderHero(); }).catch(function () { }); } }
+                    }
+                } catch (err) {
+                    toast(err && err.message && err.message !== 'error' ? err.message : 'No se pudo completar la acción. Inténtalo de nuevo.');
+                }
+                renderHero();
+            });
+
+            if (typeof notificationsSystem !== 'undefined') { try { notificationsSystem.startPolling(String(me)); } catch (e) { } }
+            // Bloquear desde el perfil: se sale del perfil; desbloquear recarga para ver los Tics de nuevo.
+            document.addEventListener('seeyou:user-blocked', function (e) {
+                if (!e.detail || String(e.detail.userId) !== String(uid)) return;
+                if (e.detail.blocked) window.location.href = 'friends.html'; else window.location.reload();
+            });
+            // Un Tic borrado desde el visor desaparece también de la rejilla.
+            document.addEventListener('seeyou:tic-deleted', function (e) {
+                var id = e.detail && e.detail.id;
+                items = items.filter(function (it) { return String(it.id) !== String(id); });
+                tics = tics.filter(function (t) { return String(t.id) !== String(id); });
+                window.publicationPhotos = items;
+                total = Math.max(0, total - 1);
+                closeViewer();
+                renderTics(isPrivateNow());
+                renderHero();
+            });
+            function isPrivateNow() { return (user.visibilidad || 'public') === 'private' && relation().t !== 'friend'; }
+            renderHero();
+        })();
+        });
+    </script>
+</body>
+
+</html>

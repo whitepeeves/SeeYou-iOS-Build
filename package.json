@@ -1,0 +1,31 @@
+{
+  "name": "seeyou-ios-build",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cliente de SeeYou (web + Capacitor) usado solo para compilar la app de iOS en GitHub Actions.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "capacitor:add:ios": "npx cap add ios",
+    "capacitor:sync:ios": "npx cap sync ios",
+    "capacitor:open:ios": "npx cap open ios",
+    "capacitor:add:android": "npx cap add android",
+    "capacitor:sync:android": "npx cap sync android",
+    "capacitor:open:android": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "^8.2.0",
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/ios": "^8.5.1",
+    "@capacitor/keyboard": "^8.0.6",
+    "@capacitor/local-notifications": "^8.3.1",
+    "@capacitor/push-notifications": "^8.1.2",
+    "@revenuecat/purchases-capacitor": "^13.7.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1"
+  }
+}

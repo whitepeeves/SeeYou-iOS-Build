@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Gestión de Usuarios</title>
+    <link rel="icon" type="image/png" href="logotipo.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1B3A5C">
+    <link rel="stylesheet" href="admin_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        /* Estilos para Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 32px;
+            border-radius: 24px;
+            width: min(96vw, 1200px);
+            max-width: 1200px;
+            max-height: 88vh;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #files-modal .modal-content {
+            width: min(96vw, 1200px);
+            height: min(88vh, 920px);
+            max-height: 88vh;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-shrink: 0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #1e293b;
+        }
+
+        .close-modal {
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #1B3A5C;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: #1B3A5C;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: #142D47;
+        }
+
+        /* Estilos para lista de archivos */
+        .file-list {
+            margin-top: 16px;
+            max-height: none;
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 8px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-info .icon {
+            color: #1B3A5C;
+        }
+
+        .file-name {
+            font-size: 14px;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .file-actions .btn-del-file {
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .file-select-all {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 2px solid #f1f5f9;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .file-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1B3A5C;
+        }
+
+        /* Stats Styles */
+        .stats-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-filter {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-filter.active {
+            background: #1B3A5C;
+            color: white;
+            border-color: #1B3A5C;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+            height: 400px;
+        }
+
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script src="js/daily_themes.js?v=3"></script>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="material-icons-round">storage</span>
+                <span>DB Admin</span>
+            </div>
+            <nav id="admin-nav">
+                <a href="#" class="active" data-section="section-users"><span class="material-icons-round">people</span>
+                    Usuarios</a>
+                <a href="#" data-section="section-photos"><span class="material-icons-round">image</span> Fotos</a>
+                <a href="#" data-section="section-stats"><span class="material-icons-round">analytics</span>
+                    Estadísticas</a>
+                <a href="#" data-section="section-reports"><span class="material-icons-round">flag</span>
+                    Reportes</a>
+                <a href="#" data-section="section-ads"><span class="material-icons-round">campaign</span>
+                    Anuncios</a>
+                <a href="#" data-section="section-settings"><span class="material-icons-round">settings</span>
+                    Configuración</a>
+                <a href="#" data-section="section-graph"><span class="material-icons-round">hub</span>
+                    Grafo</a>
+                <a href="#" data-section="section-feed"><span class="material-icons-round">trending_up</span>
+                    Algoritmo</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 id="page-title">Panel de Gestión de Usuarios</h1>
+                <div class="user-profile">
+                    <span>Admin</span>
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=1B3A5C&color=fff" alt="Avatar">
+                </div>
+            </header>
+
+            <!-- CONTENEDOR DE SECCIONES -->
+            <div id="content-container">
+                <!-- SECCIÓN USUARIOS -->
+                <section id="section-users" class="admin-section">
+                    <section class="stats-grid">
+                        <div class="stat-card">
+                            <span class="material-icons-round text-blue">group</span>
+                            <div>
+                                <h3>Total Usuarios</h3>
+                                <p id="total-users">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="material-icons-round text-green">verified_user</span>
+                            <div>
+                                <h3>Verificados</h3>
+                                <p id="verified-users">0</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="table-container">
+                        <div class="table-header">
+                            <h2>Base de Datos MariaDB</h2>
+                            <button class="btn-add" id="btn-open-add-user">
+                                <span class="material-icons-round">add</span> Nuevo Usuario
+                            </button>
+                        </div>
+                        <table id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>ID (Tel)</th>
+                                    <th>Nombre de Usuario</th>
+                                    <th>Correo electrónico</th>
+                                    <th>Contraseña</th>
+                                    <th style="text-align: center;">Estado</th>
+                                    <th>Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </section>
+                </section>
+
+                <!-- SECCIÓN FOTOS -->
+                <section id="section-photos" class="admin-section" style="display: none;">
+                    <section class="stats-grid">
+                        <div class="stat-card">
+                            <span class="material-icons-round" style="color:#1B3A5C">collections</span>
+                            <div>
+                                <h3>Total Fotos</h3>
+                                <p id="total-photos">0</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="table-container">
+                        <div class="table-header">
+                            <h2>Biblioteca de imágenes</h2>
+                            <div class="media-filters">
+                                <select id="media-category-filter" aria-label="Filtrar imágenes">
+                                    <option value="all">Todas</option>
+                                    <option value="chat">Fotos de chats</option>
+                                    <option value="profile">Fotos de perfil</option>
+                                    <option value="tic">Tics</option>
+                                </select>
+                                <input id="media-search-input" type="search" placeholder="Buscar usuario o chat..." aria-label="Buscar usuario o chat">
+                                <button id="media-bulk-delete" type="button" class="btn-filter" style="display:none;background:#ef4444;color:#fff;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600"></button>
+                            </div>
+                        </div>
+                        <table id="photos-table">
+                            <thead>
+                                <tr>
+                                    <th>Miniatura</th>
+                                    <th>Tipo</th>
+                                    <th>Usuario / conversación</th>
+                                    <th>ID</th>
+                                    <th>Canción / Artista</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="photos-tbody">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </section>
+                </section>
+
+                <!-- SECCIÓN REPORTES -->
+                <section id="section-reports" class="admin-section" style="display: none;">
+                    <section class="stats-grid">
+                        <div class="stat-card">
+                            <span class="material-icons-round" style="color:#d9534f">flag</span>
+                            <div>
+                                <h3>Reportes pendientes</h3>
+                                <p id="total-reports-open">0</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="table-container">
+                        <div class="table-header">
+                            <h2>Reportes de usuarios</h2>
+                            <select id="reports-status-filter" aria-label="Filtrar reportes">
+                                <option value="open">Pendientes</option>
+                                <option value="reviewed">Revisados</option>
+                                <option value="dismissed">Descartados</option>
+                                <option value="all">Todos</option>
+                            </select>
+                        </div>
+                        <table id="reports-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Denunciante</th>
+                                    <th>Usuario denunciado</th>
+                                    <th>Motivo</th>
+                                    <th>Detalles</th>
+                                    <th>Tic</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reports-tbody">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </section>
+                </section>
+
+                <!-- SECCIÓN ESTADÍSTICAS -->
+                <section id="section-stats" class="admin-section" style="display: none;">
+                    <div class="stats-controls">
+                        <button class="btn-filter" data-range="0.083">5 min</button>
+                        <button class="btn-filter" data-range="1">1 hora</button>
+                        <button class="btn-filter active" data-range="7">7 días</button>
+                        <button class="btn-filter" data-range="30">30 días</button>
+                        <button class="btn-filter" data-range="365">1 año</button>
+                        <button class="btn-filter" data-range="all">Siempre</button>
+                        <div class="stats-customize-wrap" style="margin-left:auto;">
+                            <button class="btn-filter" id="btn-customize-stats" type="button">
+                                <span class="material-icons-round" style="font-size:16px; vertical-align:-3px; margin-right:4px;">tune</span>Personalizar
+                            </button>
+                            <div class="stats-customize-panel" id="stats-customize-panel">
+                                <h4>Mostrar tarjetas</h4>
+                                <label><input type="checkbox" data-stat-toggle="new-photos" checked> Nuevas Fotos</label>
+                                <label><input type="checkbox" data-stat-toggle="new-users" checked> Nuevos Registros</label>
+                                <label><input type="checkbox" data-stat-toggle="new-tics" checked> Nuevos Tics</label>
+                                <label><input type="checkbox" data-stat-toggle="verified-users" checked> Verificados</label>
+                                <label><input type="checkbox" data-stat-toggle="likes" checked> Likes (rango)</label>
+                                <label><input type="checkbox" data-stat-toggle="comments" checked> Comentarios (rango)</label>
+                                <label><input type="checkbox" data-stat-toggle="logins" checked> Inicios de sesión (rango)</label>
+                                <label><input type="checkbox" data-stat-toggle="active-users" checked> Usuarios activos (rango)</label>
+                                <label><input type="checkbox" data-stat-toggle="impressions" checked> Visualizaciones totales</label>
+                            </div>
+                        </div>
+                        <button class="btn-filter" id="btn-trigger-theme" style="background:#0c4a6e; color:white;">Lanzar tema hoy</button>
+                    </div>
+
+                    <div class="stats-grid" style="grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 24px 0 24px;">
+                        <div class="stat-card" data-stat-card="new-photos">
+                            <span class="material-icons-round text-blue">add_a_photo</span>
+                            <div>
+                                <h3>Nuevas Fotos</h3>
+                                <p id="stats-new-photos">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat-card="new-users">
+                            <span class="material-icons-round text-green">person_add</span>
+                            <div>
+                                <h3>Nuevos Registros</h3>
+                                <p id="stats-new-users">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat-card="new-tics">
+                            <span class="material-icons-round text-purple">star</span>
+                            <div>
+                                <h3>Nuevos Tics</h3>
+                                <p id="stats-new-tics">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat-card="verified-users">
+                            <span class="material-icons-round" style="color:#0ea5e9;">verified</span>
+                            <div>
+                                <h3>Verificados</h3>
+                                <p id="stats-verified-users">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat-card="likes">
+                            <span class="material-icons-round" style="color:#f43f5e;">favorite</span>
+                            <div>
+                                <h3>Likes (rango)</h3>
+                                <p id="stats-likes">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat-card="comments">
+                            <span class="material-icons-round" style="color:#f59e0b;">chat_bubble</span>
+                            <div>
+                                <h3>Comentarios (rango)</h3>
+                                <p id="stats-comments">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat-card="logins">
+                            <span class="material-icons-round" style="color:#22c55e;">login</span>
+                            <div>
+                                <h3>Inicios de sesión (rango)</h3>
+                                <p id="stats-logins">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat-card="active-users">
+                            <span class="material-icons-round" style="color:#6366f1;">groups</span>
+                            <div>
+                                <h3>Usuarios activos (rango)</h3>
+                                <p id="stats-active-users">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-stat-card="impressions">
+                            <span class="material-icons-round" style="color:#a855f7;">visibility</span>
+                            <div>
+                                <h3>Visualizaciones totales</h3>
+                                <p id="stats-impressions">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 20px; color: #1e293b;">Tics Creados</h3>
+                        <canvas id="chart-uploads"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 20px; color: #1e293b;">Crecimiento de Usuarios</h3>
+                        <canvas id="chart-users"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 20px; color: #1e293b;">Inicios de sesión</h3>
+                        <canvas id="chart-logins"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 20px; color: #1e293b;">Likes y Comentarios</h3>
+                        <canvas id="chart-engagement"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 20px; color: #1e293b;">Publicaciones con más interacción (rango)</h3>
+                        <div id="top-posts-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN CONFIGURACIÓN -->
+                <!-- SECCIÓN ANUNCIOS (el gestor solo carga con sesión de administrador) -->
+                <section id="section-ads" class="admin-section" style="display: none;">
+                    <iframe id="ads-frame" title="Anuncios" style="width:100%;height:calc(100vh - 130px);min-height:640px;border:0;border-radius:14px;background:#F4F6FB" data-src="/admin_ads?embed=1"></iframe>
+                </section>
+                <section id="section-settings" class="admin-section" style="display: none;">
+                    <style>
+                        .st-card{background:#fff;border-radius:16px;padding:20px 22px;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.08);color:#1e293b}
+                        .st-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+                        .st-row h3{font-size:16px;margin:0 0 4px}.st-row p{margin:0;font-size:13.5px;color:#64748b;line-height:1.45;max-width:640px}
+                        .st-switch{position:relative;width:52px;height:30px;flex:none;border-radius:99px;border:0;background:#cbd5e1;cursor:pointer;transition:background .2s}
+                        .st-switch:after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+                        .st-switch[aria-checked="true"]{background:#22c55e}.st-switch[aria-checked="true"]:after{transform:translateX(22px)}
+                        .st-field{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+                        .st-field input{padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;width:240px;max-width:100%}
+                        .st-btn{padding:10px 16px;border:0;border-radius:10px;background:#1B3A5C;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+                        .st-msg{margin-top:10px;font-size:13px;min-height:18px;color:#64748b}.st-msg.ok{color:#15803d}.st-msg.err{color:#b91c1c}
+                        .st-link{display:inline-block;margin-top:10px;color:#1B3A5C;font-weight:700}
+                    </style>
+                    <div class="st-card">
+                        <div class="st-row">
+                            <div><h3>Tarjeta «Invita a tus amigos» en el feed</h3>
+                                <p>Sale una vez entre los Tics (tras el 4.º, o al final si el feed es corto) y abre la pantalla de invitación. Apágala cuando quieras dejar el hueco solo para anuncios; el cambio se aplica en menos de un minuto.</p></div>
+                            <button type="button" class="st-switch" id="st-house" role="switch" aria-checked="true" aria-label="Tarjeta Invita a tus amigos"></button>
+                        </div>
+                    </div>
+                    <div class="st-card">
+                        <div class="st-row">
+                            <div><h3>Anuncio de Google AdSense en el feed (solo web)</h3>
+                                <p>Muestra una unidad de anuncio de tu cuenta de AdSense entre los Tics de la versión web (nunca en la app Android). No da monedas. Crea la unidad en AdSense → Anuncios → Por unidad de anuncio → «Anuncio display» y pega aquí su ID numérico (data-ad-slot).</p></div>
+                            <button type="button" class="st-switch" id="st-adsense" role="switch" aria-checked="false" aria-label="AdSense en el feed"></button>
+                        </div>
+                        <div class="st-field">
+                            <input type="text" id="st-slot" inputmode="numeric" placeholder="ID de la unidad, p. ej. 1234567890" maxlength="20">
+                            <button type="button" class="st-btn" id="st-slot-save">Guardar ID</button>
+                        </div>
+                    </div>
+                    <div class="st-card">
+                        <div class="st-row">
+                            <div><h3>Teléfono obligatorio para registrarse / entrar</h3>
+                                <p>Apágalo mientras no se puedan mandar SMS: el registro pasa a pedir correo electrónico y nombre de usuario (sin teléfono), y se entra con correo o usuario. Las cuentas que se creen así no tienen teléfono. Al volver a encenderlo, a esas cuentas se les pedirá el teléfono la próxima vez que entren (no se bloquea su acceso). El correo de cada usuario nunca es visible ni buscable por otros, solo por su nombre de usuario.</p></div>
+                            <button type="button" class="st-switch" id="st-phone" role="switch" aria-checked="true" aria-label="Teléfono obligatorio"></button>
+                        </div>
+                    </div>
+                    <div class="st-card">
+                        <div class="st-row"><div><h3>Anuncios propios (patrocinadores)</h3>
+                            <p>Crea, pausa y consulta las estadísticas de tus campañas directas: imagen, texto y enlace del anunciante.</p></div></div>
+                        <p style="margin:8px 0 0;font-size:13.5px;color:#64748b">Ahora está en su propio apartado: <b>Anuncios</b>, en el menú de la izquierda.</p>
+                    </div>
+                    <div class="st-card">
+                        <div class="st-row"><div><h3>Base de datos (Postgres de Railway)</h3>
+                            <p>Comprueba que las cuentas nuevas se guardan de verdad en Postgres de Railway y no solo en el servidor. Si falta alguna cuenta, «Reparar» la sube. Si algo falla, aquí verás el error exacto.</p></div></div>
+                        <div class="st-field">
+                            <button type="button" class="st-btn" id="st-db-check">Comprobar</button>
+                            <button type="button" class="st-btn" id="st-db-repair" style="background:#b45309">Reparar cuentas que faltan</button>
+                        </div>
+                        <pre id="st-db-out" style="margin-top:12px;white-space:pre-wrap;font-size:12.5px;line-height:1.5;color:#334155;background:#f1f5f9;border-radius:10px;padding:12px;display:none"></pre>
+                    </div>
+                    <div class="st-card">
+                        <div class="st-row"><div><h3>Limpiar cuentas borradas</h3>
+                            <p>Busca «me gusta», comentarios y publicaciones de cuentas que ya no existen (por ejemplo cuentas de prueba) y los elimina. Primero «Revisar» te enseña qué se borraría; «Borrar» lo hace de verdad y no se puede deshacer.</p></div></div>
+                        <div class="st-field">
+                            <button type="button" class="st-btn" id="st-ghost-scan">Revisar</button>
+                            <button type="button" class="st-btn" id="st-ghost-clean" style="background:#b91c1c;display:none">Borrar lo encontrado</button>
+                        </div>
+                        <pre id="st-ghost-out" style="margin-top:12px;white-space:pre-wrap;font-size:12.5px;line-height:1.5;color:#334155;background:#f1f5f9;border-radius:10px;padding:12px;display:none"></pre>
+                    </div>
+                    <div class="st-msg" id="st-msg"></div>
+                    <script>
+                        (function () {
+                            var $ = function (id) { return document.getElementById(id); };
+                            function say(t, c) { var m = $('st-msg'); m.textContent = t || ''; m.className = 'st-msg ' + (c || ''); }
+                            function api(method, body) {
+                                return fetch(CONFIG.API_BASE_URL + '/api/admin/settings', { method: method, credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+                                    .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); });
+                            }
+                            function paint(v) {
+                                $('st-house').setAttribute('aria-checked', v.house_invite_enabled ? 'true' : 'false');
+                                $('st-adsense').setAttribute('aria-checked', v.adsense_enabled ? 'true' : 'false');
+                                $('st-slot').value = v.adsense_slot || '';
+                                $('st-phone').setAttribute('aria-checked', v.phone_required !== false ? 'true' : 'false');
+                            }
+                            function load() { api('GET').then(paint).catch(function () { say('No se pudieron cargar los ajustes (¿sesión de administrador?).', 'err'); }); }
+                            function toggle(btn, key) {
+                                var next = btn.getAttribute('aria-checked') !== 'true';
+                                var body = {}; body[key] = next;
+                                if (key === 'adsense_enabled' && next && !$('st-slot').value.trim()) { say('Primero escribe el ID de la unidad de anuncio y pulsa «Guardar ID».', 'err'); return; }
+                                btn.setAttribute('aria-checked', next ? 'true' : 'false');
+                                api('PUT', body).then(function (v) { paint(v); say('Guardado.', 'ok'); }).catch(function () { btn.setAttribute('aria-checked', next ? 'false' : 'true'); say('No se pudo guardar.', 'err'); });
+                            }
+                            $('st-house').onclick = function () { toggle(this, 'house_invite_enabled'); };
+                            $('st-adsense').onclick = function () { toggle(this, 'adsense_enabled'); };
+                            $('st-phone').onclick = function () { toggle(this, 'phone_required'); };
+                            $('st-slot-save').onclick = function () {
+                                api('PUT', { adsense_slot: $('st-slot').value }).then(function (v) { paint(v); say('ID guardado.', 'ok'); }).catch(function () { say('No se pudo guardar.', 'err'); });
+                            };
+                            function dbOut(t) { var o = $('st-db-out'); o.style.display = 'block'; o.textContent = t; }
+                            function dbCall(url, method) {
+                                return fetch(CONFIG.API_BASE_URL + url, { method: method, credentials: 'include' }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.message || ('http ' + r.status)); return j; }); });
+                            }
+                            $('st-db-check').onclick = function () {
+                                dbOut('Comprobando…');
+                                dbCall('/api/admin/cloud-check', 'GET').then(function (d) {
+                                    var L = [];
+                                    L.push('Postgres de Railway configurado: ' + (d.pgConfigured ? 'sí' : 'NO') + ' · datos en la nube activos: ' + (d.cloudDataEnabled ? 'sí' : 'NO') + ' · R2: ' + (d.r2Enabled ? 'sí' : 'NO'));
+                                    if (d.users) {
+                                        if (d.users.cloudError) L.push('Error leyendo usuarios: ' + d.users.cloudError);
+                                        else L.push('Cuentas en Postgres de Railway: ' + d.users.inCloud + ' · en el servidor: ' + d.users.inServer);
+                                        var miss = d.users.missingInCloud || [];
+                                        L.push(miss.length ? 'FALTAN en Postgres de Railway (' + miss.length + '): ' + miss.map(function (u) { return '@' + u.username; }).join(', ') : 'Todas las cuentas están en Postgres de Railway.');
+                                    }
+                                    var badCols = Object.keys(d.columns || {}).filter(function (k) { return d.columns[k] !== 'ok'; });
+                                    L.push(badCols.length ? 'Columnas que faltan en la tabla users: ' + badCols.join(', ') : 'Columnas de la tabla users: todas correctas.');
+                                    if (d.writeTest) L.push(d.writeTest.ok ? 'Prueba de escritura: OK' : 'Prueba de escritura FALLA: ' + d.writeTest.message + ' [' + (d.writeTest.code || '') + '] ' + (d.writeTest.details || '') + ' ' + (d.writeTest.hint || ''));
+                                    var dropped = Object.keys(d.droppedColumns || {});
+                                    if (dropped.length) L.push('Columnas omitidas por el servidor: ' + dropped.map(function (t) { return t + ' → ' + d.droppedColumns[t].join(', '); }).join(' | '));
+                                    if (d.exception) L.push('Excepción: ' + d.exception);
+                                    if ((d.recentErrors || []).length) L.push('', 'Últimos errores:', d.recentErrors.map(function (e) { return e.at.slice(11, 19) + ' ' + e.table + ' ' + e.op + ': ' + e.message + ' ' + (e.code || ''); }).join('\n'));
+                                    dbOut(L.join('\n'));
+                                }).catch(function (e) { dbOut('No se pudo comprobar: ' + e.message); });
+                            };
+                            $('st-db-repair').onclick = function () {
+                                dbOut('Reparando…');
+                                dbCall('/api/admin/cloud-repair', 'POST').then(function (d) {
+                                    dbOut('Cuentas subidas: ' + d.repaired + ' · con error: ' + d.failed + (d.failed ? '\n' + (d.recentErrors || []).map(function (e) { return e.message; }).join('\n') : ''));
+                                }).catch(function (e) { dbOut('No se pudo reparar: ' + e.message); });
+                            };
+                            function ghostOut(t) { var o = $('st-ghost-out'); o.style.display = 'block'; o.textContent = t; }
+                            $('st-ghost-scan').onclick = function () {
+                                $('st-ghost-clean').style.display = 'none';
+                                ghostOut('Revisando…');
+                                dbCall('/api/admin/ghost-refs', 'GET').then(function (d) {
+                                    var n = d.likes + d.comments + d.publications.length;
+                                    var L = ['Cuentas que ya no existen: ' + d.ghosts.length, 'Me gusta a borrar: ' + d.likes, 'Comentarios a borrar: ' + d.comments, 'Publicaciones a borrar: ' + d.publications.length];
+                                    d.publications.forEach(function (p) { L.push('  · ' + p.id + ' (autor ' + p.userId + ') ' + (p.caption || '')); });
+                                    L.push('', n ? 'Si estás de acuerdo, pulsa «Borrar lo encontrado».' : 'No hay nada que limpiar.');
+                                    ghostOut(L.join('\n'));
+                                    if (n) $('st-ghost-clean').style.display = '';
+                                }).catch(function (e) { ghostOut('No se pudo revisar: ' + e.message); });
+                            };
+                            $('st-ghost-clean').onclick = function () {
+                                if (!window.confirm('Se borrarán de forma permanente esos me gusta, comentarios y publicaciones. ¿Continuar?')) return;
+                                ghostOut('Borrando…');
+                                fetch(CONFIG.API_BASE_URL + '/api/admin/ghost-refs/clean', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirm: true }) })
+                                    .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.message || ('http ' + r.status)); return j; }); })
+                                    .then(function (d) {
+                                        $('st-ghost-clean').style.display = 'none';
+                                        ghostOut('Hecho. Publicaciones borradas: ' + d.removedPublications + ' · me gusta: ' + d.removedLikes + ' · comentarios: ' + d.removedComments + (d.syncFailed ? ' · fallos al sincronizar: ' + d.syncFailed : ''));
+                                    }).catch(function (e) { ghostOut('No se pudo borrar: ' + e.message); });
+                            };
+                            var link = document.querySelector('#admin-nav a[data-section="section-settings"]');
+                            if (link) link.addEventListener('click', load);
+                            if (localStorage.getItem('admin_last_section') === 'section-settings') setTimeout(load, 600);
+                        })();
+                    </script>
+                </section>
+                <section id="section-graph" class="admin-section" style="display: none;">
+                    <style>
+                        .gr-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+                        .gr-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;border:1.5px solid #e2e8f0;background:#fff;font-size:13px;font-weight:600;color:#334155;cursor:pointer;user-select:none}
+                        .gr-chip input{margin:0}
+                        .gr-chip .dot{width:9px;height:9px;border-radius:50%;flex:none}
+                        .gr-btn{padding:9px 16px;border:0;border-radius:10px;background:#1B3A5C;color:#fff;font:inherit;font-weight:700;cursor:pointer;font-size:13px}
+                        .gr-mode-toggle{display:inline-flex;border:1.5px solid #cbd5e1;border-radius:10px;overflow:hidden}
+                        .gr-mode-btn{padding:9px 14px;border:0;background:#fff;color:#334155;font:inherit;font-weight:700;cursor:pointer;font-size:13px}
+                        .gr-mode-btn+.gr-mode-btn{border-left:1.5px solid #cbd5e1}
+                        .gr-mode-btn.gr-mode-btn-on{background:#1B3A5C;color:#fff}
+                        .gr-input{padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:10px;font:inherit;font-size:13px;width:200px}
+                        .gr-stats{font-size:12.5px;color:#64748b;margin-left:auto}
+                        .gr-wrap{position:relative;background:#0b1424;border-radius:18px;overflow:hidden;height:calc(100vh - 220px);min-height:420px;border:1px solid #1e293b}
+                        .gr-wrap canvas{display:block;width:100%;height:100%;cursor:default}
+                        .gr-tooltip{position:absolute;pointer-events:none;background:rgba(15,23,42,.95);color:#fff;padding:8px 11px;border-radius:10px;font-size:12.5px;line-height:1.5;max-width:220px;display:none;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+                        .gr-tooltip b{display:block;font-size:13px}
+                        .gr-legend{position:absolute;left:14px;bottom:14px;background:rgba(15,23,42,.85);color:#e2e8f0;border-radius:12px;padding:10px 14px;font-size:12px;line-height:1.9;z-index:4}
+                        .gr-legend span{display:inline-flex;align-items:center;gap:7px;margin-right:14px}
+                        .gr-legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+                        .gr-legend i.line{width:16px;height:3px;border-radius:2px}
+                        .gr-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;z-index:3}
+                        .gr-hint{position:absolute;right:14px;top:12px;color:#64748b;font-size:11.5px;background:rgba(15,23,42,.6);padding:6px 10px;border-radius:8px;z-index:4}
+                    </style>
+                    <div class="gr-toolbar">
+                        <label class="gr-chip"><input type="checkbox" data-edge="friend" checked><span class="dot" style="background:#94a3b8"></span>Amistades</label>
+                        <label class="gr-chip"><input type="checkbox" data-edge="posted" checked><span class="dot" style="background:#f59e0b"></span>Publicó</label>
+                        <label class="gr-chip"><input type="checkbox" data-edge="like" checked><span class="dot" style="background:#ec4899"></span>Likes</label>
+                        <label class="gr-chip"><input type="checkbox" data-edge="comment" checked><span class="dot" style="background:#8b5cf6"></span>Comentarios</label>
+                        <label class="gr-chip"><input type="checkbox" data-edge="chat" checked><span class="dot" style="background:#22c55e"></span>Chats</label>
+                        <div class="gr-mode-toggle" id="gr-mode-toggle" title="Automático: lo organiza la simulación. Estático: tu disposición, se guarda sola">
+                            <button type="button" class="gr-mode-btn" data-mode="auto">Automático</button>
+                            <button type="button" class="gr-mode-btn" data-mode="static">Estático</button>
+                        </div>
+                        <label class="gr-chip" id="gr-move-children-chip"><input type="checkbox" id="gr-move-children" checked>Mover Tics con su usuario</label>
+                        <input type="text" class="gr-input" id="gr-search" placeholder="Buscar usuario o Tic…">
+                        <button type="button" class="gr-btn" id="gr-reload">Actualizar datos</button>
+                        <div class="gr-stats" id="gr-stats"></div>
+                    </div>
+                    <div class="gr-wrap" id="gr-wrap">
+                        <canvas id="gr-canvas"></canvas>
+                        <div class="gr-tooltip" id="gr-tooltip"></div>
+                        <div class="gr-hint" id="gr-hint">Rueda: zoom · Arrastra: mover · Acércate para ver los nombres</div>
+                        <div class="gr-legend">
+                            <span><i style="background:#ef4444"></i>Usuario</span>
+                            <span><i style="background:#0ea5e9"></i>Tic</span>
+                            <span><i class="line" style="background:#94a3b8"></i>Amistad</span>
+                            <span><i class="line" style="background:#f59e0b"></i>Publicó</span>
+                            <span><i class="line" style="background:#ec4899"></i>Like</span>
+                            <span><i class="line" style="background:#8b5cf6"></i>Comentario</span>
+                            <span><i class="line" style="background:#22c55e"></i>Chat</span>
+                        </div>
+                        <div class="gr-loading" id="gr-loading">Cargando grafo…</div>
+                    </div>
+                    <script>
+                        (function () {
+                            var EDGE_COLOR = { friend: '#94a3b8', posted: '#f59e0b', like: '#ec4899', comment: '#8b5cf6', chat: '#22c55e' };
+                            var NODE_COLOR = { user: '#ef4444', tic: '#0ea5e9' };
+                            var canvas = document.getElementById('gr-canvas');
+                            var ctx = canvas.getContext('2d');
+                            var wrap = document.getElementById('gr-wrap');
+                            var tooltip = document.getElementById('gr-tooltip');
+                            var loadingEl = document.getElementById('gr-loading');
+                            var statsEl = document.getElementById('gr-stats');
+                            var searchEl = document.getElementById('gr-search');
+                            var sectionEl = document.getElementById('section-graph');
+                            var activeEdgeTypes = { friend: true, posted: true, like: true, comment: true, chat: true };
+                            // Dos modos independientes: "auto" (la simulacion fisica organiza el grafo, como
+                            // siempre) y "static" (tu disposicion manual, que se guarda en este navegador y se
+                            // recupera siempre que vuelvas a este modo, aunque pases por "auto" o recargues la pagina).
+                            // moveChildren: al arrastrar a un usuario, sus Tics (los que publico) le siguen en bloque,
+                            // para poder comprobar a simple vista a quien pertenece cada dato. Aplica en los dos modos.
+                            var mode = 'auto';
+                            var moveChildren = true;
+                            var STATIC_POS_KEY = 'seeyou_admin_graph_static_positions_v1';
+                            var staticPositions = {};
+                            try { staticPositions = JSON.parse(localStorage.getItem(STATIC_POS_KEY) || '{}') || {}; } catch (e) { staticPositions = {}; }
+                            function saveStaticPositions() {
+                                try { localStorage.setItem(STATIC_POS_KEY, JSON.stringify(staticPositions)); } catch (e) { /* almacenamiento no disponible, se sigue sin guardar */ }
+                            }
+
+                            var raw = null; // ultimo {nodes, edges} recibido del servidor, tal cual
+                            var seenEdgeKeys = null; // claves de TODAS las aristas ya vistas (para detectar las nuevas de verdad, independiente de los filtros)
+                            var sim = null;
+                            var simNodes = []; // nodos vivos de la simulacion (se reutilizan entre actualizaciones para no resetear posiciones)
+                            var simEdges = []; // aristas vivas (filtradas segun los checkboxes activos)
+                            var nodesById = new Map();
+                            var visibleEdges = [];
+                            var pulses = []; // animaciones de "bolita viajando" por una arista nueva
+                            var highlights = []; // anillos que resaltan brevemente un nodo que acaba de recibir una interaccion nueva
+                            // transform = lo que se dibuja ahora mismo; targetTransform = adonde va el zoom/paneo del usuario.
+                            // Cada frame "transform" se acerca un poco a "targetTransform" (interpolacion), en vez de saltar de golpe.
+                            var transform = { x: 0, y: 0, k: 1 };
+                            var targetTransform = { x: 0, y: 0, k: 1 };
+                            var dpr = window.devicePixelRatio || 1;
+                            var hoverNode = null;
+                            var searchTerm = '';
+                            var booted = false;
+
+                            function resize() {
+                                var r = wrap.getBoundingClientRect();
+                                canvas.width = Math.max(1, Math.round(r.width * dpr));
+                                canvas.height = Math.max(1, Math.round(r.height * dpr));
+                                canvas.style.width = r.width + 'px';
+                                canvas.style.height = r.height + 'px';
+                            }
+
+                            function radiusOf(n) {
+                                var base = n.type === 'user' ? 5 : 3.2;
+                                var bonus = Math.min(14, Math.sqrt(n._deg || 0) * 2.1);
+                                return base + bonus;
+                            }
+
+                            function edgeKey(e) { return e.type + '|' + e.source + '|' + e.target; }
+
+                            function randomSpawnNear() {
+                                if (!simNodes.length) return { x: 0, y: 0 };
+                                var c = simNodes[Math.floor(Math.random() * simNodes.length)];
+                                return { x: (c.x || 0) + (Math.random() - 0.5) * 60, y: (c.y || 0) + (Math.random() - 0.5) * 60 };
+                            }
+
+                            // Da de alta un nodo si es nuevo (con una posicion inicial cerca de otro nodo existente,
+                            // para que "nazca" de forma natural en vez de aparecer en una esquina al azar), o actualiza
+                            // sus datos (nombre, etc.) si ya existia, SIN tocar su posicion/velocidad actuales.
+                            function ensureNode(nRaw) {
+                                var existing = nodesById.get(nRaw.id);
+                                if (existing) {
+                                    existing.type = nRaw.type; existing.label = nRaw.label; existing.sub = nRaw.sub;
+                                    return existing;
+                                }
+                                // En modo estatico, un nodo que ya tenia una posicion guardada "nace" justo ahi (y
+                                // se fija); uno nuevo de verdad nace al azar como siempre, pero se fija y se guarda
+                                // de inmediato para que la proxima vez aparezca en el mismo sitio. En modo automatico
+                                // esto se ignora: la disposicion fisica va por libre y no toca lo guardado.
+                                var saved = mode === 'static' ? staticPositions[nRaw.id] : null;
+                                var spot = saved || randomSpawnNear();
+                                var node = Object.assign({ x: spot.x, y: spot.y, vx: 0, vy: 0 }, nRaw);
+                                if (mode === 'static') {
+                                    node.fx = spot.x; node.fy = spot.y;
+                                    if (!saved) { staticPositions[nRaw.id] = { x: spot.x, y: spot.y }; saveStaticPositions(); }
+                                }
+                                nodesById.set(nRaw.id, node);
+                                simNodes.push(node);
+                                return node;
+                            }
+
+                            function initSimIfNeeded() {
+                                if (sim) return;
+                                sim = d3.forceSimulation(simNodes)
+                                    .force('link', d3.forceLink(simEdges).id(function (d) { return d.id; }).distance(function (l) {
+                                        return l.type === 'friend' ? 70 : (l.type === 'posted' ? 40 : 55);
+                                    }).strength(0.35))
+                                    .force('charge', d3.forceManyBody().strength(-90).distanceMax(420))
+                                    .force('center', d3.forceCenter(0, 0))
+                                    .force('collide', d3.forceCollide().radius(function (d) { return radiusOf(d) + 2; }))
+                                    .alphaDecay(0.028);
+                                // El dibujo ya no depende del evento "tick": va por un bucle requestAnimationFrame
+                                // continuo (ver animate()), asi tambien se anima el zoom y las bolitas de tiempo real
+                                // aunque la simulacion este parada.
+                            }
+
+                            // Sincroniza el grafo con un {nodes, edges} del servidor, de forma ADITIVA: los nodos que
+                            // ya existian conservan su posicion (no se resetea el layout entero cada vez). Si
+                            // opts.spawnPulses es true, cada arista que no se habia visto nunca antes dispara una
+                            // bolita animada viajando de un nodo a otro (solo si su tipo esta activo en los filtros).
+                            function syncGraph(newRaw, opts) {
+                                opts = opts || {};
+                                var isFirstLoad = (seenEdgeKeys === null);
+                                if (isFirstLoad) seenEdgeKeys = new Set();
+
+                                var freshEdgeKeys = new Set(newRaw.edges.map(edgeKey));
+                                var trulyNewEdges = isFirstLoad ? [] : newRaw.edges.filter(function (e) { return !seenEdgeKeys.has(edgeKey(e)); });
+                                seenEdgeKeys = freshEdgeKeys;
+
+                                raw = newRaw;
+                                var newRawNodeIds = new Set(newRaw.nodes.map(function (n) { return n.id; }));
+
+                                // quita nodos que ya no existen (borrados) y cuenta cuantos son realmente nuevos
+                                nodesById.forEach(function (_, k) { if (!newRawNodeIds.has(k)) nodesById.delete(k); });
+                                simNodes = simNodes.filter(function (n) { return newRawNodeIds.has(n.id); });
+                                var beforeCount = simNodes.length;
+                                newRaw.nodes.forEach(ensureNode);
+                                var addedNodes = simNodes.length - beforeCount;
+
+                                // El grado (tamano del nodo) y la fisica de la simulacion SIEMPRE usan TODAS las
+                                // aristas, no solo las que estan marcadas en los filtros: asi, marcar/desmarcar un
+                                // tipo (amistad, likes...) solo oculta o muestra lineas al dibujar, sin tocar la
+                                // simulacion. Antes se le quitaban enlaces de golpe a la fisica y, al perder lo que
+                                // los mantenia juntos, la repulsion los mandaba disparados por toda la pantalla.
+                                var deg = new Map();
+                                newRaw.edges.forEach(function (e) {
+                                    deg.set(e.source, (deg.get(e.source) || 0) + 1);
+                                    deg.set(e.target, (deg.get(e.target) || 0) + 1);
+                                });
+                                simNodes.forEach(function (n) { n._deg = deg.get(n.id) || 0; });
+
+                                simEdges = newRaw.edges.map(function (e) { return Object.assign({}, e); });
+                                visibleEdges = simEdges.filter(function (e) { return activeEdgeTypes[e.type]; });
+
+                                initSimIfNeeded();
+                                sim.nodes(simNodes);
+                                // OJO: esto hay que llamarlo SIEMPRE, no solo cuando cambian aristas de verdad: cada
+                                // vez que se reasigna simEdges son objetos nuevos (con "source"/"target" como texto),
+                                // y es forceLink().links(...) quien los convierte en referencias reales a los nodos.
+                                // Si se salta, simEdges/visibleEdges se quedan con ids de texto y draw() no dibuja
+                                // ninguna linea (se nota como un grafo sin hilos). Es una llamada barata: no reinicia
+                                // la simulacion por si sola, solo actualiza a que nodos apunta cada arista.
+                                sim.force('link').links(simEdges);
+                                var alpha = addedNodes > 0 ? 0.5 : (trulyNewEdges.length ? 0.22 : 0);
+                                if (mode === 'auto' && alpha > 0) sim.alpha(Math.max(sim.alpha(), alpha)).restart();
+
+                                if (opts.spawnPulses && trulyNewEdges.length) {
+                                    var now = performance.now();
+                                    trulyNewEdges.forEach(function (e) {
+                                        if (!activeEdgeTypes[e.type]) return;
+                                        var s = nodesById.get(e.source), t = nodesById.get(e.target);
+                                        if (!s || !t) return;
+                                        var color = EDGE_COLOR[e.type] || '#fff';
+                                        // La bolita viaja de un lado a otro (dura poco, para no tapar el mapa), pero
+                                        // ademas los dos nodos implicados se marcan con un anillo que crece y se
+                                        // desvanece durante mas tiempo, para que una interaccion nueva sea facil de
+                                        // ver aunque el usuario este mirando a otra parte del grafo en ese instante.
+                                        pulses.push({ s: s, t: t, color: color, start: now, duration: 1100 + Math.random() * 300 });
+                                        highlights.push({ node: s, color: color, start: now, duration: 1500 });
+                                        highlights.push({ node: t, color: color, start: now, duration: 1500 });
+                                    });
+                                }
+
+                                statsEl.textContent = simNodes.length + ' nodos · ' + visibleEdges.length + ' de ' + simEdges.length + ' conexiones visibles';
+                            }
+
+                            function easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
+
+                            function draw() {
+                                var w = canvas.width, h = canvas.height;
+                                ctx.save();
+                                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                                ctx.clearRect(0, 0, w, h);
+                                ctx.fillStyle = '#0b1424';
+                                ctx.fillRect(0, 0, w, h);
+                                ctx.setTransform(dpr * transform.k, 0, 0, dpr * transform.k, dpr * transform.x, dpr * transform.y);
+
+                                var showLabels = transform.k > 1.15;
+
+                                ctx.lineWidth = 1 / transform.k;
+                                visibleEdges.forEach(function (e) {
+                                    var s = e.source, t = e.target;
+                                    if (typeof s !== 'object' || typeof t !== 'object') return;
+                                    ctx.strokeStyle = EDGE_COLOR[e.type] || '#64748b';
+                                    ctx.globalAlpha = e.type === 'friend' ? 0.55 : 0.3;
+                                    ctx.beginPath();
+                                    ctx.moveTo(s.x, s.y);
+                                    ctx.lineTo(t.x, t.y);
+                                    ctx.stroke();
+                                });
+                                ctx.globalAlpha = 1;
+
+                                var matched = searchTerm ? new Set() : null;
+                                if (matched) {
+                                    nodesById.forEach(function (n) {
+                                        if ((n.label || '').toLowerCase().indexOf(searchTerm) !== -1) matched.add(n.id);
+                                    });
+                                }
+
+                                nodesById.forEach(function (n) {
+                                    if (n.x == null) return;
+                                    var r = radiusOf(n);
+                                    var dim = matched && !matched.has(n.id);
+                                    ctx.globalAlpha = dim ? 0.18 : 1;
+                                    ctx.beginPath();
+                                    ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+                                    ctx.fillStyle = NODE_COLOR[n.type] || '#999';
+                                    ctx.fill();
+                                    if (n === hoverNode || (matched && matched.has(n.id))) {
+                                        ctx.lineWidth = 2 / transform.k;
+                                        ctx.strokeStyle = '#fff';
+                                        ctx.stroke();
+                                    }
+                                    if ((showLabels || n === hoverNode || (matched && matched.has(n.id))) && !dim) {
+                                        ctx.font = (12 / transform.k) + 'px -apple-system,Segoe UI,Roboto,sans-serif';
+                                        ctx.fillStyle = '#e2e8f0';
+                                        ctx.textBaseline = 'middle';
+                                        ctx.fillText(n.label || '', n.x + r + 4 / transform.k, n.y);
+                                    }
+                                    ctx.globalAlpha = 1;
+                                });
+
+                                if (highlights.length) {
+                                    var nowH = performance.now();
+                                    highlights.forEach(function (h) {
+                                        if (h.node.x == null) return;
+                                        var t = Math.min(1, (nowH - h.start) / h.duration);
+                                        var alpha = Math.max(0, 1 - t);
+                                        var ringR = radiusOf(h.node) + 3 + t * (16 / Math.max(transform.k, 0.3));
+                                        ctx.save();
+                                        ctx.globalAlpha = alpha * 0.9;
+                                        ctx.lineWidth = 2.5 / transform.k;
+                                        ctx.strokeStyle = h.color;
+                                        ctx.beginPath();
+                                        ctx.arc(h.node.x, h.node.y, ringR, 0, Math.PI * 2);
+                                        ctx.stroke();
+                                        ctx.restore();
+                                    });
+                                }
+                                if (pulses.length) {
+                                    var now = performance.now();
+                                    pulses.forEach(function (p) {
+                                        var t = Math.min(1, (now - p.start) / p.duration);
+                                        var e = easeInOutQuad(t);
+                                        var x = p.s.x + (p.t.x - p.s.x) * e;
+                                        var y = p.s.y + (p.t.y - p.s.y) * e;
+                                        var alpha = t < 0.82 ? 1 : Math.max(0, 1 - (t - 0.82) / 0.18);
+                                        ctx.save();
+                                        ctx.globalAlpha = alpha;
+                                        ctx.shadowColor = p.color;
+                                        ctx.shadowBlur = 9 / transform.k;
+                                        ctx.beginPath();
+                                        ctx.arc(x, y, 5.5 / transform.k, 0, Math.PI * 2);
+                                        ctx.fillStyle = p.color;
+                                        ctx.fill();
+                                        ctx.restore();
+                                    });
+                                }
+                                ctx.globalAlpha = 1;
+                                ctx.restore();
+                            }
+
+                            // Boton derecho (arrastrar) = mover el mapa; rueda = zoom centrado en el puntero (lo hace
+                            // d3.zoom solo, siempre que "transform" se use con el mismo convenio que aqui: origen
+                            // arriba-izquierda, sin ningun offset extra). El boton izquierdo se deja libre para
+                            // mover los nodos (ver mousedown mas abajo) y no para pasear el mapa.
+                            var zoomBehavior = d3.zoom().scaleExtent([0.08, 8])
+                                .filter(function (ev) {
+                                    if (ev.type === 'wheel') return true;
+                                    if (ev.type === 'mousedown') return ev.button === 2;
+                                    return !ev.button;
+                                })
+                                .on('zoom', function (ev) {
+                                    targetTransform = { x: ev.transform.x, y: ev.transform.y, k: ev.transform.k };
+                                });
+                            d3.select(canvas).call(zoomBehavior);
+                            canvas.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
+
+                            // Bucle de dibujo continuo: anima el acercamiento del zoom/paneo hacia su objetivo
+                            // (en vez de saltar de golpe en cada rueda del raton) y hace avanzar las bolitas de
+                            // tiempo real. Solo trabaja mientras la seccion esta visible.
+                            function animate() {
+                                requestAnimationFrame(animate);
+                                if (sectionEl.style.display === 'none') return;
+                                var EASE = 0.18;
+                                transform.x += (targetTransform.x - transform.x) * EASE;
+                                transform.y += (targetTransform.y - transform.y) * EASE;
+                                transform.k += (targetTransform.k - transform.k) * EASE;
+                                if (pulses.length) {
+                                    var now = performance.now();
+                                    pulses = pulses.filter(function (p) { return now - p.start < p.duration; });
+                                }
+                                if (highlights.length) {
+                                    var nowH2 = performance.now();
+                                    highlights = highlights.filter(function (h) { return nowH2 - h.start < h.duration; });
+                                }
+                                draw();
+                            }
+                            requestAnimationFrame(animate);
+
+                            function worldAt(px, py) {
+                                return { x: (px - transform.x) / transform.k, y: (py - transform.y) / transform.k };
+                            }
+
+                            function nodeAtScreen(px, py) {
+                                var w2 = worldAt(px, py);
+                                var found = null, bestD = Infinity;
+                                nodesById.forEach(function (n) {
+                                    if (n.x == null) return;
+                                    var dx = n.x - w2.x, dy = n.y - w2.y;
+                                    var d = Math.sqrt(dx * dx + dy * dy);
+                                    var r = radiusOf(n) + 3;
+                                    if (d <= r && d < bestD) { bestD = d; found = n; }
+                                });
+                                return found;
+                            }
+
+                            // Arrastrar un nodo con el boton izquierdo: se fija donde se suelta (fx/fy), para poder
+                            // organizar el grafo a mano; doble clic lo vuelve a soltar y sigue la fisica otra vez.
+                            // La posicion (x/y) se mueve directamente con el raton, sin esperar a que "tickee" la
+                            // simulacion: asi el arrastre funciona igual de bien con la fisica parada (modo estatico).
+                            var draggingNode = null;
+                            var dragChildren = null; // Tics del usuario que se arrastra junto a el (si esta activado)
+                            function childrenOf(n) {
+                                if (!raw || n.type !== 'user') return [];
+                                return raw.edges.filter(function (e) { return e.type === 'posted' && e.source === n.id; })
+                                    .map(function (e) { return nodesById.get(e.target); })
+                                    .filter(function (c) { return c; });
+                            }
+                            function rememberStaticPos(n) {
+                                staticPositions[n.id] = { x: n.x, y: n.y };
+                            }
+                            canvas.addEventListener('mousedown', function (ev) {
+                                if (ev.button !== 0) return;
+                                var rect = canvas.getBoundingClientRect();
+                                var px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+                                var n = nodeAtScreen(px, py);
+                                if (!n) return;
+                                ev.preventDefault();
+                                draggingNode = n;
+                                var w = worldAt(px, py);
+                                n.fx = w.x; n.fy = w.y; n.x = w.x; n.y = w.y;
+                                dragChildren = moveChildren ? childrenOf(n).map(function (c) {
+                                    return { node: c, offX: c.x - n.x, offY: c.y - n.y };
+                                }) : [];
+                                if (mode === 'auto' && sim) sim.alphaTarget(0.3).restart();
+                                canvas.style.cursor = 'grabbing';
+                            });
+                            window.addEventListener('mousemove', function (ev) {
+                                if (!draggingNode) return;
+                                var rect = canvas.getBoundingClientRect();
+                                var px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+                                var w = worldAt(px, py);
+                                draggingNode.fx = w.x; draggingNode.fy = w.y; draggingNode.x = w.x; draggingNode.y = w.y;
+                                if (dragChildren && dragChildren.length) {
+                                    dragChildren.forEach(function (d) {
+                                        var cx = w.x + d.offX, cy = w.y + d.offY;
+                                        d.node.fx = cx; d.node.fy = cy; d.node.x = cx; d.node.y = cy;
+                                    });
+                                }
+                            });
+                            window.addEventListener('mouseup', function () {
+                                if (!draggingNode) return;
+                                if (mode === 'auto' && sim) sim.alphaTarget(0);
+                                if (mode === 'static') {
+                                    // Guarda donde ha quedado el nodo (y sus Tics, si se movieron con el) para que
+                                    // la proxima vez que entres en modo estatico aparezca justo ahi.
+                                    rememberStaticPos(draggingNode);
+                                    if (dragChildren && dragChildren.length) dragChildren.forEach(function (d) { rememberStaticPos(d.node); });
+                                    saveStaticPositions();
+                                }
+                                draggingNode = null;
+                                dragChildren = null;
+                                canvas.style.cursor = hoverNode ? 'grab' : 'default';
+                            });
+                            canvas.addEventListener('dblclick', function (ev) {
+                                var rect = canvas.getBoundingClientRect();
+                                var px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+                                var n = nodeAtScreen(px, py);
+                                if (!n) return;
+                                var kids = moveChildren ? childrenOf(n) : [];
+                                if (mode === 'static') {
+                                    // En estatico, "soltar" significa olvidar la posicion guardada de este nodo (y de
+                                    // sus Tics): la proxima vez que aparezca por primera vez, nacera en un sitio nuevo.
+                                    delete staticPositions[n.id];
+                                    kids.forEach(function (c) { delete staticPositions[c.id]; });
+                                    saveStaticPositions();
+                                } else {
+                                    n.fx = null; n.fy = null;
+                                    kids.forEach(function (c) { c.fx = null; c.fy = null; });
+                                    if (sim) sim.alpha(0.3).restart();
+                                }
+                            });
+
+                            function setMode(newMode) {
+                                if (newMode !== 'auto' && newMode !== 'static') return;
+                                mode = newMode;
+                                document.querySelectorAll('#gr-mode-toggle .gr-mode-btn').forEach(function (b) {
+                                    b.classList.toggle('gr-mode-btn-on', b.getAttribute('data-mode') === mode);
+                                });
+                                var hint = document.getElementById('gr-hint');
+                                if (mode === 'static') {
+                                    // Fija TODOS los nodos donde estan ahora mismo (o donde se guardaron la ultima
+                                    // vez) y para la simulacion: a partir de aqui el grafo solo cambia si tu lo mueves.
+                                    simNodes.forEach(function (n) {
+                                        var saved = staticPositions[n.id];
+                                        if (saved) { n.x = saved.x; n.y = saved.y; }
+                                        else rememberStaticPos(n);
+                                        n.fx = n.x; n.fy = n.y;
+                                    });
+                                    saveStaticPositions();
+                                    if (sim) { sim.alphaTarget(0); sim.stop(); }
+                                    if (hint) hint.textContent = 'Modo estático: arrastra para organizar (se guarda solo) · doble clic olvida la posicion de un nodo';
+                                } else {
+                                    simNodes.forEach(function (n) { n.fx = null; n.fy = null; });
+                                    if (sim) sim.alpha(0.4).restart();
+                                    if (hint) hint.textContent = 'Rueda: zoom · Arrastra: mover · Acércate para ver los nombres';
+                                }
+                            }
+                            document.querySelectorAll('#gr-mode-toggle .gr-mode-btn').forEach(function (btn) {
+                                btn.addEventListener('click', function () { setMode(this.getAttribute('data-mode')); });
+                            });
+                            setMode('auto');
+                            document.getElementById('gr-move-children').addEventListener('change', function () {
+                                moveChildren = this.checked;
+                            });
+
+                            canvas.addEventListener('mousemove', function (ev) {
+                                var rect = canvas.getBoundingClientRect();
+                                var px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+                                var n = nodeAtScreen(px, py);
+                                if (n !== hoverNode) hoverNode = n;
+                                if (!draggingNode) canvas.style.cursor = n ? 'grab' : 'default';
+                                if (n) {
+                                    tooltip.style.display = 'block';
+                                    tooltip.style.left = Math.min(px + 14, rect.width - 230) + 'px';
+                                    tooltip.style.top = Math.max(py - 10, 4) + 'px';
+                                    tooltip.innerHTML = '<b>' + (n.label || '').replace(/</g, '&lt;') + '</b>' +
+                                        (n.sub ? n.sub.replace(/</g, '&lt;') + '<br>' : '') +
+                                        (n.type === 'user' ? 'Usuario' : 'Tic') + ' · ' + (n._deg || 0) + ' conexiones';
+                                } else {
+                                    tooltip.style.display = 'none';
+                                }
+                            });
+                            canvas.addEventListener('mouseleave', function () { hoverNode = null; tooltip.style.display = 'none'; });
+
+                            document.querySelectorAll('#section-graph input[data-edge]').forEach(function (cb) {
+                                cb.addEventListener('change', function () {
+                                    activeEdgeTypes[cb.getAttribute('data-edge')] = cb.checked;
+                                    if (raw) syncGraph(raw, { spawnPulses: false });
+                                });
+                            });
+                            searchEl.addEventListener('input', function () {
+                                searchTerm = searchEl.value.trim().toLowerCase();
+                            });
+                            document.getElementById('gr-reload').addEventListener('click', function () { fetchGraph(true); });
+
+                            function fetchGraph(force) {
+                                if (raw && !force) { if (raw) syncGraph(raw, { spawnPulses: false }); return; }
+                                loadingEl.style.display = 'flex';
+                                loadingEl.textContent = 'Cargando grafo…';
+                                ADMIN_AUTH.fetch(CONFIG.API_BASE_URL + '/api/admin/graph-data').then(function (r) {
+                                    if (!r.ok) throw new Error('http ' + r.status);
+                                    return r.json();
+                                }).then(function (data) {
+                                    loadingEl.style.display = 'none';
+                                    resize();
+                                    syncGraph(data, { spawnPulses: false });
+                                }).catch(function (e) {
+                                    loadingEl.style.display = 'flex';
+                                    loadingEl.textContent = 'No se pudo cargar el grafo (' + e.message + ')';
+                                });
+                            }
+
+                            // Sondeo cada ~2s mientras la seccion esta visible: si hay aristas nuevas (un like,
+                            // comentario, mensaje o amistad reciente) se incorporan al vuelo con su bolita animada
+                            // y un anillo en los dos nodos implicados, sin reiniciar la posicion del resto del grafo.
+                            function pollTick() {
+                                if (!raw) return;
+                                if (sectionEl.style.display === 'none') return;
+                                ADMIN_AUTH.fetch(CONFIG.API_BASE_URL + '/api/admin/graph-data').then(function (r) {
+                                    if (!r.ok) throw new Error('http ' + r.status);
+                                    return r.json();
+                                }).then(function (data) { syncGraph(data, { spawnPulses: true }); }).catch(function () { /* fallo silencioso, se reintenta en el siguiente sondeo */ });
+                            }
+
+                            window.loadGraphSection = function () {
+                                if (!booted) {
+                                    booted = true;
+                                    resize();
+                                    var r = wrap.getBoundingClientRect();
+                                    var center = d3.zoomIdentity.translate(r.width / 2, r.height / 2).scale(1);
+                                    transform = { x: r.width / 2, y: r.height / 2, k: 1 };
+                                    targetTransform = { x: r.width / 2, y: r.height / 2, k: 1 };
+                                    d3.select(canvas).call(zoomBehavior.transform, center);
+                                    window.addEventListener('resize', resize);
+                                    setInterval(pollTick, 2000);
+                                }
+                                fetchGraph(false);
+                            };
+                        })();
+                    </script>
+                </section>
+                <section id="section-feed" class="admin-section" style="display: none;">
+                    <style>
+                        .fd-toolbar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin-bottom:16px}
+                        .fd-field{display:flex;flex-direction:column;gap:4px}
+                        .fd-field label{font-size:12px;font-weight:700;color:#64748b}
+                        .fd-field input{padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font:inherit;min-width:260px}
+                        .fd-btn{padding:10px 18px;border:0;border-radius:10px;background:#1B3A5C;color:#fff;font:inherit;font-weight:700;cursor:pointer;font-size:13px}
+                        .fd-btn:disabled{opacity:.5;cursor:default}
+                        .fd-note{font-size:12.5px;color:#64748b;margin:0 0 14px}
+                        #fd-table th, #fd-table td{white-space:nowrap}
+                        .fd-score{font-weight:800;color:#1B3A5C}
+                        .fd-bar{position:relative;background:#eef2f7;border-radius:6px;overflow:hidden;width:70px;height:8px;display:inline-block;vertical-align:middle;margin-right:6px}
+                        .fd-bar i{position:absolute;inset:0;background:linear-gradient(90deg,#2F6FDD,#60A5FA);border-radius:6px}
+                        .fd-empty{padding:24px;text-align:center;color:#94a3b8;font-size:13.5px}
+                    </style>
+                    <section class="table-container">
+                        <div class="table-header">
+                            <h2>Algoritmo del feed: por qué sale cada Tic en ese orden</h2>
+                        </div>
+                        <p class="fd-note">Elige un usuario (su feed es distinto para cada uno) y pulsa Cargar. Sale la lista de Tics tal y como le saldrían a ese usuario ahora mismo, con la puntuación y por qué: retención media, likes, comentarios, antigüedad, afinidad con el autor... Sube un Tic, haz que lo miren / le den like / comenten, y vuelve a cargar para ver cómo sube su puntuación y su posición.</p>
+                        <div class="fd-toolbar">
+                            <div class="fd-field">
+                                <label for="fd-user-input">Usuario (el feed se calcula para él)</label>
+                                <input id="fd-user-input" list="fd-user-list" placeholder="Escribe un nombre de usuario...">
+                                <datalist id="fd-user-list"></datalist>
+                            </div>
+                            <button type="button" class="fd-btn" id="fd-load-btn">Cargar</button>
+                        </div>
+                        <table id="fd-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Autor</th>
+                                    <th>Puntuación</th>
+                                    <th>Retención</th>
+                                    <th>Impresiones</th>
+                                    <th>Likes</th>
+                                    <th>Comentarios</th>
+                                    <th>Antigüedad</th>
+                                    <th>Afinidad</th>
+                                    <th>Tema</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fd-tbody">
+                                <tr><td colspan="10" class="fd-empty">Elige un usuario y pulsa Cargar.</td></tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    <section class="table-container" style="margin-top:22px">
+                        <style>
+                            .lab-topics{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+                            .lab-topic-row{display:grid;grid-template-columns:22px 1.4fr 1fr 1fr auto;gap:10px;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px}
+                            .lab-topic-row input[type="text"]{padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font:inherit}
+                            .lab-topic-row input[type="number"]{padding:8px 8px;border:1.5px solid #e2e8f0;border-radius:8px;font:inherit;width:100%}
+                            .lab-topic-row label{font-size:11px;color:#64748b;font-weight:700;display:block;margin-bottom:2px}
+                            .lab-dot{width:16px;height:16px;border-radius:50%;flex:none}
+                            .lab-rm{border:0;background:none;color:#94a3b8;cursor:pointer;font-size:20px;line-height:1;padding:4px}
+                            .lab-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+                            .lab-btn{padding:10px 18px;border:0;border-radius:10px;font:inherit;font-weight:700;cursor:pointer;font-size:13px}
+                            .lab-btn.primary{background:#1B3A5C;color:#fff}
+                            .lab-btn.ghost{background:#eef2f7;color:#1B3A5C}
+                            .lab-btn.danger{background:#fff0f0;color:#dc2626}
+                            .lab-btn:disabled{opacity:.5;cursor:default}
+                            .lab-status{font-size:12.5px;color:#64748b;margin:0 0 10px}
+                            .lab-charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+                            @media (max-width:900px){.lab-charts{grid-template-columns:1fr}}
+                            .lab-chart-box{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px}
+                            .lab-chart-box h3{margin:0 0 10px;font-size:14px;color:#334155}
+                            .lab-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:12px;color:#475569}
+                            .lab-legend span{display:inline-flex;align-items:center;gap:5px}
+                            .lab-legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+                        </style>
+                        <div class="table-header">
+                            <h2>Laboratorio de bots: crea temas y mira al algoritmo trabajar</h2>
+                        </div>
+                        <p class="fd-note">Define varios temas (cada uno con su hashtag), cuántos bots "crean" contenido de ese tema y cuántos bots están "interesados" en él (verán, le darán like y comentarán ese tema cada ronda). Crea el laboratorio y luego pulsa "Simular una ronda" varias veces: las gráficas muestran en vivo cómo el tema con más interés va ganando puntuación.</p>
+                        <div class="lab-topics" id="lab-topics"></div>
+                        <div class="lab-actions">
+                            <button type="button" class="lab-btn ghost" id="lab-add-topic">+ Añadir tema</button>
+                            <button type="button" class="lab-btn primary" id="lab-setup-btn">Crear laboratorio</button>
+                            <button type="button" class="lab-btn primary" id="lab-round-btn" disabled>▶ Simular una ronda</button>
+                            <button type="button" class="lab-btn danger" id="lab-reset-btn">Borrar laboratorio</button>
+                        </div>
+                        <p class="lab-status" id="lab-status">No hay ningún laboratorio activo.</p>
+                        <div class="lab-charts" id="lab-charts" style="display:none">
+                            <div class="lab-chart-box">
+                                <h3>Puntuación media por tema (ronda a ronda)</h3>
+                                <canvas id="lab-chart-score" height="220"></canvas>
+                            </div>
+                            <div class="lab-chart-box">
+                                <h3>Likes, comentarios e impresiones por tema (ahora)</h3>
+                                <canvas id="lab-chart-bars" height="220"></canvas>
+                            </div>
+                            <div class="lab-chart-box" style="grid-column:1/-1">
+                                <h3>Red de bots: creadores (grandes) y fans (pequeños). Cada línea es un fan que ha visto/likeado/comentado a un creador; más gruesa = más interacción</h3>
+                                <canvas id="lab-graph" height="440" style="width:100%;display:block"></canvas>
+                            </div>
+                        </div>
+                    </section>
+                    <script>
+                        (function () {
+                            var usersById = {};
+                            function fillUserList() {
+                                var list = document.getElementById('fd-user-list');
+                                if (!list) return;
+                                var users = (window.currentUsersList && window.currentUsersList.length) ? window.currentUsersList : (typeof allUsersData !== 'undefined' ? allUsersData : []);
+                                usersById = {};
+                                list.innerHTML = (users || []).map(function (u) {
+                                    var name = u.usuario || u.username || u.name || '';
+                                    var id = u.id;
+                                    if (!name || !id) return '';
+                                    usersById[name] = id;
+                                    return '<option value="' + adminEsc(name) + '">';
+                                }).join('');
+                            }
+                            async function ensureUsers() {
+                                if ((window.currentUsersList && window.currentUsersList.length) || (typeof allUsersData !== 'undefined' && allUsersData.length)) { fillUserList(); return; }
+                                try {
+                                    var r = await ADMIN_AUTH.fetch(CONFIG.API_BASE_URL + '/api/admin/users');
+                                    var users = await r.json();
+                                    window.currentUsersList = Array.isArray(users) ? users : [];
+                                } catch (e) { window.currentUsersList = []; }
+                                fillUserList();
+                            }
+                            function fmtMs(ms) { return (Math.round(ms / 100) / 10) + 's'; }
+                            async function loadFeedDebug() {
+                                var input = document.getElementById('fd-user-input');
+                                var tbody = document.getElementById('fd-tbody');
+                                var btn = document.getElementById('fd-load-btn');
+                                if (!input || !tbody) return;
+                                var typed = input.value.trim();
+                                var viewerId = usersById[typed] || typed;
+                                if (!viewerId) { tbody.innerHTML = '<tr><td colspan="10" class="fd-empty">Elige un usuario primero.</td></tr>'; return; }
+                                btn.disabled = true; btn.textContent = 'Cargando...';
+                                tbody.innerHTML = '<tr><td colspan="10" class="fd-empty">Cargando...</td></tr>';
+                                try {
+                                    var r = await ADMIN_AUTH.fetch(CONFIG.API_BASE_URL + '/api/admin/feed-debug?viewerId=' + encodeURIComponent(viewerId) + '&n=30');
+                                    var rows = await r.json();
+                                    if (!r.ok || !Array.isArray(rows)) throw new Error((rows && rows.message) || 'error');
+                                    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="10" class="fd-empty">Este usuario no tiene Tics candidatos ahora mismo.</td></tr>'; return; }
+                                    var maxScore = Math.max.apply(null, rows.map(function (x) { return x.puntuacion || 0; })) || 1;
+                                    tbody.innerHTML = rows.map(function (row) {
+                                        var pct = Math.max(2, Math.min(100, Math.round((row.puntuacion / maxScore) * 100)));
+                                        return '<tr>' +
+                                            '<td>' + row.posicion + '</td>' +
+                                            '<td>' + adminEsc(row.autor) + '</td>' +
+                                            '<td><span class="fd-bar"><i style="width:' + pct + '%"></i></span><span class="fd-score">' + row.puntuacion + '</span></td>' +
+                                            '<td>' + fmtMs(row.avgDwellMs || 0) + '</td>' +
+                                            '<td>' + (row.impressions || 0) + '</td>' +
+                                            '<td>' + (row.likes || 0) + '</td>' +
+                                            '<td>' + (row.comments || 0) + '</td>' +
+                                            '<td>' + (row.ageHours || 0) + 'h</td>' +
+                                            '<td>' + row.affinity + '</td>' +
+                                            '<td>' + (row.temaCoincide || '-') + '</td>' +
+                                            '</tr>';
+                                    }).join('');
+                                } catch (e) {
+                                    tbody.innerHTML = '<tr><td colspan="10" class="fd-empty">No se pudo cargar: ' + adminEsc(e.message || '') + '</td></tr>';
+                                } finally {
+                                    btn.disabled = false; btn.textContent = 'Cargar';
+                                }
+                            }
+                            window.loadFeedSection = function () {
+                                ensureUsers();
+                                if (window.loadAlgoLabStatus) window.loadAlgoLabStatus();
+                            };
+                            document.addEventListener('DOMContentLoaded', function () {
+                                var btn = document.getElementById('fd-load-btn');
+                                var input = document.getElementById('fd-user-input');
+                                if (btn) btn.addEventListener('click', loadFeedDebug);
+                                if (input) input.addEventListener('keydown', function (e) { if (e.key === 'Enter') loadFeedDebug(); });
+                            });
+                        })();
+                    </script>
+                    <script>
+                        (function () {
+                            var LAB_COLORS = ['#2F6FDD', '#DB2777', '#15803D', '#EA580C', '#9333EA', '#0D9488', '#CA8A04', '#DC2626'];
+                            var DEFAULT_TOPICS = [
+                                { name: 'aviones', creators: 3, audience: 20 },
+                                { name: 'comida', creators: 3, audience: 10 },
+                                { name: 'viajes', creators: 3, audience: 5 }
+                            ];
+                            var rowCount = 0;
+                            var scoreChart = null, barsChart = null;
+
+                            function rowTemplate(topic) {
+                                rowCount += 1;
+                                var color = LAB_COLORS[(rowCount - 1) % LAB_COLORS.length];
+                                var row = document.createElement('div');
+                                row.className = 'lab-topic-row';
+                                row.innerHTML =
+                                    '<span class="lab-dot" style="background:' + color + '"></span>' +
+                                    '<div><label>Tema (hashtag)</label><input type="text" class="lab-name" placeholder="p.ej. aviones" value="' + (topic.name || '') + '"></div>' +
+                                    '<div><label>Creadores</label><input type="number" class="lab-creators" min="0" max="30" value="' + (topic.creators || 0) + '"></div>' +
+                                    '<div><label>Interesados</label><input type="number" class="lab-audience" min="0" max="60" value="' + (topic.audience || 0) + '"></div>' +
+                                    '<button type="button" class="lab-rm" title="Quitar tema">&times;</button>';
+                                row.querySelector('.lab-rm').onclick = function () { row.remove(); };
+                                return row;
+                            }
+                            function addTopicRow(topic) {
+                                var wrap = document.getElementById('lab-topics');
+                                if (wrap) wrap.appendChild(rowTemplate(topic || {}));
+                            }
+                            function readTopics() {
+                                var rows = document.querySelectorAll('#lab-topics .lab-topic-row');
+                                var out = [];
+                                rows.forEach(function (row) {
+                                    var name = (row.querySelector('.lab-name').value || '').trim();
+                                    if (!name) return;
+                                    out.push({
+                                        name: name,
+                                        hashtag: name,
+                                        creators: Math.max(0, parseInt(row.querySelector('.lab-creators').value, 10) || 0),
+                                        audience: Math.max(0, parseInt(row.querySelector('.lab-audience').value, 10) || 0)
+                                    });
+                                });
+                                return out;
+                            }
+                            document.getElementById('lab-add-topic').addEventListener('click', function () { addTopicRow({}); });
+                            DEFAULT_TOPICS.forEach(addTopicRow);
+
+                            function setLabActive(active) {
+                                document.getElementById('lab-round-btn').disabled = !active;
+                                /* 'Borrar' siempre disponible: tambien limpia bots antiguos que hayan quedado en la base de datos */
+                                document.getElementById('lab-charts').style.display = active ? 'grid' : 'none';
+                            }
+                            function setStatus(text) { document.getElementById('lab-status').textContent = text; }
+
+                            function hashU(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h >>> 0) % 100000) / 100000; }
+                            function renderGraph(graph) {
+                                var cv = document.getElementById('lab-graph');
+                                if (!cv || !graph || !graph.nodes) return;
+                                var cssW = cv.clientWidth || 800, cssH = 440, dpr = window.devicePixelRatio || 1;
+                                cv.width = cssW * dpr; cv.height = cssH * dpr;
+                                var ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, cssW, cssH);
+                                var tags = []; graph.nodes.forEach(function (n) { if (tags.indexOf(n.hashtag) < 0) tags.push(n.hashtag); });
+                                var color = function (tag) { return LAB_COLORS[tags.indexOf(tag) % LAB_COLORS.length]; };
+                                var cx = cssW / 2, cy = cssH / 2, R = Math.min(cssW, cssH) * (tags.length > 1 ? 0.30 : 0), clusterR = Math.min(cssW, cssH) * (tags.length > 1 ? 0.20 : 0.38);
+                                var pos = {};
+                                tags.forEach(function (tag, ti) {
+                                    var ang = (ti / tags.length) * Math.PI * 2 - Math.PI / 2;
+                                    var tx = cx + Math.cos(ang) * R, ty = cy + Math.sin(ang) * R;
+                                    var members = graph.nodes.filter(function (n) { return n.hashtag === tag; });
+                                    var creators = members.filter(function (n) { return n.role === 'creator'; });
+                                    var fans = members.filter(function (n) { return n.role !== 'creator'; });
+                                    creators.forEach(function (n, i) {
+                                        var a = (i / Math.max(1, creators.length)) * Math.PI * 2, rr = creators.length > 1 ? clusterR * 0.28 : 0;
+                                        pos[n.id] = { x: tx + Math.cos(a) * rr, y: ty + Math.sin(a) * rr };
+                                    });
+                                    fans.forEach(function (n, i) {
+                                        var a = (i / Math.max(1, fans.length)) * Math.PI * 2 + hashU(n.id) * 0.3, rr = clusterR * (0.7 + hashU(n.id + 'r') * 0.3);
+                                        pos[n.id] = { x: tx + Math.cos(a) * rr, y: ty + Math.sin(a) * rr };
+                                    });
+                                    ctx.fillStyle = color(tag); ctx.globalAlpha = 0.9; ctx.font = '700 13px system-ui,sans-serif'; ctx.textAlign = 'center';
+                                    ctx.fillText('#' + tag, tx, ty - clusterR - 8); ctx.globalAlpha = 1;
+                                });
+                                var maxW = 1; graph.edges.forEach(function (e) { if (e.w > maxW) maxW = e.w; });
+                                var byId = {}; graph.nodes.forEach(function (n) { byId[n.id] = n; });
+                                graph.edges.forEach(function (e) {
+                                    var a = pos[e.from], b = pos[e.to], n = byId[e.to]; if (!a || !b || !n) return;
+                                    ctx.strokeStyle = color(n.hashtag); ctx.globalAlpha = 0.12 + 0.5 * (e.w / maxW); ctx.lineWidth = 0.6 + 2.4 * (e.w / maxW);
+                                    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                                });
+                                ctx.globalAlpha = 1;
+                                var maxS = 1; graph.nodes.forEach(function (n) { if (n.score > maxS) maxS = n.score; });
+                                graph.nodes.forEach(function (n) {
+                                    var p = pos[n.id]; if (!p) return;
+                                    var r = n.role === 'creator' ? 9 + 11 * (n.score / maxS) : 3.5;
+                                    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                                    ctx.fillStyle = color(n.hashtag); ctx.fill();
+                                    if (n.role === 'creator') { ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke(); }
+                                });
+                            }
+
+                            function renderCharts(history, latestTopics) {
+                                if (!window.Chart) return;
+                                var labels = history.map(function (h) { return 'Ronda ' + h.round; });
+                                var topicKeys = {};
+                                history.forEach(function (h) { h.topics.forEach(function (t) { topicKeys[t.hashtag] = t; }); });
+                                var keys = Object.keys(topicKeys);
+                                var scoreDatasets = keys.map(function (k) {
+                                    return {
+                                        label: '#' + k,
+                                        data: history.map(function (h) {
+                                            var t = h.topics.find(function (x) { return x.hashtag === k; });
+                                            return t ? t.avgScore : 0;
+                                        }),
+                                        borderColor: topicKeys[k].color,
+                                        backgroundColor: topicKeys[k].color,
+                                        tension: 0.25,
+                                        fill: false
+                                    };
+                                });
+                                var scoreCtx = document.getElementById('lab-chart-score').getContext('2d');
+                                if (scoreChart) scoreChart.destroy();
+                                scoreChart = new Chart(scoreCtx, { type: 'line', data: { labels: labels, datasets: scoreDatasets }, options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } } });
+
+                                var barsCtx = document.getElementById('lab-chart-bars').getContext('2d');
+                                if (barsChart) barsChart.destroy();
+                                barsChart = new Chart(barsCtx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: latestTopics.map(function (t) { return '#' + t.hashtag; }),
+                                        datasets: [
+                                            { label: 'Likes', data: latestTopics.map(function (t) { return t.likes; }), backgroundColor: '#2F6FDD' },
+                                            { label: 'Comentarios', data: latestTopics.map(function (t) { return t.comments; }), backgroundColor: '#DB2777' },
+                                            { label: 'Impresiones', data: latestTopics.map(function (t) { return t.impressions; }), backgroundColor: '#94A3B8' }
+                                        ]
+                                    },
+                                    options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+                                });
+                            }
+
+                            async function setupLab() {
+                                var topics = readTopics();
+                                if (!topics.length) { alert('Añade al menos un tema'); return; }
+                                var btn = document.getElementById('lab-setup-btn');
+                                btn.disabled = true; btn.textContent = 'Creando bots...';
+                                try {
+                                    var r = await ADMIN_AUTH.fetch(CONFIG.API_BASE_URL + '/api/admin/algo-lab/setup', {
+                                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topics: topics })
+                                    });
+                                    var data = await r.json();
+                                    if (!r.ok) throw new Error(data.message || 'error');
+                                    setLabActive(true);
+                                    setStatus(data.totalBots + ' bots creados en ' + data.topics.length + ' temas · ' + data.pubCount + ' Tics de prueba · ronda 0');
+                                    renderCharts(data.history, data.history[data.history.length - 1].topics);
+                                    renderGraph(data.graph);
+                                } catch (e) {
+                                    alert('No se pudo crear el laboratorio: ' + e.message);
+                                } finally {
+                                    btn.disabled = false; btn.textContent = 'Crear laboratorio';
+                                }
+                            }
+                            async function runRound() {
+                                var btn = document.getElementById('lab-round-btn');
+                                btn.disabled = true; btn.textContent = 'Simulando...';
+                                try {
+                                    var r = await ADMIN_AUTH.fetch(CONFIG.API_BASE_URL + '/api/admin/algo-lab/round', { method: 'POST' });
+                                    var data = await r.json();
+                                    if (!r.ok) throw new Error(data.message || 'error');
+                                    setStatus('Ronda ' + data.round + ': ' + data.impressions + ' vistas, ' + data.likes + ' likes, ' + data.comments + ' comentarios nuevos');
+                                    renderCharts(data.history, data.topics);
+                                    renderGraph(data.graph);
+                                } catch (e) {
+                                    alert('No se pudo simular la ronda: ' + e.message);
+                                } finally {
+                                    btn.disabled = false; btn.textContent = '▶ Simular una ronda';
+                                }
+                            }
+                            async function resetLab() {
+                                if (!confirm('¿Borrar el laboratorio y todos sus bots/Tics de prueba?')) return;
+                                var btn = document.getElementById('lab-reset-btn');
+                                btn.disabled = true;
+                                try {
+                                    var r = await ADMIN_AUTH.fetch(CONFIG.API_BASE_URL + '/api/admin/algo-lab', { method: 'DELETE' });
+                                    var d = await r.json().catch(function () { return {}; });
+                                    setLabActive(false);
+                                    var pg = d.purged || {};
+                                    setStatus('Borrado. Eliminados de la base de datos: ' + (pg.users || 0) + ' bots y ' + (pg.publications || 0) + ' Tics de prueba.');
+                                    btn.disabled = false;
+                                } catch (e) {
+                                    alert('No se pudo borrar: ' + e.message);
+                                    btn.disabled = false;
+                                }
+                            }
+                            document.getElementById('lab-setup-btn').addEventListener('click', setupLab);
+                            document.getElementById('lab-round-btn').addEventListener('click', runRound);
+                            document.getElementById('lab-reset-btn').addEventListener('click', resetLab);
+
+                            window.loadAlgoLabStatus = async function () {
+                                try {
+                                    var r = await ADMIN_AUTH.fetch(CONFIG.API_BASE_URL + '/api/admin/algo-lab/status');
+                                    var data = await r.json();
+                                    if (data && data.active) {
+                                        setLabActive(true);
+                                        setStatus(data.bots + ' bots activos en ' + data.topics.length + ' temas · ronda ' + data.rounds);
+                                        renderCharts(data.history, data.history[data.history.length - 1].topics);
+                                        renderGraph(data.graph);
+                                    }
+                                } catch (e) { /* sin laboratorio activo todavia */ }
+                            };
+                        })();
+                    </script>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Agregar/Editar Usuario -->
+    <div class="modal" id="user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Agregar Nuevo Usuario</h2>
+                <span class="material-icons-round close-modal" id="close-user-modal">close</span>
+            </div>
+            <form id="user-form">
+                <input type="hidden" id="edit-user-id">
+                <div class="form-group">
+                    <label for="modal-username">Nombre de Usuario</label>
+                    <input type="text" id="modal-username" required placeholder="Ej: Juan Pérez">
+                </div>
+                <div class="form-group">
+                    <label for="modal-phone">Teléfono ID (+34...)</label>
+                    <input type="text" id="modal-phone" required placeholder="+34XXXXXXXXX">
+                </div>
+                <div class="form-group">
+                    <label for="modal-email">Correo electrónico</label>
+                    <input type="email" id="modal-email" required placeholder="usuario@ejemplo.com">
+                </div>
+                <div class="form-group" id="pass-group">
+                    <label for="modal-pass">Contraseña</label>
+                    <input type="password" id="modal-pass" placeholder="Mínimo 8 caracteres">
+                </div>
+                <div class="form-group">
+                    <label for="modal-date">Fecha de Registro (Opcional)</label>
+                    <input type="datetime-local" id="modal-date">
+                </div>
+                <button type="submit" class="btn-submit" id="btn-save-user">Guardar Usuario</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Ver Archivos del Usuario -->
+    <div class="modal" id="files-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Archivos de <span id="files-user-name">Usuario</span></h2>
+                <span class="material-icons-round close-modal" id="close-files-modal">close</span>
+            </div>
+            <div id="batch-delete-container" style="display: none; margin: 0 12px 16px 12px;">
+                <button class="btn-submit" id="btn-delete-selected"
+                    style="background: #ef4444; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span class="material-icons-round">delete_sweep</span>
+                    Eliminar Seleccionados (<span id="selected-count">0</span>)
+                </button>
+            </div>
+            <div id="select-all-container" style="display: none; margin: 0 12px;">
+                <div class="file-select-all">
+                    <input type="checkbox" id="select-all-files" class="file-checkbox">
+                    <label for="select-all-files" style="cursor: pointer; color: #64748b; font-size: 14px;">Seleccionar
+                        Todo</label>
+                </div>
+            </div>
+            <div class="file-list" id="user-files-container">
+                <!-- Archivos se cargan aquí -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="admin-login-modal" aria-modal="true" role="dialog">
+        <div class="modal-content" style="max-width: 420px; padding: 28px;">
+            <div class="modal-header" style="margin-bottom: 16px;">
+                <h2 style="margin: 0; color: #1e293b;">Acceso de administrador</h2>
+                <span class="material-icons-round close-modal" id="close-admin-login" style="cursor: pointer;">close</span>
+            </div>
+            <form id="admin-login-form" method="post" action="#" onsubmit="return false" autocomplete="off">
+                <div class="form-group">
+                    <label for="admin-login-user">Usuario</label>
+                    <input id="admin-login-user" name="admin_user" type="text" placeholder="Usuario" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-login-pass">Contraseña</label>
+                    <input id="admin-login-pass" name="admin_pass" type="password" placeholder="••••••" autocomplete="new-password" required>
+                </div>
+                <div id="admin-login-error" style="display:none; color:#dc2626; font-size:13px; margin-bottom:12px; font-weight:600;"></div>
+                <button type="submit" class="btn-submit">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="config.js?v=16"></script>
+    <script src="js/admin_script.js?v=20261022-1"></script>
+</body>
+
+</html>
