@@ -98,8 +98,7 @@ jobs:
             -authenticationKeyIssuerID "${APPLE_API_ISSUER}" \
             archive \
             CODE_SIGN_STYLE=Automatic \
-            DEVELOPMENT_TEAM="${APPLE_TEAM_ID}" \
-            CODE_SIGN_IDENTITY="Apple Distribution"
+            DEVELOPMENT_TEAM="${APPLE_TEAM_ID}"
 
       - name: Export .ipa
         env:
