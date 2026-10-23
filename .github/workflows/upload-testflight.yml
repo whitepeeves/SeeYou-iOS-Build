@@ -172,6 +172,7 @@ jobs:
           APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
           APPSTORE_API_ISSUER_ID: ${{ secrets.APPSTORE_API_ISSUER_ID }}
           BUNDLE_ID: com.seeyouonline.app
+          MARKETING_VERSION: "1.01"
         run: |
           pip3 install --quiet --break-system-packages pyjwt cryptography
 
@@ -181,6 +182,7 @@ jobs:
           key_id = os.environ["APPSTORE_API_KEY_ID"]
           issuer_id = os.environ["APPSTORE_API_ISSUER_ID"]
           bundle_id = os.environ["BUNDLE_ID"]
+          marketing_version = os.environ["MARKETING_VERSION"]
           key_path = os.path.expanduser(f"~/.appstoreconnect/private_keys/AuthKey_{key_id}.p8")
           private_key = open(key_path).read()
 
@@ -200,7 +202,9 @@ jobs:
           apps = get(f"https://api.appstoreconnect.apple.com/v1/apps?filter[bundleId]={bundle_id}")
           app_id = apps["data"][0]["id"]
 
-          builds = get(f"https://api.appstoreconnect.apple.com/v1/builds?filter[app]={app_id}&sort=-version&limit=1")
+          # Filtramos por la version marketing actual: asi, al subir de version, el build
+          # vuelve a arrancar limpio desde 1 en vez de arrastrar los numeros de la version anterior.
+          builds = get(f"https://api.appstoreconnect.apple.com/v1/builds?filter[app]={app_id}&filter[preReleaseVersion.version]={marketing_version}&sort=-version&limit=1")
           if builds["data"]:
               last_version = int(builds["data"][0]["attributes"]["version"])
           else:
