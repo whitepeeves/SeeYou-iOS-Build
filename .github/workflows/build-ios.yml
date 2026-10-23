@@ -31,19 +31,20 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode_16.app || true
 
-      - name: Install CocoaPods dependencies
-        working-directory: ios/App
-        run: pod install --repo-update
+      # Este proyecto usa Swift Package Manager (SPM) para los plugins de Capacitor,
+      # no CocoaPods, asi que no hay Podfile ni .xcworkspace: xcodebuild resuelve
+      # las dependencias SPM solo al compilar el .xcodeproj.
 
       # --- Build SIN firmar (sirve para validar que compila, no genera IPA instalable) ---
       - name: Build (sin firma, solo validacion)
         if: ${{ env.HAS_SIGNING == 'false' }}
         working-directory: ios/App
         run: |
-          xcodebuild -workspace App.xcworkspace \
+          xcodebuild -project App.xcodeproj \
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
+            -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO \
             clean build
 
@@ -80,7 +81,7 @@ jobs:
         if: ${{ env.HAS_SIGNING == 'true' }}
         working-directory: ios/App
         run: |
-          xcodebuild -workspace App.xcworkspace \
+          xcodebuild -project App.xcodeproj \
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
