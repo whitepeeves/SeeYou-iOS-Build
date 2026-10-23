@@ -63,6 +63,11 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
 
+      - name: Set build number
+        run: |
+          cd ios/App
+          xcrun agvtool new-version -all "$(date -u +%Y%m%d%H%M)"
+
       - name: Install App Store Connect API key
         env:
           APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
