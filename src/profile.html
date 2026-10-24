@@ -14,7 +14,7 @@
     <script defer src="js/session_guard.js?v=3"></script>
     <link rel="stylesheet" href="style.css?v=4">
     <script src="js/palette.js?v=2"></script>
-    <script src="js/banner_drops.js?v=3"></script>
+    <script src="js/banner_mask.js?v=1"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="css/tics.css?v=17">
@@ -556,7 +556,6 @@
                     var bannerBg = window.PROFILE_BANNERS[user.banner || ''];
                     if (bannerBg) bannerStyle = ' style="background:' + bannerBg + '"';
                 }
-                try { var oldCv = hero.querySelector('.pf-cover'); if (oldCv && window.SeeYouBannerDrops) SeeYouBannerDrops.apply(oldCv, null, false); } catch (e) { }
                 hero.innerHTML =
                     '<div class="pf-cover"' + bannerStyle + '></div>' +
                     '<div class="pf-avatar">' + av + '</div>' +
@@ -569,8 +568,8 @@
                     '<div class="pf-stat"><b>' + state.theirFriends.length + '</b><span>Amigos</span></div>' +
                     '<div class="pf-stat"><b>' + (user.streak_days || 0) + '</b><span>Racha</span></div></div>' +
                     '<div class="pf-actions">' + actions + '</div>';
-                // Efecto "gotas" del banner (si esta persona lo tiene activado)
-                try { if (window.SeeYouBannerDrops) SeeYouBannerDrops.apply(hero.querySelector('.pf-cover'), hero.querySelector('.pf-name'), user.banner_fx === 'drops'); } catch (e) { }
+                // Rectangulo inferior del banner (si esta persona dibujo una forma con Premium)
+                try { if (window.SeeYouBannerMask) SeeYouBannerMask.apply(hero.querySelector('.pf-cover'), hero.querySelector('.pf-name'), user.banner_mask_url || ''); } catch (e) { }
                 var bsec = document.getElementById('pf-badges');
                 if (bsec && window.SeeYouBadges) {
                     if (isPrivate) bsec.hidden = true;

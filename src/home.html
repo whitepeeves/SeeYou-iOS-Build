@@ -9,7 +9,7 @@
     <title>SeeYou</title>
     <link rel="stylesheet" href="style.css?v=6">
     <script src="js/palette.js?v=2"></script>
-    <script src="js/banner_drops.js?v=3"></script>
+    <script src="js/banner_mask.js?v=1"></script>
     <link rel="icon" type="image/png" href="logotipo.png">
     <link rel="manifest" href="manifest.json">
     <script defer src="js/session_guard.js?v=3"></script>
@@ -145,6 +145,7 @@
         .cfg-fx-row { display:flex; align-items:center; gap:12px; margin-top:14px; padding-top:12px; border-top:1px solid #EEF0F4; cursor:pointer; }
         .cfg-fx-row span { flex:1; } .cfg-fx-row b { display:block; font-size:14px; } .cfg-fx-row small { display:block; margin-top:2px; font-size:11.5px; color:#8A8F99; line-height:1.35; }
         .cfg-fx-row input { width:22px; height:22px; accent-color:#1B3A5C; }
+        .cfg-banner-mask-btn { flex-shrink:0; border:none; border-radius:12px; padding:9px 14px; font-size:13px; font-weight:700; color:#fff; background:#1B3A5C; cursor:pointer; }
         .pm-card { position:relative; border-radius:20px; padding:16px; background:linear-gradient(135deg,#1B3A5C,#2F6FDD); color:#fff; box-shadow:0 10px 28px rgba(27,58,92,.28); overflow:hidden; }
         .pm-card::after { content:''; position:absolute; right:-40px; top:-40px; width:150px; height:150px; border-radius:50%; background:radial-gradient(circle,rgba(255,214,102,.45),rgba(255,214,102,0) 70%); pointer-events:none; }
         .pm-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
@@ -1733,7 +1734,7 @@
         }
 
         .edit-overlay {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
@@ -3326,7 +3327,7 @@
                         <p class="cfg-theme-title" style="margin:0 0 10px;">Banner de tu perfil</p>
                         <div id="profile-banner-selector" class="cfg-banner-swatches"></div>
                         <p id="profile-banner-hint" class="cfg-banner-hint"></p>
-                        <label class="cfg-fx-row"><span><b>Gotas en el banner<span class="cfg-pm-tag">PREMIUM</span></b><small>Gotas de agua que caen del banner y descubren su mitad oculta. Las ve quien visite tu perfil.</small></span><input type="checkbox" id="banner-fx-toggle" aria-label="Gotas en el banner"></label>
+                        <div class="cfg-fx-row"><span><b>Forma del banner<span class="cfg-pm-tag">PREMIUM</span></b><small>Dibuja a mano (rayos, lagrimas, una ola...) la parte de debajo de tu banner. Se ve tu foto o color real, y lo ve quien visite tu perfil.</small></span><button type="button" id="banner-mask-edit-btn" class="cfg-banner-mask-btn">Editar forma</button></div>
                     </div>
 
                     <div class="cfg-card" style="padding:14px 16px 16px;">
@@ -5433,6 +5434,7 @@
             if (!uid) return;
             fetch(`${CONFIG.API_BASE_URL}/api/users/${encodeURIComponent(uid)}?_=${Date.now()}`, { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (u) {
                 if (!u || !el) return;
+                window.__bannerUser = u;
                 if (u.banner === 'imagen' && u.banner_image_url) {
                     var bImg = /^https?:|^data:/.test(u.banner_image_url) ? u.banner_image_url : CONFIG.API_BASE_URL + '/' + u.banner_image_url.replace(/^\/?/, '');
                     el.style.background = "url('" + bImg + "') center / cover no-repeat";
@@ -5440,22 +5442,35 @@
                     var bg = (window.PROFILE_BANNERS && window.PROFILE_BANNERS[u.banner || '']) || (window.PROFILE_BANNERS && window.PROFILE_BANNERS.azul) || '';
                     el.style.background = bg;
                 }
-                window.__bannerFx = u.banner_fx || '';
-                try { if (window.SeeYouBannerDrops) SeeYouBannerDrops.apply(el, document.getElementById('perfil-user-name'), u.banner_fx === 'drops'); } catch (e) { }
-                var fxBox = document.getElementById('banner-fx-toggle'); if (fxBox) fxBox.checked = u.banner_fx === 'drops';
+                try { if (window.SeeYouBannerMask) SeeYouBannerMask.apply(el, document.getElementById('perfil-user-name'), u.banner_mask_url || ''); } catch (e) { }
             }).catch(function () { });
         }
         window.renderProfileBannerCover = renderProfileBannerCover;
-        function setupBannerFxToggle() {
-            var box = document.getElementById('banner-fx-toggle');
-            if (!box) return;
-            box.checked = window.__bannerFx === 'drops';
-            box.onchange = function () {
-                var on = box.checked;
-                if (on && !(window.SeePremium && window.SeePremium.active)) { box.checked = false; if (window.SeePremium) window.SeePremium.promptUpgrade('Las gotas'); return; }
-                fetch(CONFIG.API_BASE_URL + '/api/me/banner-fx', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fx: on ? 'drops' : '' }) })
-                    .then(function (r) { if (!r.ok) throw new Error('x'); window.__bannerFx = on ? 'drops' : ''; showToast(on ? 'Gotas activadas' : 'Gotas desactivadas'); try { renderProfileBannerCover(); } catch (e) { } })
-                    .catch(function () { box.checked = !on; showToast('No se pudo cambiar. Inténtalo de nuevo.'); });
+        function setupBannerMaskButton() {
+            var btn = document.getElementById('banner-mask-edit-btn');
+            if (!btn) return;
+            btn.onclick = function () {
+                if (!(window.SeePremium && window.SeePremium.active)) { if (window.SeePremium) window.SeePremium.promptUpgrade('Editar la forma del banner'); return; }
+                var u = window.__bannerUser || {};
+                var bannerImageUrl = '';
+                if (u.banner === 'imagen' && u.banner_image_url) {
+                    bannerImageUrl = /^https?:|^data:/.test(u.banner_image_url) ? u.banner_image_url : CONFIG.API_BASE_URL + '/' + u.banner_image_url.replace(/^\/?/, '');
+                }
+                var bannerCss = (!bannerImageUrl && window.PROFILE_BANNERS) ? (window.PROFILE_BANNERS[u.banner || ''] || window.PROFILE_BANNERS.azul) : '';
+                SeeYouBannerMask.openEditor({
+                    bannerImageUrl: bannerImageUrl, bannerCss: bannerCss, maskUrl: u.banner_mask_url || '',
+                    onSave: function (dataUrl, close) {
+                        fetch(CONFIG.API_BASE_URL + '/api/me/banner-mask', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mask: dataUrl }) })
+                            .then(function (r) { return r.json().catch(function () { return {}; }).then(function (data) { return { ok: r.ok, data: data }; }); })
+                            .then(function (res) {
+                                if (!res.ok) { if (window.showToast) showToast((res.data && res.data.message) || 'No se pudo guardar.'); return; }
+                                if (window.showToast) showToast('¡Forma del banner guardada!');
+                                close();
+                                try { renderProfileBannerCover(); } catch (e) { }
+                            })
+                            .catch(function () { if (window.showToast) showToast('No se pudo guardar. Inténtalo de nuevo.'); });
+                    }
+                });
             };
             renderProfileBannerCover();
         }
@@ -5659,7 +5674,7 @@
         }
         function openProfileSettings() {
             const panel = document.getElementById('profile-settings-panel');
-            if (panel) { panel.hidden = false; document.body.style.overflow = 'hidden'; renderProfileBannerPicker(); try { renderPalettePicker(); } catch (e) { } try { setupBannerFxToggle(); } catch (e) { } try { if (window.SeePremium) { window.SeePremium.render(); window.SeePremium.refresh(); } } catch (e) { } loadProfileBannerState(); }
+            if (panel) { panel.hidden = false; document.body.style.overflow = 'hidden'; renderProfileBannerPicker(); try { renderPalettePicker(); } catch (e) { } try { setupBannerMaskButton(); } catch (e) { } try { if (window.SeePremium) { window.SeePremium.render(); window.SeePremium.refresh(); } } catch (e) { } loadProfileBannerState(); }
         }
         function closeProfileSettings() {
             const panel = document.getElementById('profile-settings-panel');
@@ -8590,6 +8605,13 @@
         }
 
         function closeMusicPicker() {
+            // Si habia una cancion tocada (sonando/con el banner de confirmar abierto) y cierras
+            // con esta flechita en vez de con la de confirmar, se guarda igual: cerrar el buscador
+            // no debe descartar lo que ya habias elegido.
+            if (pendingMusicSelection) {
+                confirmMusicSelection();
+                return;
+            }
             stopSelectedMusicPlayback();
             resetMusicAuditionState();
             document.getElementById('music-modal').style.display = 'none';
@@ -8621,11 +8643,21 @@
             const preview = item.dataset.preview || '';
             const artwork = item.dataset.artwork || '';
 
-            // Si tocas el mismo resultado que ya está sonando, actúa como pausa/reanudar.
-            if (auditioningPreviewUrl && auditioningPreviewUrl === preview && homeMusicPreviewPlaying) {
+            // Si la canción que tocas es la que YA tienes puesta (confirmada), tocarla la quita
+            // directamente (sin pasar por la flechita): es el atajo para deseleccionar.
+            const isAlreadyConfirmed = currentPhotoData && currentPhotoData.music === title && currentPhotoData.musicArtist === artist;
+            if (isAlreadyConfirmed) {
+                removeSelectedMusic();
+                return;
+            }
+
+            // Si tocas el mismo resultado que ya está sonando/pendiente de confirmar, el segundo
+            // toque cancela esa audición (para no dejar nada "a medias" sin confirmar).
+            if (auditioningPreviewUrl && auditioningPreviewUrl === preview) {
                 stopSelectedMusicPlayback();
                 auditioningPreviewUrl = null;
                 setPlayingResultHighlight(null);
+                resetMusicAuditionState();
                 return;
             }
 
@@ -8763,7 +8795,9 @@
             currentPhotoData.musicPreviewUrl = previewUrl || null;
             currentPhotoData.musicArtwork = artwork || null;
             document.getElementById('selected-music-badge').style.display = 'flex';
-            document.getElementById('selected-music-text').innerText = `${title} · ${artist}`;
+            const selectedMusicTextEl = document.getElementById('selected-music-text');
+            selectedMusicTextEl.removeAttribute('data-i18n');
+            selectedMusicTextEl.innerText = `${title} · ${artist}`;
             const badgeArtwork = document.getElementById('selected-music-artwork');
             if (badgeArtwork) {
                 if (artwork) { badgeArtwork.src = artwork; badgeArtwork.style.display = 'block'; }
@@ -8779,6 +8813,25 @@
             if (previewUrl) {
                 playMusicPreview(previewUrl);
             }
+        }
+
+        // Quita la música ya puesta (atajo: volver a pinchar la canción seleccionada).
+        function removeSelectedMusic() {
+            if (!currentPhotoData) return;
+            stopSelectedMusicPlayback();
+            resetMusicAuditionState();
+            auditioningPreviewUrl = null;
+            setPlayingResultHighlight(null);
+            currentPhotoData.music = null;
+            currentPhotoData.musicArtist = null;
+            currentPhotoData.musicPreviewUrl = null;
+            currentPhotoData.musicArtwork = null;
+            document.getElementById('selected-music-badge').style.display = 'none';
+            const selectedMusicTextEl = document.getElementById('selected-music-text');
+            selectedMusicTextEl.setAttribute('data-i18n', 'no_music');
+            selectedMusicTextEl.innerText = CONFIG.translate('no_music', 'Sin música');
+            const previewBtn = document.getElementById('selected-music-preview-btn');
+            if (previewBtn) previewBtn.style.display = 'none';
         }
 
         let musicSearchTimeout = null;

@@ -340,7 +340,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Inicio de sesión automático: obtiene el token igual que el login normal (sin guardar la contraseña)
             try {
-                const fp = localStorage.getItem('seeYou_device_fingerprint') || `${navigator.userAgent}||${navigator.platform}`;
+                const fp = localStorage.getItem('seeYou_device_fingerprint') || `${navigator.userAgent || ''}||${navigator.platform || ''}`;
+                try { if (!localStorage.getItem('seeYou_device_fingerprint')) localStorage.setItem('seeYou_device_fingerprint', fp); } catch (e) { /* sin storage: se recalcula cada vez, no es grave */ }
                 const loginRes = await fetch(`${CONFIG.API_BASE_URL}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

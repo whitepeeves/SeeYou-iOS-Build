@@ -40,7 +40,7 @@
         var el = document.getElementById('premium-card');
         if (!el) return;
         var d = P.data;
-        var perks = '<ul class="pm-perks"><li>Gotas en tu banner (las activas o desactivas cuando quieras)</li><li>2 monedas gratis cada día</li><li>Verificado automático</li><li>Todos los fondos gratis, también el banner con tu imagen</li></ul>';
+        var perks = '<ul class="pm-perks"><li>Edita la forma de tu banner (dibuja rayos, lagrimas, lo que quieras)</li><li>2 monedas gratis cada día</li><li>Verificado automático</li><li>Todos los fondos gratis, también el banner con tu imagen</li></ul>';
         if (!d) { el.innerHTML = '<div class="pm-head"><b>SeeYou Premium</b></div><p class="pm-sub">Cargando…</p>'; return; }
         if (d.active) {
             var until = ''; try { until = new Date(d.expiresAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { }

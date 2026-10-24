@@ -90,7 +90,7 @@
         if (x.note) rows += kv(tr('msg_reason', 'Motivo'), x.note);
         var perks = '';
         if (m.kind === 'premium_grant') {
-            var list = tr('msg_perks_list', 'Gotas en el banner|2 monedas gratis al día|Verificado automático|Todos los fondos gratis').split('|');
+            var list = tr('msg_perks_list', 'Edita la forma de tu banner|2 monedas gratis al día|Verificado automático|Todos los fondos gratis').split('|');
             perks = '<div class="mi-box" style="margin-top:14px"><h4>' + esc(tr('msg_perks', 'Qué incluye')) + '</h4><ul class="mi-perks">' + list.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></div>';
         }
         body.innerHTML = '<div class="mi-detail"><h3>' + esc(titleOf(m)) + '</h3><div class="mi-when">' + esc(fdate(m.createdAt, true)) + '</div><div class="mi-text">' + esc(bodyOf(m)) + '</div>' +

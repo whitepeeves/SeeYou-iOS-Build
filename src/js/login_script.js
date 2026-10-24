@@ -119,7 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const fp = localStorage.getItem('seeYou_device_fingerprint') || `${navigator.userAgent}||${navigator.platform}`;
+        const fp = localStorage.getItem('seeYou_device_fingerprint') || `${navigator.userAgent || ''}||${navigator.platform || ''}`;
+            try { if (!localStorage.getItem('seeYou_device_fingerprint')) localStorage.setItem('seeYou_device_fingerprint', fp); } catch (e) { /* sin storage: se recalcula cada vez, no es grave */ }
         const response = await fetch(`${CONFIG.API_BASE_URL}/api/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -317,7 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function tryLoginWithUrl(serverUrl) {
-            const fp = localStorage.getItem('seeYou_device_fingerprint') || `${navigator.userAgent}||${navigator.platform}`;
+            const fp = localStorage.getItem('seeYou_device_fingerprint') || `${navigator.userAgent || ''}||${navigator.platform || ''}`;
+            try { if (!localStorage.getItem('seeYou_device_fingerprint')) localStorage.setItem('seeYou_device_fingerprint', fp); } catch (e) { /* sin storage: se recalcula cada vez, no es grave */ }
             const response = await fetch(`${serverUrl}/api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
