@@ -83,7 +83,13 @@
     };
 
     var css = document.createElement('style');
-    css.textContent = '.bm-host > :not(.bm-layer){position:relative;z-index:1}.bm-host > .bm-layer{position:absolute;z-index:0}' +
+    // :not(.ps-panel) y :not(.profile-drawer): el host de la mascara del banner es el contenedor
+    // padre de la portada, pero dentro de ese mismo contenedor (mas abajo en el HTML) tambien
+    // vive el panel de Configuracion (#profile-settings-panel, position:fixed de por si). Sin
+    // esta exclusion, el selector de abajo le pisaba el position:fixed con un position:relative
+    // y el panel se quedaba "abierto" segun el JS pero renderizado metros mas abajo en la pagina,
+    // invisible sin hacer scroll. Lo mismo de propina para cualquier .profile-drawer que acabe ahi.
+    css.textContent = '.bm-host > :not(.bm-layer):not(.ps-panel):not(.profile-drawer){position:relative;z-index:1}.bm-host > .bm-layer{position:absolute;z-index:0}' +
         '.bm-editor-ov{font-family:inherit}.bm-tool{border:1px solid var(--app-border,#E8EAF0);background:var(--app-surface,#fff);color:var(--app-text,#1D1B20);border-radius:12px;padding:8px 14px;font-size:13.5px;font-weight:600;cursor:pointer}' +
         '.bm-tool.is-active{background:var(--app-primary,#1B3A5C);border-color:var(--app-primary,#1B3A5C);color:#fff}' +
         '.bm-clear,.bm-cancel,.bm-save{border-radius:12px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;border:1px solid var(--app-border,#E8EAF0)}' +

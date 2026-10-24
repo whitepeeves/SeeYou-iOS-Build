@@ -1468,7 +1468,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: max(env(safe-area-inset-top, 0px), 24px);
+            height: env(safe-area-inset-top, 0px); /* Solo ocupa espacio si hay un "notch" real (movil con muesca); en web/escritorio vale 0 y no se ve */
             background: var(--surface, #fef7ff); /* barra lisa del color del fondo (estilo Instagram), sin difuminado */
             z-index: 150;
             pointer-events: none;
@@ -5674,7 +5674,17 @@
         }
         function openProfileSettings() {
             const panel = document.getElementById('profile-settings-panel');
-            if (panel) { panel.hidden = false; document.body.style.overflow = 'hidden'; renderProfileBannerPicker(); try { renderPalettePicker(); } catch (e) { } try { setupBannerMaskButton(); } catch (e) { } try { if (window.SeePremium) { window.SeePremium.render(); window.SeePremium.refresh(); } } catch (e) { } loadProfileBannerState(); }
+            if (!panel) { console.error('[SeeYou] openProfileSettings: no se encontró #profile-settings-panel en el DOM'); try { showToast('No se pudo abrir Configuración. Reinicia la app e inténtalo de nuevo.'); } catch (e) { } return; }
+            // Se abre el panel primero y cada extra se carga aparte envuelto en try/catch: si algo
+            // de dentro (banner, paleta, premium...) falla, el panel igualmente se ve y es usable,
+            // en vez de quedarse "sin reaccionar" al tocar el engranaje.
+            panel.hidden = false;
+            document.body.style.overflow = 'hidden';
+            try { renderProfileBannerPicker(); } catch (e) { console.error('[SeeYou] renderProfileBannerPicker:', e); }
+            try { renderPalettePicker(); } catch (e) { console.error('[SeeYou] renderPalettePicker:', e); }
+            try { setupBannerMaskButton(); } catch (e) { console.error('[SeeYou] setupBannerMaskButton:', e); }
+            try { if (window.SeePremium) { window.SeePremium.render(); window.SeePremium.refresh(); } } catch (e) { console.error('[SeeYou] SeePremium:', e); }
+            try { loadProfileBannerState(); } catch (e) { console.error('[SeeYou] loadProfileBannerState:', e); }
         }
         function closeProfileSettings() {
             const panel = document.getElementById('profile-settings-panel');
@@ -8809,10 +8819,6 @@
                 previewBtn.innerText = '▶ Reproducir';
             }
             document.getElementById('music-modal').style.display = 'none';
-            showToast(`Música seleccionada: ${title}`);
-            if (previewUrl) {
-                playMusicPreview(previewUrl);
-            }
         }
 
         // Quita la música ya puesta (atajo: volver a pinchar la canción seleccionada).
@@ -8920,6 +8926,8 @@
                             const sw = document.querySelector('#edit-bg-strip .ebs-img');
                             if (sw) { sw.innerHTML = ''; sw.style.backgroundImage = 'url("' + url + '")'; }
                             paintEditBackground();
+                            const st = document.getElementById('edit-bg-strip');
+                            if (st) st.classList.remove('open');
                         };
                         img.src = url;
                     };
@@ -8950,11 +8958,17 @@
                     el.classList.add('ebs-img');
                     el.innerHTML = '<span class="material-icons-outlined">add_photo_alternate</span>';
                     el.addEventListener('click', () => {
-                        if (editBgImage && editBackground !== 'img') { editBackground = 'img'; paintEditBackground(); }
+                        if (editBgImage && editBackground !== 'img') {
+                            editBackground = 'img'; paintEditBackground();
+                            strip.classList.remove('open');
+                        }
                         else pickEditBgImage();
                     });
                 } else {
-                    el.addEventListener('click', () => { editBackground = b.id; paintEditBackground(); });
+                    el.addEventListener('click', () => {
+                        editBackground = b.id; paintEditBackground();
+                        strip.classList.remove('open');
+                    });
                 }
                 strip.appendChild(el);
             });
@@ -9881,7 +9895,7 @@
                 if (outboxSaved) TicOutbox.begin(outboxId);
             }
             paint('Subiendo' + label + '…');
-            const result = await TicUpload.post(`${CONFIG.API_BASE_URL}/api/publicaciones`, formData, {
+            let result = await TicUpload.post(`${CONFIG.API_BASE_URL}/api/publicaciones`, formData, {
                 onProgress: (loaded, total) => {
                     if (loaded == null || !total) { fileFraction = Math.max(fileFraction, 0.5); paint('Subiendo' + label + '…'); return; }
                     fileFraction = 0.05 + 0.85 * (loaded / total);
@@ -9893,10 +9907,27 @@
             if (outboxSaved) {
                 if (ticResultOk(result)) { TicOutbox.remove(outboxId); }
                 else if (TicOutbox.isRetryable(result)) {
-                    // Servidor caído o sin red: no es un error del usuario. El Tic queda a salvo en el móvil y se reintenta solo.
-                    result.pendingSaved = true;
-                    TicOutbox.markPending(outboxId);
-                    TicOutbox.scheduleSoon();
+                    // No se da por "pendiente" a la primera: a veces el servidor solo tarda un poco en
+                    // responder (no es que este caido). Se reintenta un par de veces aqui mismo, con el
+                    // mismo circulo de progreso, antes de enseñar la tarjeta de "Tu Tic esta a salvo".
+                    const retryDelaysMs = [3000, 6000];
+                    for (let i = 0; i < retryDelaysMs.length && TicOutbox.isRetryable(result); i++) {
+                        paint('Reintentando' + label + '…');
+                        await new Promise((r) => setTimeout(r, retryDelaysMs[i]));
+                        result = await TicUpload.post(`${CONFIG.API_BASE_URL}/api/publicaciones`, formData, {})
+                            .catch((err) => ({ status: 0, data: { message: err && err.message === 'timeout' ? 'La subida tardó demasiado' : 'Error de conexión' } }));
+                    }
+                    if (ticResultOk(result)) {
+                        TicOutbox.remove(outboxId);
+                    } else if (TicOutbox.isRetryable(result)) {
+                        // Sigue fallando tras los reintentos rapidos: ahora si, servidor caido o sin red.
+                        // El Tic queda a salvo en el movil y se sigue reintentando solo en segundo plano.
+                        result.pendingSaved = true;
+                        TicOutbox.markPending(outboxId);
+                        TicOutbox.scheduleSoon();
+                    } else {
+                        TicOutbox.remove(outboxId);
+                    }
                 } else { TicOutbox.remove(outboxId); }   // error "de verdad" (foto inválida...): se gestiona como siempre
             }
             return result;
@@ -9905,7 +9936,6 @@
         // El Tic sigue a salvo en el móvil: se quita el círculo de subida y se ve la tarjeta "Pendiente" encima de New Tic.
         function ticJobPending(job) {
             removeTicJob(job);
-            try { showToast(CONFIG.translate('ob_toast_safe', 'Tu foto está a salvo. Se publicará cuando haya conexión.')); } catch (e) { }
             if (window.TicOutbox) TicOutbox.render();
         }
 

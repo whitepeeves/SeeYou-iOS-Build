@@ -127,7 +127,16 @@
                                     try { if (typeof global.__ticOutboxPublished === 'function') global.__ticOutboxPublished(entry, result.data || {}); } catch (e) { }
                                 });
                             }
-                            if (isRetryable(result)) { failedNetwork = true; return patch(entry.id, { attempts: (entry.attempts || 0) + 1, status: 'pending' }); }
+                            if (isRetryable(result)) {
+                                var attempts = (entry.attempts || 0) + 1;
+                                var ageMs = Date.now() - (entry.createdAt || Date.now());
+                                var giveUp = attempts >= 12 || ageMs > 48 * 60 * 60 * 1000;
+                                if (giveUp) {
+                                    return patch(entry.id, { attempts: attempts, status: 'error', error: 'No se pudo publicar tras varios intentos. Reintenta o descártalo.' });
+                                }
+                                failedNetwork = true;
+                                return patch(entry.id, { attempts: attempts, status: 'pending' });
+                            }
                             var msg = (result.data && (result.data.message || result.data.error)) || ('Error ' + result.status);
                             return patch(entry.id, { status: 'error', error: msg });
                         });
@@ -184,8 +193,9 @@
                 var err = e.status === 'error';
                 var card = document.createElement('div');
                 card.className = 'ob-wrap' + (err ? ' err' : '');
-                card.innerHTML = '<div class="ob-top"><span class="ob-dot"></span>'
-                    + esc(err ? tr('ob_banner_error', 'No se pudo publicar este Tic') : tr('ob_banner_offline', 'Sin conexión con el servidor · tus cambios se enviarán solos')) + '</div>'
+                card.innerHTML = (err
+                    ? '<div class="ob-top"><span class="ob-dot"></span>' + esc(tr('ob_banner_error', 'No se pudo publicar este Tic')) + '</div>'
+                    : '')
                     + '<div class="ob-body"><div class="ob-th" style="background-image:url(\'' + thumbs[e.id] + '\')"><i></i></div>'
                     + '<div class="ob-info"><b>' + esc(err ? tr('ob_title_problem', 'Hay un problema con tu Tic') : tr('ob_title_safe', 'Tu Tic está a salvo')) + '</b>'
                     + '<span>' + (err ? esc(e.error || tr('ob_try_other', 'Prueba con otra foto')) : esc(tr('ob_saved_at', 'Guardado en tu móvil · {{time}}', { time: hhmm(e.createdAt) })) + '<br>' + esc(tr('ob_will_publish', 'Se publicará cuando haya conexión'))) + '</span>'
