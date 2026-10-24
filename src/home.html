@@ -3665,7 +3665,6 @@
                 <span class="material-icons-outlined" style="font-size:18px; color:#1DB954">music_note</span>
                 <span id="selected-music-text" data-i18n="no_music">Sin música</span>
             </div>
-            <button id="selected-music-preview-btn" type="button" onclick="toggleSelectedMusicPreview(event)" style="display:none; margin-left:8px; background:rgba(255,255,255,0.1); border:none; color:white; padding:8px 12px; border-radius:999px; font-size:13px; cursor:pointer;">▶ Reproducir</button>
 
             <div class="edit-footer">
                 <div id="edit-bg-strip" role="group" aria-label="Fondo"></div>
@@ -8045,6 +8044,7 @@
             try {
                 homeMusicFallbackAudio = new Audio(url);
                 homeMusicFallbackAudio.volume = 0.8;
+                homeMusicFallbackAudio.loop = true; // suena todo el rato mientras haces el Tic
                 homeMusicFallbackAudio.onended = () => {
                     onSelectedMusicEnded();
                 };
@@ -8182,6 +8182,7 @@
         }
 
         function cancelEdit() {
+            stopSelectedMusicPlayback();
             document.getElementById('edit-photo-container').classList.remove('open');
             currentPhotoData = null;
             document.getElementById('edit-preview-img').src = '';
@@ -8625,6 +8626,7 @@
             stopSelectedMusicPlayback();
             resetMusicAuditionState();
             document.getElementById('music-modal').style.display = 'none';
+            if (currentPhotoData && currentPhotoData.musicPreviewUrl) playMusicPreview(currentPhotoData.musicPreviewUrl);
         }
 
         function onMusicSearchInput() {
@@ -8799,7 +8801,6 @@
                 return;
             }
             resetMusicAuditionState();
-            stopMusicPreview();
             currentPhotoData.music = title;
             currentPhotoData.musicArtist = artist;
             currentPhotoData.musicPreviewUrl = previewUrl || null;
@@ -8813,12 +8814,16 @@
                 if (artwork) { badgeArtwork.src = artwork; badgeArtwork.style.display = 'block'; }
                 else badgeArtwork.style.display = 'none';
             }
-            const previewBtn = document.getElementById('selected-music-preview-btn');
-            if (previewBtn) {
-                previewBtn.style.display = previewUrl ? 'inline-flex' : 'none';
-                previewBtn.innerText = '▶ Reproducir';
-            }
             document.getElementById('music-modal').style.display = 'none';
+            // La cancion elegida sigue sonando mientras haces el Tic (no se para al cerrar el buscador).
+            // Si ya estaba sonando la misma, no se reinicia.
+            if (previewUrl) {
+                const yaSuena = homeMusicFallbackAudio && !homeMusicFallbackAudio.paused && homeMusicFallbackAudio.src === previewUrl;
+                if (yaSuena) homeMusicFallbackAudio.loop = true;
+                else playMusicPreview(previewUrl);
+            } else {
+                stopSelectedMusicPlayback();
+            }
         }
 
         // Quita la música ya puesta (atajo: volver a pinchar la canción seleccionada).
@@ -8836,8 +8841,6 @@
             const selectedMusicTextEl = document.getElementById('selected-music-text');
             selectedMusicTextEl.setAttribute('data-i18n', 'no_music');
             selectedMusicTextEl.innerText = CONFIG.translate('no_music', 'Sin música');
-            const previewBtn = document.getElementById('selected-music-preview-btn');
-            if (previewBtn) previewBtn.style.display = 'none';
         }
 
         let musicSearchTimeout = null;
