@@ -166,7 +166,10 @@
                 load();
                 setInterval(function () { if (!document.hidden) load(); }, 60000);
                 document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
-                if (/[?&]messages=1/.test(location.search)) openPanel();
+                if (/[?&]messages=1/.test(location.search)) {
+                    try { var mu = new URL(location.href); mu.searchParams.delete('messages'); history.replaceState(null, '', mu.pathname + (mu.search || '') + mu.hash); } catch (e) { }   // una sola vez
+                    openPanel();
+                }
             } else if (++tries < 40) setTimeout(wait, 150);
         })();
     }

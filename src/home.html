@@ -4373,11 +4373,17 @@
             if (section === 'actividades' && view === 'mapa') {
                 navigate('actividades-map');
             }
+            // Estos parametros son de "una sola vez": se quitan de la URL al usarlos, si no, al recargar
+            // o reabrir esa direccion volvia a abrirse la camara o el Tic compartido.
+            const consumeUrlParam = (name) => {
+                try { const u = new URL(window.location.href); u.searchParams.delete(name); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash); } catch (e) { }
+            };
             if (urlParams.get('upload_photo') === '1') {
+                consumeUrlParam('upload_photo');
                 openCamera();
             }
             const sharedTicId = urlParams.get('tic');
-            if (sharedTicId) openSharedTicFromUrl(sharedTicId);
+            if (sharedTicId) { consumeUrlParam('tic'); openSharedTicFromUrl(sharedTicId); }
         });
 
         function toggleCreateMenu() {

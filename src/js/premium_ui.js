@@ -125,6 +125,8 @@
 
     try {
         var q = new URLSearchParams(location.search).get('premium');
+        // Se quita ?premium=ok de la URL para que el aviso salga solo esta vez (si no, reaparecia al recargar o reabrir esa direccion).
+        if (q === 'ok') { try { var u = new URL(location.href); u.searchParams.delete('premium'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash); } catch (e) { } }
         if (q === 'ok') document.addEventListener('DOMContentLoaded', function () { toast('¡Pago recibido! Tu Premium se activa en unos segundos.'); [1500, 5000, 10000].forEach(function (ms) { setTimeout(refresh, ms); }); });
     } catch (e) { }
 

@@ -166,6 +166,7 @@
     // Vuelta desde el pago (Stripe)
     try {
         var q = new URLSearchParams(location.search).get('coins');
+        if (q === 'ok') { try { var u = new URL(location.href); u.searchParams.delete('coins'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash); } catch (e) { } }   // se quita ?coins=ok de la URL: el aviso sale solo esta vez
         if (q === 'ok') { document.addEventListener('DOMContentLoaded', function () { toast(T('shop_paid', '¡Pago recibido! Tus monedas llegan en unos segundos.')); }); }
     } catch (e) { }
 

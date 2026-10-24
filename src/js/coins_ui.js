@@ -184,7 +184,8 @@
 
     /* ---------- avisos "+N monedas" ---------- */
     function lastKey(uid) { return 'seeyou_coins_last_' + uid; }
-    function rememberBalance(uid, balance) { try { localStorage.setItem(lastKey(uid), String(balance)); } catch (e) { } }
+    function atKey(uid) { return 'seeyou_coins_last_at_' + uid; }
+    function rememberBalance(uid, balance) { try { localStorage.setItem(lastKey(uid), String(balance)); localStorage.setItem(atKey(uid), String(Date.now())); } catch (e) { } }
     function toast(n) {
         injectCss();
         var t = document.createElement('div');
@@ -193,12 +194,16 @@
         document.body.appendChild(t);
         setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3300);
     }
-    function checkGain(uid) {
+    function checkGain(uid, auto) {   // auto = comprobacion automatica de fondo (las llamadas tras una accion del usuario avisan siempre)
         return getJson('/api/coins/' + encodeURIComponent(uid) + '?limit=0').then(function (data) {
             if (!data) return;
             var last = null;
             try { last = localStorage.getItem(lastKey(uid)); } catch (e) { }
             var prev = last === null ? null : Number(last);
+            // Si este dispositivo llevaba rato sin comprobar (p. ej. ganaste monedas en otro movil hace horas),
+            // la diferencia NO es una ganancia nueva: se actualiza el saldo en silencio, sin aviso ni animacion.
+            var lastAt = 0; try { lastAt = Number(localStorage.getItem(atKey(uid)) || 0); } catch (e) { }
+            if (auto && prev !== null && (!lastAt || Date.now() - lastAt > 15 * 60 * 1000)) prev = null;
             rememberBalance(uid, data.balance);
             pills.forEach(function (b) { if (b.isConnected) { paintPill(b, data.balance); if (prev !== null && data.balance > prev) { b.classList.remove('is-gain'); void b.offsetWidth; b.classList.add('is-gain'); } } });
             if (prev !== null && data.balance > prev) toast(data.balance - prev);
@@ -450,7 +455,7 @@
     try { me = localStorage.getItem('current_user_id') || ''; } catch (e) { }
     if (me) {
         var lastRun = 0;
-        var run = function () { if (Date.now() - lastRun < 40000) return; lastRun = Date.now(); checkGain(me); };
+        var run = function () { if (Date.now() - lastRun < 40000) return; lastRun = Date.now(); checkGain(me, true); };
         setTimeout(run, 6000);
         document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') setTimeout(run, 2500); });
         setInterval(run, 5 * 60 * 1000);
