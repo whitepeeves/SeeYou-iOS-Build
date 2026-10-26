@@ -89,6 +89,8 @@ jobs:
           $PB -c "Add :NSPhotoLibraryUsageDescription string Necesitamos acceder a tus fotos para que puedas elegir una imagen al publicar un Tic." "$PLIST"
           $PB -c "Delete :NSPhotoLibraryAddUsageDescription" "$PLIST" 2>/dev/null || true
           $PB -c "Add :NSPhotoLibraryAddUsageDescription string Necesitamos guardar fotos en tu galeria cuando lo pidas." "$PLIST"
+          $PB -c "Delete :NSLocationWhenInUseUsageDescription" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :NSLocationWhenInUseUsageDescription string Usamos tu ubicacion para mostrarte en el mapa y etiquetar el lugar de tus Tics." "$PLIST"
 
       - name: Generate iOS app icon
         run: npx @capacitor/assets generate --ios
