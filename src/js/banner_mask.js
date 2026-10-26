@@ -90,10 +90,24 @@
     // y el panel se quedaba "abierto" segun el JS pero renderizado metros mas abajo en la pagina,
     // invisible sin hacer scroll. Lo mismo de propina para cualquier .profile-drawer que acabe ahi.
     css.textContent = '.bm-host > :not(.bm-layer):not(.ps-panel):not(.profile-drawer){position:relative;z-index:1}.bm-host > .bm-layer{position:absolute;z-index:0}' +
-        '.bm-editor-ov{font-family:inherit}.bm-tool{border:1px solid var(--app-border,#E8EAF0);background:var(--app-surface,#fff);color:var(--app-text,#1D1B20);border-radius:12px;padding:8px 14px;font-size:13.5px;font-weight:600;cursor:pointer}' +
-        '.bm-tool.is-active{background:var(--app-primary,#1B3A5C);border-color:var(--app-primary,#1B3A5C);color:#fff}' +
-        '.bm-clear,.bm-cancel,.bm-save{border-radius:12px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;border:1px solid var(--app-border,#E8EAF0)}' +
-        '.bm-clear{background:transparent;color:var(--app-muted,#667085)}.bm-cancel{background:transparent;color:var(--app-text,#1D1B20)}' +
+        '.bm-editor-ov{font-family:inherit}' +
+        '.bm-editor-card{background:var(--app-surface,#fff);border-radius:24px;max-width:560px;width:100%;padding:20px;box-shadow:0 30px 70px -30px rgba(0,0,0,.6);max-height:92vh;overflow:auto;box-sizing:border-box}' +
+        '.bm-title{margin:0 0 6px;font-size:19px;font-weight:800;letter-spacing:-.2px;color:var(--app-text,#1D1B20)}' +
+        '.bm-desc{margin:0 0 14px;font-size:13.5px;line-height:1.45;color:var(--app-muted,#667085)}' +
+        '.bm-toolbar{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:14px}' +
+        '.bm-seg{display:inline-flex;padding:3px;gap:2px;background:var(--app-border,#EEF0F5);border-radius:14px}' +
+        '.bm-tool{display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;color:var(--app-muted,#667085);border-radius:10px;padding:9px 9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s,color .15s,box-shadow .15s}' +
+        '.bm-tool.is-active{background:var(--app-surface,#fff);color:var(--app-primary,#1B3A5C);box-shadow:0 1px 4px rgba(20,30,50,.18)}' +
+        '.bm-clear{display:inline-flex;align-items:center;gap:4px;background:transparent;border:0;color:var(--app-muted,#667085);font:inherit;font-size:12.5px;font-weight:700;padding:9px 2px;cursor:pointer;border-radius:10px;white-space:nowrap}' +
+        '.bm-clear:active{background:var(--app-border,#EEF0F5)}' +
+        '.bm-sizebox{display:flex;align-items:center;gap:12px;margin-top:12px;padding:10px 14px;border-radius:14px;background:var(--app-border,#EEF0F5)}' +
+        '.bm-sizelbl{font-size:13px;font-weight:700;color:var(--app-muted,#667085)}' +
+        '.bm-size{flex:1;min-width:0;accent-color:var(--app-primary,#1B3A5C)}' +
+        '.bm-dotwrap{width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex:none}' +
+        '.bm-dot{display:block;border-radius:50%;background:var(--app-primary,#1B3A5C);width:12px;height:12px}' +
+        '.bm-actions{display:flex;gap:10px;margin-top:18px}' +
+        '.bm-cancel,.bm-save{flex:1;border-radius:14px;padding:13px 16px;font:inherit;font-size:14.5px;font-weight:800;cursor:pointer;border:1px solid var(--app-border,#E8EAF0)}' +
+        '.bm-cancel{background:transparent;color:var(--app-text,#1D1B20)}' +
         '.bm-save{background:var(--app-primary,#1B3A5C);border-color:var(--app-primary,#1B3A5C);color:#fff}';
     document.head.appendChild(css);
 
@@ -107,6 +121,7 @@
 
     // ----------------- Editor (pincel dibujar/borrar) -----------------
     var activeEditor = null;
+    function tr(key, fallback) { try { if (typeof CONFIG !== 'undefined' && CONFIG.translate) return CONFIG.translate(key, fallback) || fallback; } catch (e) { } return fallback; }
     function closeEditor() {
         if (activeEditor && activeEditor.parentNode) activeEditor.parentNode.removeChild(activeEditor);
         activeEditor = null; document.body.style.overflow = '';
@@ -117,34 +132,76 @@
         var W = 640, H = 240;
         var ov = document.createElement('div');
         ov.className = 'bm-editor-ov';
-        ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,14,22,.72);display:flex;align-items:center;justify-content:center;padding:16px;';
+        ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,14,22,.72);display:flex;align-items:center;justify-content:center;padding:16px;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);';
         ov.innerHTML =
-            '<div class="bm-editor-card" style="background:var(--app-surface,#fff);border-radius:20px;max-width:720px;width:100%;padding:18px;box-shadow:0 30px 70px -30px rgba(0,0,0,.6);max-height:92vh;overflow:auto;">' +
-            '<h3 style="margin:0 0 4px;font-size:18px;font-weight:800;color:var(--app-text,#1D1B20);">Editar forma del banner</h3>' +
-            '<p style="margin:0 0 12px;font-size:13.5px;color:var(--app-muted,#667085);">Dibuja lo que quieras (rayos, lagrimas, una ola...) justo debajo de tu banner. Se vera tu foto o color de fondo, nunca otra cosa.</p>' +
-            '<div class="bm-canvas-wrap" style="position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--app-border,#E8EAF0);"></div>' +
-            '<div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">' +
-            '<button type="button" data-mode="draw" class="bm-tool is-active">✏️ Dibujar</button>' +
-            '<button type="button" data-mode="erase" class="bm-tool">🧽 Borrar</button>' +
-            '<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--app-muted,#667085);">Grosor<input type="range" min="6" max="60" value="22" class="bm-size"></label>' +
-            '<button type="button" class="bm-clear" style="margin-left:auto;">Borrar todo</button>' +
+            '<div class="bm-editor-card">' +
+            '<h3 class="bm-title">' + tr('bm_title', 'Editar forma del banner') + '</h3>' +
+            '<p class="bm-desc">' + tr('bm_desc', 'Dibuja en la mitad de abajo. La de arriba es tu banner y no se toca. Se verá tu foto o color de fondo, nunca otra cosa.') + '</p>' +
+            '<div class="bm-canvas-wrap"></div>' +
+            '<div class="bm-toolbar">' +
+            '<div class="bm-seg" role="group">' +
+            '<button type="button" data-mode="draw" class="bm-tool is-active"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg><span>' + tr('bm_draw', 'Dibujar') + '</span></button>' +
+            '<button type="button" data-mode="erase" class="bm-tool"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20H9"/><path d="M5.5 14.5 14 6a2.1 2.1 0 0 1 3 0l3 3a2.1 2.1 0 0 1 0 3l-6.5 6.5H8.5z"/><path d="M9 11l5 5"/></svg><span>' + tr('bm_erase', 'Borrar') + '</span></button>' +
             '</div>' +
-            '<div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;">' +
-            '<button type="button" class="bm-cancel">Cancelar</button>' +
-            '<button type="button" class="bm-save">Guardar</button>' +
+            '<button type="button" class="bm-clear"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg><span>' + tr('bm_clear', 'Borrar todo') + '</span></button>' +
+            '</div>' +
+            '<div class="bm-sizebox"><span class="bm-sizelbl">' + tr('bm_size', 'Grosor') + '</span><input type="range" min="6" max="60" value="22" class="bm-size"><span class="bm-dotwrap"><i class="bm-dot"></i></span></div>' +
+            '<div class="bm-actions">' +
+            '<button type="button" class="bm-cancel">' + tr('bm_cancel', 'Cancelar') + '</button>' +
+            '<button type="button" class="bm-save">' + tr('bm_save', 'Guardar') + '</button>' +
             '</div>' +
             '</div>';
         document.body.appendChild(ov);
         document.body.style.overflow = 'hidden';
         activeEditor = ov;
 
+        // El editor enseña las DOS mitades apiladas, igual que en el perfil: arriba el banner (fijo, no se toca)
+        // y abajo la zona editable (la continuacion de la foto/color) donde se dibuja la forma.
         var wrap = ov.querySelector('.bm-canvas-wrap');
-        wrap.style.background = opts.bannerImageUrl ? ('url("' + opts.bannerImageUrl + '") center / cover no-repeat') : (opts.bannerCss || '#1B3A5C');
-        wrap.style.aspectRatio = (W / H);
+        var isImg = !!opts.bannerImageUrl;
+        var bgPlain = opts.bannerCss || '#1B3A5C';
+        function pane(extra) {
+            var d = document.createElement('div');
+            d.style.cssText = 'position:relative;width:100%;aspect-ratio:' + (W / H) + ';overflow:hidden;' + (extra || '');
+            return d;
+        }
+        function chip(txt, pos) {
+            var c = document.createElement('span');
+            c.textContent = txt;
+            c.style.cssText = 'position:absolute;' + pos + ';z-index:3;background:rgba(15,20,30,.72);color:#fff;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;pointer-events:none;';
+            return c;
+        }
+        var topPane = pane(isImg ? ('background:url("' + opts.bannerImageUrl + '") center / cover no-repeat;') : ('background:' + bgPlain + ';'));
+        topPane.appendChild(chip(tr('bm_top_label', 'Tu banner (no se edita)'), 'left:8px;top:8px'));
+        var divider = document.createElement('div');
+        divider.style.cssText = 'height:3px;background:var(--app-border,#E8EAF0);';
+        var botPane = pane(isImg ? 'background-repeat:no-repeat;' : ('background:' + bgPlain + ';'));
+        var dim = document.createElement('div');
+        dim.style.cssText = 'position:absolute;inset:0;background:rgba(15,20,30,.55);pointer-events:none;';
+        botPane.appendChild(dim);
+        botPane.appendChild(chip(tr('bm_bottom_label', 'Dibuja aquí'), 'left:8px;top:8px'));
+        wrap.style.cssText = 'position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--app-border,#E8EAF0);';
+        wrap.appendChild(topPane); wrap.appendChild(divider); wrap.appendChild(botPane);
+        if (isImg) {
+            var natImg = new Image();
+            natImg.onload = function () {
+                function lay() {
+                    var k = botPane.clientWidth / W; if (!k) return;
+                    var scale = Math.max(W / natImg.naturalWidth, H / natImg.naturalHeight);
+                    var sw = natImg.naturalWidth * scale, sh = natImg.naturalHeight * scale;
+                    botPane.style.backgroundImage = 'url("' + opts.bannerImageUrl + '")';
+                    botPane.style.backgroundSize = (sw * k) + 'px ' + (sh * k) + 'px';
+                    // misma imagen que arriba, desplazada una altura: es lo que de verdad se vera debajo del banner
+                    botPane.style.backgroundPosition = (((W - sw) / 2) * k) + 'px ' + ((((H - sh) / 2) - H) * k) + 'px';
+                }
+                lay(); window.addEventListener('resize', lay);
+            };
+            natImg.src = opts.bannerImageUrl;
+        }
         var canvas = document.createElement('canvas');
         canvas.width = W; canvas.height = H;
-        canvas.style.cssText = 'display:block;width:100%;height:auto;touch-action:none;cursor:crosshair;';
-        wrap.appendChild(canvas);
+        canvas.style.cssText = 'position:absolute;inset:0;z-index:2;display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;';
+        botPane.appendChild(canvas);
         var ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, W, H);
 
@@ -186,7 +243,10 @@
                 b.classList.add('is-active'); mode = b.dataset.mode;
             });
         });
-        ov.querySelector('.bm-size').addEventListener('input', function (e) { brush = Number(e.target.value) || 22; });
+        var dot = ov.querySelector('.bm-dot');
+        function paintDot() { var d = Math.max(6, Math.min(32, brush * 0.55 + 4)); dot.style.width = d + 'px'; dot.style.height = d + 'px'; }
+        paintDot();
+        ov.querySelector('.bm-size').addEventListener('input', function (e) { brush = Number(e.target.value) || 22; paintDot(); });
         ov.querySelector('.bm-clear').addEventListener('click', function () { ctx.clearRect(0, 0, W, H); });
         ov.querySelector('.bm-cancel').addEventListener('click', function () { if (opts.onCancel) opts.onCancel(); closeEditor(); });
         ov.querySelector('.bm-save').addEventListener('click', function () {

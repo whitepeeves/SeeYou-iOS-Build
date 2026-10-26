@@ -9,7 +9,7 @@
     <title>SeeYou</title>
     <link rel="stylesheet" href="style.css?v=6">
     <script src="js/palette.js?v=2"></script>
-    <script src="js/banner_mask.js?v=2"></script>
+    <script src="js/banner_mask.js?v=4"></script>
     <link rel="icon" type="image/png" href="logotipo.png">
     <link rel="manifest" href="manifest.json">
     <script defer src="js/session_guard.js?v=3"></script>
@@ -3251,37 +3251,37 @@
                 </div>
                 <input type="file" id="profile-avatar-input" accept="image/*" style="display:none">
                 <h2 id="perfil-user-name" style="margin:0; font-size:24px; color:#1d1b20">Usuario</h2>
-                <p id="perfil-user-bio" class="ps-bio is-empty" onclick="showAccountConfig()">Añade una descripción</p>
+                <p id="perfil-user-bio" class="ps-bio is-empty" onclick="showAccountConfig()" data-i18n="prof_add_bio">Añade una descripción</p>
                 <div id="profile-streak" class="profile-streak-wrap" aria-live="polite">
                     <div id="profile-fire-lottie" class="profile-fire-lottie" aria-hidden="true"></div>
                     <div style="display:flex; align-items:baseline; gap:6px;">
                         <span id="profile-streak-days" class="profile-streak-days">0</span>
-                        <span class="profile-streak-label">días</span>
+                        <span class="profile-streak-label" data-i18n="prof_days_label">días</span>
                     </div>
                 </div>
                 <div id="profile-network" class="net-stats">
-                    <button type="button" class="net-stat" onclick="openNetworkModal('followers')" aria-label="Ver seguidores">
+                    <button type="button" class="net-stat" onclick="openNetworkModal('followers')" aria-label="Ver seguidores" data-i18n-aria-label="prof_see_followers">
                         <strong id="profile-followers-count">0</strong>
-                        <span>Seguidores</span>
+                        <span data-i18n="prof_followers">Seguidores</span>
                     </button>
-                    <button type="button" class="net-stat" onclick="openNetworkModal('following')" aria-label="Ver seguidos">
+                    <button type="button" class="net-stat" onclick="openNetworkModal('following')" aria-label="Ver seguidos" data-i18n-aria-label="prof_see_following">
                         <strong id="profile-following-count">0</strong>
-                        <span>Seguidos</span>
+                        <span data-i18n="prof_following">Seguidos</span>
                     </button>
                 </div>
                 <section id="profile-badges" hidden style="width:100%; max-width:720px; margin-top:28px;"></section>
 
                 <section id="profile-tics" style="width:100%; max-width:720px; margin-top:28px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 12px;">
-                        <h3 style="margin:0; color:#1d1b20;">Mis Tics recientes</h3>
-                        <button type="button" id="profile-tics-all" class="tarc-link" onclick="openTicsArchive()" hidden>Ver todos</button>
+                        <h3 style="margin:0; color:#1d1b20;" data-i18n="prof_recent_tics">Mis Tics recientes</h3>
+                        <button type="button" id="profile-tics-all" class="tarc-link" onclick="openTicsArchive()" hidden data-i18n="prof_see_all">Ver todos</button>
                     </div>
                     <div id="profile-tics-list"></div>
-                    <button type="button" id="profile-tics-more" class="tarc-cta" onclick="openTicsArchive()" hidden>Ver todos mis Tics por fecha o lugar</button>
+                    <button type="button" id="profile-tics-more" class="tarc-cta" onclick="openTicsArchive()" hidden data-i18n="prof_see_all_tics">Ver todos mis Tics por fecha o lugar</button>
                 </section>
                 
                 <div id="profile-settings-panel" class="ps-panel" hidden role="dialog" aria-modal="true" aria-label="Configuración">
-                    <div class="ps-head"><button type="button" class="ps-back" onclick="closeProfileSettings()" aria-label="Cerrar configuración"><span class="material-icons-outlined">arrow_back</span></button><h3>Configuración</h3></div>
+                    <div class="ps-head"><button type="button" class="ps-back" onclick="closeProfileSettings()" aria-label="Cerrar configuración" data-i18n-aria-label="cfg_close"><span class="material-icons-outlined">arrow_back</span></button><h3 data-i18n="cfg_title">Configuración</h3></div>
                     <div class="ps-scroll">
                 <div style="width:100%; max-width:420px; margin:0 auto;">
 
@@ -3299,7 +3299,7 @@
                         </button>
                         <button type="button" class="cfg-row" onclick="showBlockedUsers()">
                             <span class="cfg-icon"><span class="material-icons-outlined">block</span></span>
-                            <span class="cfg-label">Usuarios bloqueados</span>
+                            <span class="cfg-label" data-i18n="cfg_blocked">Usuarios bloqueados</span>
                             <span class="material-icons-outlined cfg-chevron">chevron_right</span>
                         </button>
                     </div>
@@ -3385,11 +3385,11 @@
                         </button>
                     </div>
 
-                    <p class="cfg-section-title">SOPORTE</p>
+                    <p class="cfg-section-title" data-i18n="cfg_support">SOPORTE</p>
                     <div class="cfg-card">
                         <button type="button" class="cfg-row" onclick="openThanksModal()">
                             <span class="cfg-icon"><span class="material-icons-outlined">favorite</span></span>
-                            <span class="cfg-label">Agradecimientos</span>
+                            <span class="cfg-label" data-i18n="cfg_thanks">Agradecimientos</span>
                             <span class="material-icons-outlined cfg-chevron">chevron_right</span>
                         </button>
                     </div>
@@ -3397,7 +3397,7 @@
                     <div class="cfg-card" style="margin-bottom:14px;">
                         <button type="button" class="cfg-row cfg-row-danger" onclick="openDeleteAccountModal()">
                             <span class="cfg-icon cfg-icon-danger"><span class="material-icons-outlined">delete_forever</span></span>
-                            <span class="cfg-label">Eliminar mi cuenta</span>
+                            <span class="cfg-label" data-i18n="cfg_delete_account">Eliminar mi cuenta</span>
                         </button>
                     </div>
 
@@ -3494,7 +3494,7 @@
     </div>
 
     <div id="blocked-panel" class="profile-drawer ep-panel" style="display:none;">
-        <div class="ep-head"><button type="button" class="ps-back" onclick="backToSettings()" aria-label="Volver"><span class="material-icons-outlined">arrow_back</span></button><h3>Usuarios bloqueados</h3></div>
+        <div class="ep-head"><button type="button" class="ps-back" onclick="backToSettings()" aria-label="Volver" data-i18n-aria-label="cfg_back"><span class="material-icons-outlined">arrow_back</span></button><h3 data-i18n="cfg_blocked">Usuarios bloqueados</h3></div>
         <div class="ep-scroll">
             <div class="sx-note"><span class="material-icons-outlined">info</span><span>Las personas bloqueadas no pueden ver tus Tics, escribirte ni enviarte solicitudes de amistad, y tú dejas de verlas en toda la app.</span></div>
             <div id="blocked-list"></div>
@@ -4258,7 +4258,7 @@
                 try { bio = new DOMParser().parseFromString(bio, 'text/html').documentElement.textContent || ''; } catch (e) { }
                 bio = bio.trim();
                 if (bio) { el.textContent = bio; el.classList.remove('is-empty'); }
-                else { el.textContent = 'Añade una descripción'; el.classList.add('is-empty'); }
+                else { el.textContent = (typeof CONFIG !== 'undefined' && CONFIG.translate ? CONFIG.translate('prof_add_bio', 'Añade una descripción') : 'Añade una descripción'); el.classList.add('is-empty'); }
             }
 
             async function loadProfileNetwork(userId) {

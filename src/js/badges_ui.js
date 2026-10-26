@@ -15,6 +15,24 @@
         return fallback;
     }
 
+
+    // Los nombres, niveles y descripciones llegan del servidor siempre en español: se traducen aqui con el idioma de la app.
+    var TIER_KEYS = ['bdg_tier_bronze', 'bdg_tier_silver', 'bdg_tier_gold', 'bdg_tier_diamond'];
+    function locDesc(id, d) {
+        var m = String(d || '').match(/\d+/);
+        if (!m) return d;
+        var n = parseInt(m[0], 10);
+        return T('bdg_desc_' + id + (n === 1 ? '_one' : '_many'), d).replace('{{n}}', n);
+    }
+    function locBadge(b) {
+        if (!b || !b.id) return b;
+        b.name = T('coin_badge_' + b.id, b.name);
+        if (b.tier > 0) b.tierName = T(TIER_KEYS[b.tier - 1], b.tierName);
+        if (b.description) b.description = locDesc(b.id, b.description);
+        if (b.tiers) b.tiers.forEach(function (t) { t.name = T(TIER_KEYS[t.tier - 1], t.name); t.description = locDesc(b.id, t.description); });
+        return b;
+    }
+
     var TIERS = {
         1: { name: 'Bronce', a: '#F0B27A', b: '#B7691F', c: '#7A430E', glyph: '#FFF4E5' },
         2: { name: 'Plata', a: '#F4F7FB', b: '#AEB9C7', c: '#6C7889', glyph: '#FFFFFF' },
@@ -202,6 +220,7 @@
             if (!data || !data.badges) { el.innerHTML = ''; el.hidden = true; return; }
             el.hidden = false;
             el.dataset.bdgReady = '1';
+            data.badges.forEach(locBadge);
             var byId = {};
             data.badges.forEach(function (b) { byId[b.id] = b; });
             var favIds = (data.favorites || []).filter(function (id) { return byId[id]; }).slice(0, 3);
@@ -295,6 +314,7 @@
             // Se marca como visto en cuanto se enseña (antes solo al cerrar el ultimo aviso: si salias de la pantalla, volvian todos).
             try { localStorage.setItem(shownKey(userId), JSON.stringify(shown.concat(fresh.map(itemSig)).slice(-200))); } catch (e) { }
             data.pending = fresh;
+            data.pending.forEach(function (p) { if (p.kind !== 'backfill') locBadge(p); });
             var lastAt = data.pending.reduce(function (m, p) { return p.at && p.at > m ? p.at : m; }, '');
             markSeenNow(userId, lastAt);
             showNext(data.pending.slice(), userId, lastAt);

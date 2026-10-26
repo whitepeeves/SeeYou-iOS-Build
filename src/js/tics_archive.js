@@ -181,7 +181,7 @@
         var html = '<div class="tarc-recent-grid">' + tilesHtml + '</div>';
         var more = st.visible < st.ids.length || st.hasMoreServer;
         if (more) {
-            html += '<button type="button" class="tarc-cta" data-more-recent="1">Cargar más Tics</button>';
+            html += '<button type="button" class="tarc-cta" data-more-recent="1">' + (typeof CONFIG !== 'undefined' && CONFIG.translate ? CONFIG.translate('tarc_load_more', 'Cargar más Tics') : 'Cargar más Tics') + '</button>';
         }
         st.listEl.innerHTML = html;
         bindRecentClicks(st.listEl);
