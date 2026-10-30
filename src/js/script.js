@@ -1,6 +1,7 @@
 // SeeYou · Registro en 3 pasos: datos -> verificación por correo -> foto de perfil
 document.addEventListener('DOMContentLoaded', () => {
     const $ = (id) => document.getElementById(id);
+    const tr = (k, d) => { try { return (typeof CONFIG !== 'undefined' && CONFIG.translate) ? CONFIG.translate(k, d) : d; } catch (e) { return d; } };
     const card = $('reg-card');
     const steps = Array.from(card.querySelectorAll('.auth-step'));
     const dots = Array.from(document.querySelectorAll('#reg-progress .dot'));
@@ -70,15 +71,15 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(resendTimer);
         let left = seconds;
         btnResend.disabled = true;
-        btnResend.textContent = `Reenviar código (${left}s)`;
+        btnResend.textContent = tr('rg_resend_n', 'Reenviar código ({{s}}s)').replace('{{s}}', left);
         resendTimer = setInterval(() => {
             left -= 1;
             if (left <= 0) {
                 clearInterval(resendTimer);
                 btnResend.disabled = false;
-                btnResend.textContent = 'Reenviar código';
+                btnResend.textContent = tr('rg_resend', 'Reenviar código');
             } else {
-                btnResend.textContent = `Reenviar código (${left}s)`;
+                btnResend.textContent = tr('rg_resend_n', 'Reenviar código ({{s}}s)').replace('{{s}}', left);
             }
         }, 1000);
     }
@@ -98,12 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data.error || 'No se pudo enviar el código.');
+                throw new Error(data.error || tr('rg_send_fail', 'No se pudo enviar el código.'));
             }
 
             currentRegistration.email = email;
             $('verify-email').textContent = email;
-            showToast(resend ? 'Te hemos enviado un nuevo código.' : 'Se ha enviado un código de verificación a tu correo.');
+            showToast(resend ? tr('rg_new_code', 'Te hemos enviado un nuevo código.') : tr('rg_code_sent', 'Se ha enviado un código de verificación a tu correo.'));
             modalCodeInput.value = '';
             setVerifyError('');
             goToStep('verify');
@@ -111,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => modalCodeInput.focus(), 350);
             return true;
         } catch (error) {
-            showToast(error.message || 'No se pudo enviar el código.');
+            showToast(error.message || tr('rg_send_fail', 'No se pudo enviar el código.'));
             return false;
         }
     }
@@ -121,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (verifying) return;
         const code = modalCodeInput.value.trim();
         if (!/^\d{6}$/.test(code)) {
-            setVerifyError('El código debe contener 6 dígitos.');
+            setVerifyError(tr('rg_code_6', 'El código debe contener 6 dígitos.'));
             return;
         }
 
@@ -136,15 +137,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data.error || 'Código incorrecto.');
+                throw new Error(data.error || tr('rg_code_bad', 'Código incorrecto.'));
             }
 
             currentRegistration.verified = true;
             setVerifyError('');
-            showToast('Correo verificado correctamente.');
+            showToast(tr('rg_verified', 'Correo verificado correctamente.'));
             goToStep('photo');
         } catch (error) {
-            setVerifyError(error.message || 'Error al verificar el código.');
+            setVerifyError(error.message || tr('rg_verify_err', 'Error al verificar el código.'));
         } finally {
             verifying = false;
             setLoading(btnModalVerify, false);
@@ -215,11 +216,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadFile(file) {
         if (!file) return;
         if (!/^image\//.test(file.type)) {
-            showToast('Selecciona un archivo de imagen.');
+            showToast(tr('rg_not_image', 'Selecciona un archivo de imagen.'));
             return;
         }
         if (file.size > MAX_FILE_MB * 1024 * 1024) {
-            showToast(`La imagen es demasiado grande (máx. ${MAX_FILE_MB} MB).`);
+            showToast(tr('rg_too_big', 'La imagen es demasiado grande (máx. {{mb}} MB).').replace('{{mb}}', MAX_FILE_MB));
             return;
         }
 
@@ -243,12 +244,12 @@ document.addEventListener('DOMContentLoaded', () => {
             zoomInput.value = '1';
             frame.classList.add('has-photo');
             adjust.classList.add('show');
-            hint.textContent = 'Arrastra para encuadrar y usa el zoom para ajustar.';
-            btnPickLabel.textContent = 'Cambiar foto';
+            hint.textContent = tr('rg_hint', 'Arrastra para encuadrar y usa el zoom para ajustar.');
+            btnPickLabel.textContent = tr('rg_change_photo', 'Cambiar foto');
             btnContinue.disabled = false;
             render();
         }).catch(() => {
-            showToast('No se pudo leer esa imagen. Prueba con otra (JPG o PNG).');
+            showToast(tr('rg_img_read', 'No se pudo leer esa imagen. Prueba con otra (JPG o PNG).'));
         });
     }
 
@@ -325,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (!response.ok) {
-                showToast(`Error: ${data.error || 'No se pudo crear la cuenta.'}`);
+                showToast(tr('rg_error_prefix', 'Error: {{msg}}').replace('{{msg}}', data.error || tr('rg_create_fail', 'No se pudo crear la cuenta.')));
                 // Si el problema son los datos (usuario/teléfono ya en uso) volvemos al formulario
                 currentRegistration.verified = false;
                 goToStep('form');
@@ -374,10 +375,10 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('current_user_verified', 'false');
             localStorage.setItem('current_user_foto', userFoto);
             if (window.SeeYouSession) SeeYouSession.start(true);
-            showToast('¡Cuenta creada! Bienvenido a SeeYou.');
+            showToast(tr('rg_created', '¡Cuenta creada! Bienvenido a SeeYou.'));
             setTimeout(() => { window.location.href = 'home.html'; }, 450);
         } catch (error) {
-            showToast('Error de conexión con el servidor');
+            showToast(tr('rg_conn_err', 'Error de conexión con el servidor'));
         } finally {
             finishing = false;
             setLoading(btnContinue, false);
@@ -418,26 +419,26 @@ document.addEventListener('DOMContentLoaded', () => {
         username: {
             input: $('username'),
             error: $('username-error'),
-            validate: (val) => val.trim() !== '' ? '' : 'El nombre de usuario es obligatorio'
+            validate: (val) => val.trim() !== '' ? '' : tr('rg_v_user', 'El nombre de usuario es obligatorio')
         },
         email: {
             input: emailInput,
             error: $('email-error'),
-            validate: (val) => /^\S+@\S+\.\S+$/.test((val || '').trim()) ? '' : 'Introduce un correo electrónico válido'
+            validate: (val) => /^\S+@\S+\.\S+$/.test((val || '').trim()) ? '' : tr('rg_v_email', 'Introduce un correo electrónico válido')
         },
         password: {
             input: $('password'),
             error: $('password-error'),
-            validate: (val) => val.length >= 8 ? '' : 'La contraseña debe tener al menos 8 caracteres'
+            validate: (val) => val.length >= 8 ? '' : tr('rg_v_pw', 'La contraseña debe tener al menos 8 caracteres')
         },
         phone: {
             input: $('phone'),
             prefix: { get value() { return $('phone-prefix-container-value').value; } },
             error: $('phone-error'),
             validate: (val) => {
-                if (val.trim() === '') return 'El teléfono es obligatorio';
-                if (!/^\d+$/.test(val.trim())) return 'Solo se permiten números';
-                if (val.trim().length < 6) return 'El número es demasiado corto';
+                if (val.trim() === '') return tr('rg_v_phone_req', 'El teléfono es obligatorio');
+                if (!/^\d+$/.test(val.trim())) return tr('rg_v_phone_digits', 'Solo se permiten números');
+                if (val.trim().length < 6) return tr('rg_v_phone_short', 'El número es demasiado corto');
                 return '';
             }
         }

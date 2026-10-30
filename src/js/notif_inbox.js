@@ -7,6 +7,8 @@
     var ICON_BELL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
     var ICON_BACK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
 
+    function tr(k, d) { try { return (typeof CONFIG !== 'undefined' && CONFIG.translate) ? CONFIG.translate(k, d) : d; } catch (e) { return d; } }
+    function fmt(str, o) { return String(str).replace(/\{\{(\w+)\}\}/g, function (m, k) { return o[k] != null ? o[k] : m; }); }
     function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function url(u) { if (!u) return ''; return /^(https?:|data:)/.test(u) ? u : API + '/' + String(u).replace(/^\/?/, ''); }
     function api(path, opts) { return fetch(API + path, opts).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
@@ -22,43 +24,43 @@
     function ticWhen(iso) {
         var n = dayDiff(iso);
         if (n == null) return '';
-        if (n <= 0) return 'hoy';
-        if (n === 1) return 'ayer';
-        if (n < 7) return 'hace unos días';
-        if (n < 60) return 'hace unas semanas';
-        if (n < 365) return 'hace unos meses';
-        return 'hace unos años';
+        if (n <= 0) return tr('ni_today', 'hoy');
+        if (n === 1) return tr('ni_yesterday', 'ayer');
+        if (n < 7) return tr('ni_few_days', 'hace unos días');
+        if (n < 60) return tr('ni_few_weeks', 'hace unas semanas');
+        if (n < 365) return tr('ni_few_months', 'hace unos meses');
+        return tr('ni_few_years', 'hace unos años');
     }
     function ago(iso) {
         var m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
-        if (m < 1) return 'ahora';
-        if (m < 60) return 'hace ' + m + ' min';
+        if (m < 1) return tr('ni_now', 'ahora');
+        if (m < 60) return fmt(tr('ni_min', 'hace {{n}} min'), { n: m });
         var h = Math.round(m / 60);
-        if (h < 24) return 'hace ' + h + ' h';
+        if (h < 24) return fmt(tr('ni_hour', 'hace {{n}} h'), { n: h });
         var d = Math.round(h / 24);
-        if (d < 30) return 'hace ' + d + (d === 1 ? ' día' : ' días');
+        if (d < 30) return d === 1 ? tr('ni_day1', 'hace 1 día') : fmt(tr('ni_days', 'hace {{n}} días'), { n: d });
         var mo = Math.round(d / 30);
-        if (mo < 12) return 'hace ' + mo + (mo === 1 ? ' mes' : ' meses');
+        if (mo < 12) return mo === 1 ? tr('ni_mon1', 'hace 1 mes') : fmt(tr('ni_mons', 'hace {{n}} meses'), { n: mo });
         var y = Math.round(mo / 12);
-        return 'hace ' + y + (y === 1 ? ' año' : ' años');
+        return y === 1 ? tr('ni_year1', 'hace 1 año') : fmt(tr('ni_years', 'hace {{n}} años'), { n: y });
     }
     function section(iso) {
         var n = dayDiff(iso);
-        if (n == null || n <= 0) return 'Hoy';
-        if (n < 7) return 'Esta semana';
-        if (n < 30) return 'Este mes';
-        return 'Antes';
+        if (n == null || n <= 0) return tr('ni_sec_today', 'Hoy');
+        if (n < 7) return tr('ni_sec_week', 'Esta semana');
+        if (n < 30) return tr('ni_sec_month', 'Este mes');
+        return tr('ni_sec_before', 'Antes');
     }
     function textOf(n) {
-        var who = '<b>' + esc(n.fromUserName || 'Alguien') + '</b>';
+        var who = '<b>' + esc(n.fromUserName || tr('ni_someone', 'Alguien')) + '</b>';
         var when = ticWhen(n.ticDate);
-        var ofTic = when ? ' de <b>' + when + '</b>' : '';
-        if (n.type === 'like') return who + ' ha dado like a tu Tic' + ofTic;
-        if (n.type === 'comment') return who + ' ha comentado tu Tic' + ofTic;
-        if (n.type === 'new_follower') return who + ' ha empezado a seguirte';
-        if (n.type === 'friend_request') return who + ' te ha enviado una solicitud de amistad';
-        if (n.type === 'friend_accepted') return who + ' ha aceptado tu solicitud de amistad';
-        return esc(n.text || n.title || 'Nuevo aviso');
+        var ofTic = when ? fmt(tr('ni_of', ' de <b>{{when}}</b>'), { when: when }) : '';
+        if (n.type === 'like') return fmt(tr('ni_like', '{{who}} ha dado like a tu Tic'), { who: who }) + ofTic;
+        if (n.type === 'comment') return fmt(tr('ni_comment', '{{who}} ha comentado tu Tic'), { who: who }) + ofTic;
+        if (n.type === 'new_follower') return fmt(tr('ni_follower', '{{who}} ha empezado a seguirte'), { who: who });
+        if (n.type === 'friend_request') return fmt(tr('ni_freq', '{{who}} te ha enviado una solicitud de amistad'), { who: who });
+        if (n.type === 'friend_accepted') return fmt(tr('ni_facc', '{{who}} ha aceptado tu solicitud de amistad'), { who: who });
+        return esc(n.text || n.title || tr('ni_new', 'Nuevo aviso'));
     }
     function plainText(n) { var d = document.createElement('div'); d.innerHTML = textOf(n); return d.textContent; }
 
@@ -97,12 +99,12 @@
     function actionsHTML(n) {
         if (n.type === 'friend_request') {
             var rq = pending[String(n.fromUserId)];
-            if (rq) return '<div class="ni-acts"><button class="ni-btn p" data-act="accept" data-id="' + esc(n.id) + '">Aceptar</button><button class="ni-btn g" data-act="reject" data-id="' + esc(n.id) + '">Rechazar</button></div>';
+            if (rq) return '<div class="ni-acts"><button class="ni-btn p" data-act="accept" data-id="' + esc(n.id) + '">' + esc(tr('ni_accept', 'Aceptar')) + '</button><button class="ni-btn g" data-act="reject" data-id="' + esc(n.id) + '">' + esc(tr('ni_reject', 'Rechazar')) + '</button></div>';
             return '';
         }
         if (n.type === 'new_follower') {
             var f = following[String(n.fromUserId)];
-            return '<div class="ni-acts"><button class="ni-btn g" data-act="' + (f ? 'unfollow' : 'follow') + '" data-id="' + esc(n.id) + '">' + (f ? 'Siguiendo' : 'Seguir') + '</button></div>';
+            return '<div class="ni-acts"><button class="ni-btn g" data-act="' + (f ? 'unfollow' : 'follow') + '" data-id="' + esc(n.id) + '">' + esc(f ? tr('ni_following', 'Siguiendo') : tr('ni_follow', 'Seguir')) + '</button></div>';
         }
         return '';
     }
@@ -114,7 +116,7 @@
     function renderList() {
         var body = panel.querySelector('.ni-body');
         var list = mine().slice().sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
-        if (!list.length) { body.innerHTML = '<div class="ni-empty">Aún no tienes notificaciones.<br>Aquí verás likes, seguidores y solicitudes de amistad.</div>'; return; }
+        if (!list.length) { body.innerHTML = '<div class="ni-empty">' + esc(tr('ni_empty', 'Aún no tienes notificaciones.')) + '<br>' + esc(tr('ni_empty_sub', 'Aquí verás likes, seguidores y solicitudes de amistad.')) + '</div>'; return; }
         var html = '', last = '';
         list.forEach(function (n) {
             var sec = section(n.createdAt);
@@ -126,9 +128,11 @@
     function updateRow() {
         if (!row) return;
         var c = unreadCount(), b = row.querySelector('.ni-badge');
+        var rb = row.querySelector('.ni-mid b'); if (rb) rb.textContent = tr('ni_title', 'Notificaciones');
+        row.setAttribute('aria-label', tr('ni_title', 'Notificaciones'));
         b.textContent = c > 99 ? '99+' : String(c); b.hidden = !c;
         var latest = mine().slice().sort(function (a, b2) { return new Date(b2.createdAt) - new Date(a.createdAt); })[0];
-        row.querySelector('.ni-mid span').textContent = latest ? plainText(latest) : 'Likes, seguidores y solicitudes';
+        row.querySelector('.ni-mid span').textContent = latest ? plainText(latest) : tr('ni_sub', 'Likes, seguidores y solicitudes');
     }
 
     function load() {
@@ -147,6 +151,7 @@
 
     function openPanel() {
         panel.classList.add('open');
+        var ph = panel.querySelector('h2'); if (ph) ph.textContent = tr('ni_title', 'Notificaciones');
         history.pushState({ niPanel: 1 }, '');
         Promise.all([loadRelations(), load()]).then(function () {
             renderList();
@@ -177,15 +182,15 @@
                 done = api('/api/friends/respond', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: me, requestId: pending[String(n.fromUserId)], accept: act === 'accept' }) }).then(function (r) {
                     if (!r) { btn.disabled = false; return; }
                     delete pending[String(n.fromUserId)];
-                    var acts = it.querySelector('.ni-acts'); if (acts) acts.outerHTML = '<small>' + (act === 'accept' ? 'Ahora sois amigos' : 'Solicitud rechazada') + '</small>';
+                    var acts = it.querySelector('.ni-acts'); if (acts) acts.outerHTML = '<small>' + esc(act === 'accept' ? tr('ni_now_friends', 'Ahora sois amigos') : tr('ni_rejected', 'Solicitud rechazada')) + '</small>';
                 });
             } else {
                 done = fetch(API + '/api/follows', { method: act === 'follow' ? 'POST' : 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fromUserId: me, toUserId: n.fromUserId }) }).then(function (r) {
                     return r.json().catch(function () { return {}; }).then(function (d) {
                         var ok = r.ok || /Ya sigues/i.test(d.message || '');
-                        if (!ok) { btn.disabled = false; btn.textContent = d.message ? 'No disponible' : btn.textContent; return; }
-                        if (act === 'follow') { following[String(n.fromUserId)] = 1; btn.dataset.act = 'unfollow'; btn.textContent = 'Siguiendo'; }
-                        else { delete following[String(n.fromUserId)]; btn.dataset.act = 'follow'; btn.textContent = 'Seguir'; }
+                        if (!ok) { btn.disabled = false; btn.textContent = d.message ? tr('ni_unavailable', 'No disponible') : btn.textContent; return; }
+                        if (act === 'follow') { following[String(n.fromUserId)] = 1; btn.dataset.act = 'unfollow'; btn.textContent = tr('ni_following', 'Siguiendo'); }
+                        else { delete following[String(n.fromUserId)]; btn.dataset.act = 'follow'; btn.textContent = tr('ni_follow', 'Seguir'); }
                         btn.disabled = false;
                     });
                 }).catch(function () { btn.disabled = false; });
@@ -201,11 +206,11 @@
         var anchor = document.querySelector('#chat-list-view .cl-search');
         if (!anchor || document.getElementById('ni-row')) return false;
         row = document.createElement('button');
-        row.type = 'button'; row.id = 'ni-row'; row.className = 'ni-row'; row.setAttribute('aria-label', 'Notificaciones');
-        row.innerHTML = '<span class="ni-ico">' + ICON_BELL + '</span><span class="ni-mid"><b>Notificaciones</b><span>Likes, seguidores y solicitudes</span></span><span class="ni-badge" hidden>0</span>';
+        row.type = 'button'; row.id = 'ni-row'; row.className = 'ni-row'; row.setAttribute('aria-label', tr('ni_title', 'Notificaciones'));
+        row.innerHTML = '<span class="ni-ico">' + ICON_BELL + '</span><span class="ni-mid"><b>' + esc(tr('ni_title', 'Notificaciones')) + '</b><span>' + esc(tr('ni_sub', 'Likes, seguidores y solicitudes')) + '</span></span><span class="ni-badge" hidden>0</span>';
         anchor.parentNode.insertBefore(row, anchor);
-        panel = document.createElement('div'); panel.className = 'ni-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Notificaciones');
-        panel.innerHTML = '<div class="ni-head"><button type="button" class="ni-back" aria-label="Volver">' + ICON_BACK + '</button><h2>Notificaciones</h2></div><div class="ni-body"></div>';
+        panel = document.createElement('div'); panel.className = 'ni-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', tr('ni_title', 'Notificaciones'));
+        panel.innerHTML = '<div class="ni-head"><button type="button" class="ni-back" aria-label="' + esc(tr('cfg_back', 'Volver')) + '">' + ICON_BACK + '</button><h2>' + esc(tr('ni_title', 'Notificaciones')) + '</h2></div><div class="ni-body"></div>';
         document.body.appendChild(panel);
         row.addEventListener('click', openPanel);
         panel.querySelector('.ni-back').addEventListener('click', function () { closePanel(false); });

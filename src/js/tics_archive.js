@@ -9,9 +9,18 @@
 
     var RECENT_COUNT = 12;
     var RECENT_PAGE = 6;
-    var MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    var MONTHS_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-    var DOW = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+    function tr(k, d) { try { return (typeof CONFIG !== 'undefined' && CONFIG.translate) ? CONFIG.translate(k, d) : d; } catch (e) { return d; } }
+    function fmt(str, o) { return String(str).replace(/\{\{(\w+)\}\}/g, function (m, k) { return o[k] != null ? o[k] : m; }); }
+    function loc() { return (typeof CONFIG !== 'undefined' && CONFIG.currentLanguage) || 'es'; }
+    function cap(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+    function monthNames(style) {
+        try { var f = new Intl.DateTimeFormat(loc(), { month: style, timeZone: 'UTC' }); var a = []; for (var m = 0; m < 12; m++) a.push(f.format(new Date(Date.UTC(2021, m, 15)))); return a; }
+        catch (e) { return ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']; }
+    }
+    function weekdayNames() {
+        try { var f = new Intl.DateTimeFormat(loc(), { weekday: 'narrow', timeZone: 'UTC' }); var a = []; for (var d = 0; d < 7; d++) a.push(f.format(new Date(Date.UTC(2021, 0, 4 + d)))); return a; }
+        catch (e) { return ['L', 'M', 'X', 'J', 'V', 'S', 'D']; }
+    }
     var PLACE_PAGE = 30;
 
     var CSS = '' +
@@ -115,10 +124,14 @@
     function monthKeyOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
     function monthLabel(key) {
         var p = key.split('-');
-        return MONTHS[Number(p[1]) - 1] + ' ' + p[0];
+        return cap(monthNames('long')[Number(p[1]) - 1]) + ' ' + p[0];
     }
+    function longDate(d) {
+        try { return new Intl.DateTimeFormat(loc(), { day: 'numeric', month: 'long', year: 'numeric' }).format(d); } catch (e) { return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear(); }
+    }
+    function ticCount(n) { return fmt(n === 1 ? tr('ta_tic1', '{{n}} Tic') : tr('ta_tics', '{{n}} Tics'), { n: n }); }
     function shortDate(d) {
-        return d.getDate() + ' ' + MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear();
+        try { return new Intl.DateTimeFormat(loc(), { day: 'numeric', month: 'short', year: 'numeric' }).format(d); } catch (e) { return d.getDate() + ' ' + monthNames('short')[d.getMonth()] + ' ' + d.getFullYear(); }
     }
     function authFetch(url) {
         return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); });
@@ -141,7 +154,7 @@
         var place = loc.name || loc.label || loc.city || '';
         if (place) place = String(place).split(',')[0].trim();
         return '<div class="tarc-tile-wrap">' +
-            '<button type="button" class="tarc-tile" data-open="' + esc(card.id) + '" aria-label="Abrir Tic">' +
+            '<button type="button" class="tarc-tile" data-open="' + esc(card.id) + '" aria-label="' + esc(tr('ta_open', 'Abrir Tic')) + '">' +
             (src ? '<img src="' + esc(src) + '" data-full="' + esc(full) + '" alt="" loading="lazy" decoding="async" onerror="TicsArchive._imgErr(this)">' : '') +
             (d ? '<span class="tarc-tile-date">' + esc(shortDate(d)) + '</span>' : '') +
             '</button>' +
@@ -217,13 +230,13 @@
             recentState.ids = shown.map(function (x) { return x.id; });
             recentState.hasMoreServer = hasMore;
             if (!shown.length) {
-                listEl.innerHTML = '<div class="tarc-note">' + esc(opts.emptyText || 'Todavía no hay ningún Tic.') + '</div>';
+                listEl.innerHTML = '<div class="tarc-note">' + esc(opts.emptyText || tr('ta_empty', 'Todavía no hay ningún Tic.')) + '</div>';
                 return { count: 0, hasMore: false };
             }
             renderRecentFromIds();
             return { count: shown.length, hasMore: hasMore };
         }).catch(function (err) {
-            listEl.innerHTML = '<div class="tarc-note" style="color:#b3261e">No se pudieron cargar los Tics. Inténtalo de nuevo.</div>';
+            listEl.innerHTML = '<div class="tarc-note" style="color:#b3261e">' + esc(tr('ta_load_err', 'No se pudieron cargar los Tics. Inténtalo de nuevo.')) + '</div>';
             return { count: 0, hasMore: false, error: err };
         });
     }
@@ -278,7 +291,7 @@
         }
         items.forEach(function (it) {
             if (it.city) { it.placeKey = norm(it.city); it.placeName = it.city; return; }
-            if (it.lat == null || it.lng == null) { it.placeKey = '~none'; it.placeName = 'Sin ubicación'; return; }
+            if (it.lat == null || it.lng == null) { it.placeKey = '~none'; it.placeName = tr('ta_no_loc', 'Sin ubicación'); return; }
             var best = nearest(list, it);
             if (best) { it.placeKey = best.key; it.placeName = best.name; return; }
             var zone = nearest(zones, it);
@@ -296,7 +309,7 @@
     var arc = null; // estado del archivo abierto
 
     function tileHtml(it, withDate) {
-        return '<button type="button" class="tarc-tile" data-open="' + esc(it.id) + '" aria-label="Abrir Tic">' +
+        return '<button type="button" class="tarc-tile" data-open="' + esc(it.id) + '" aria-label="' + esc(tr('ta_open', 'Abrir Tic')) + '">' +
             '<img src="' + esc(thumbUrl(it.img, 240)) + '" data-full="' + esc(assetUrl(it.img)) + '" alt="" loading="lazy" decoding="async" onerror="TicsArchive._imgErr(this)">' +
             (withDate && it.d ? '<span class="tarc-tile-date">' + esc(shortDate(it.d)) + '</span>' : '') + '</button>';
     }
@@ -309,13 +322,13 @@
         root.setAttribute('aria-modal', 'true');
         root.innerHTML = '<div class="tarc-backdrop" data-close="1"></div><div class="tarc-panel">' +
             '<div class="tarc-top"><h2 class="tarc-title"><span data-el="title"></span><span class="tarc-count" data-el="count"></span></h2>' +
-            '<button type="button" class="tarc-close" data-close="1" aria-label="Cerrar">&times;</button></div>' +
-            '<div class="tarc-tabs"><button type="button" class="tarc-tab" data-tab="date">Por fecha</button><button type="button" class="tarc-tab" data-tab="place">Por lugar</button></div>' +
+            '<button type="button" class="tarc-close" data-close="1" aria-label="' + esc(tr('ta_close', 'Cerrar')) + '">&times;</button></div>' +
+            '<div class="tarc-tabs"><button type="button" class="tarc-tab" data-tab="date">' + esc(tr('ta_by_date', 'Por fecha')) + '</button><button type="button" class="tarc-tab" data-tab="place">' + esc(tr('ta_by_place', 'Por lugar')) + '</button></div>' +
             '<div class="tarc-scroll" data-el="body"></div></div>';
         var viewer = document.createElement('div');
         viewer.className = 'tarc-viewer';
         viewer.hidden = true;
-        viewer.innerHTML = '<button type="button" class="tarc-viewer-close" data-vclose="1" aria-label="Cerrar">&times;</button><div data-el="vbody"></div>';
+        viewer.innerHTML = '<button type="button" class="tarc-viewer-close" data-vclose="1" aria-label="' + esc(tr('ta_close', 'Cerrar')) + '">&times;</button><div data-el="vbody"></div>';
         document.body.appendChild(root);
         document.body.appendChild(viewer);
         arc.root = root;
@@ -356,7 +369,7 @@
             arc.tab = opts.tab || 'date';
             render();
         }).catch(function () {
-            $('[data-el="body"]').innerHTML = '<div class="tarc-empty">No se pudo cargar el archivo. Inténtalo de nuevo.</div>';
+            $('[data-el="body"]').innerHTML = '<div class="tarc-empty">' + esc(tr('ta_arc_err', 'No se pudo cargar el archivo. Inténtalo de nuevo.')) + '</div>';
         });
     }
 
@@ -372,7 +385,7 @@
         arc.root.querySelectorAll('.tarc-tab').forEach(function (b) { b.classList.toggle('is-on', b.dataset.tab === arc.tab); });
         var body = $('[data-el="body"]');
         if (!arc.items.length) {
-            body.innerHTML = '<div class="tarc-empty">Todavía no hay Tics para mostrar.</div>';
+            body.innerHTML = '<div class="tarc-empty">' + esc(tr('ta_none', 'Todavía no hay Tics para mostrar.')) + '</div>';
             return;
         }
         if (arc.tab === 'date') renderDate(body); else renderPlaces(body);
@@ -419,12 +432,12 @@
         }
 
         var html = '<div class="tarc-monthbar">' +
-            '<button type="button" class="tarc-nav" data-month="-1" aria-label="Mes anterior"' + (monthKey <= oldest ? ' disabled' : '') + '>&lsaquo;</button>' +
-            '<select class="tarc-monthsel" data-monthsel="1" aria-label="Elegir mes">' +
+            '<button type="button" class="tarc-nav" data-month="-1" aria-label="' + esc(tr('ta_prev', 'Mes anterior')) + '"' + (monthKey <= oldest ? ' disabled' : '') + '>&lsaquo;</button>' +
+            '<select class="tarc-monthsel" data-monthsel="1" aria-label="' + esc(tr('ta_pick', 'Elegir mes')) + '">' +
             opts.map(function (k) { return '<option value="' + k + '"' + (k === monthKey ? ' selected' : '') + '>' + esc(monthLabel(k)) + '</option>'; }).join('') +
             '</select>' +
-            '<button type="button" class="tarc-nav" data-month="1" aria-label="Mes siguiente"' + (monthKey >= newest ? ' disabled' : '') + '>&rsaquo;</button></div>';
-        html += '<div class="tarc-dow">' + DOW.map(function (d) { return '<span>' + d + '</span>'; }).join('') + '</div><div class="tarc-cal">';
+            '<button type="button" class="tarc-nav" data-month="1" aria-label="' + esc(tr('ta_next', 'Mes siguiente')) + '"' + (monthKey >= newest ? ' disabled' : '') + '>&rsaquo;</button></div>';
+        html += '<div class="tarc-dow">' + weekdayNames().map(function (d) { return '<span>' + d + '</span>'; }).join('') + '</div><div class="tarc-cal">';
         for (var i = 0; i < firstDow; i++) html += '<span></span>';
         for (var day = 1; day <= daysInMonth; day++) {
             var dk = monthKey + '-' + pad(day);
@@ -441,10 +454,10 @@
         var sel = byDay[arc.dayKey];
         if (sel && sel.length) {
             var dd = sel[0].d;
-            html += '<div class="tarc-sub">' + dd.getDate() + ' de ' + MONTHS[dd.getMonth()].toLowerCase() + ' de ' + dd.getFullYear() + ' &middot; ' + sel.length + (sel.length === 1 ? ' Tic' : ' Tics') + '</div>' +
+            html += '<div class="tarc-sub">' + esc(longDate(dd)) + ' &middot; ' + esc(ticCount(sel.length)) + '</div>' +
                 '<div class="tarc-grid">' + sel.map(function (it) { return tileHtml(it, false); }).join('') + '</div>';
         } else {
-            html += '<div class="tarc-sub">Toca un día con foto para verla.</div>';
+            html += '<div class="tarc-sub">' + esc(tr('ta_tap_day', 'Toca un día con foto para verla.')) + '</div>';
         }
         var scrollTop = body.scrollTop;
         body.innerHTML = html;
@@ -461,7 +474,7 @@
         return Object.keys(map).map(function (k) { return map[k]; });
     }
 
-    var ORDER_LABEL = { count: 'Más Tics', recent: 'Recientes', alpha: 'A-Z' };
+    function orderLabel(k) { return k === 'count' ? tr('ta_ord_count', 'Más Tics') : k === 'recent' ? tr('ta_ord_recent', 'Recientes') : 'A-Z'; }
 
     function renderPlaces(body) {
         if (arc.placeKey) return renderPlaceDetail(body);
@@ -469,22 +482,22 @@
         var q = norm(arc.query);
         if (q) groups = groups.filter(function (g) { return norm(g.name).indexOf(q) !== -1; });
         groups.sort(function (a, b) {
-            if (arc.order === 'alpha') return a.name.localeCompare(b.name, 'es');
+            if (arc.order === 'alpha') return a.name.localeCompare(b.name, loc());
             if (arc.order === 'recent') return ((b.items[0].d || 0) - (a.items[0].d || 0));
-            return b.items.length - a.items.length || a.name.localeCompare(b.name, 'es');
+            return b.items.length - a.items.length || a.name.localeCompare(b.name, loc());
         });
         var html = '<div class="tarc-tools"><label class="tarc-search">' + ICON_SEARCH +
-            '<input type="search" data-q="1" placeholder="Buscar ciudad o lugar" value="' + esc(arc.query) + '" autocomplete="off"></label>' +
-            '<button type="button" class="tarc-order" data-order="1">' + ORDER_LABEL[arc.order] + '</button></div>';
+            '<input type="search" data-q="1" placeholder="' + esc(tr('ta_search', 'Buscar ciudad o lugar')) + '" value="' + esc(arc.query) + '" autocomplete="off"></label>' +
+            '<button type="button" class="tarc-order" data-order="1">' + orderLabel(arc.order) + '</button></div>';
         if (!groups.length) {
-            html += '<div class="tarc-empty">No hay lugares que coincidan.</div>';
+            html += '<div class="tarc-empty">' + esc(tr('ta_nomatch', 'No hay lugares que coincidan.')) + '</div>';
         } else {
             html += groups.map(function (g) {
                 var last = g.items[0];
                 return '<button type="button" class="tarc-row" data-place="' + esc(g.key) + '">' +
                     '<span class="tarc-cover"><img src="' + esc(thumbUrl(last.img, 160)) + '" data-full="' + esc(assetUrl(last.img)) + '" alt="" loading="lazy" decoding="async" onerror="TicsArchive._imgErr(this)"></span>' +
                     '<span class="tarc-row-text"><span class="tarc-row-name">' + esc(g.name) + '</span>' +
-                    '<span class="tarc-row-sub">' + g.items.length + (g.items.length === 1 ? ' Tic' : ' Tics') + (last.d ? ' &middot; último ' + esc(shortDate(last.d)) : '') + '</span></span>' + ICON_GO + '</button>';
+                    '<span class="tarc-row-sub">' + esc(ticCount(g.items.length)) + (last.d ? ' &middot; ' + esc(fmt(tr('ta_last', 'último {{d}}'), { d: shortDate(last.d) })) : '') + '</span></span>' + ICON_GO + '</button>';
             }).join('');
         }
         var keepQuery = document.activeElement && document.activeElement.matches && document.activeElement.matches('[data-q]');
@@ -505,7 +518,7 @@
         var html = '<button type="button" class="tarc-back" data-back="1">&lsaquo; Lugares</button>' +
             '<div class="tarc-sub" style="margin-top:2px">' + esc(group.name) + ' &middot; ' + group.items.length + (group.items.length === 1 ? ' Tic' : ' Tics') + '</div>' +
             '<div class="tarc-grid">' + shown.map(function (it) { return tileHtml(it, true); }).join('') + '</div>';
-        if (group.items.length > shown.length) html += '<button type="button" class="tarc-more" data-more="1">Mostrar más</button>';
+        if (group.items.length > shown.length) html += '<button type="button" class="tarc-more" data-more="1">' + esc(tr('ta_more', 'Mostrar más')) + '</button>';
         var st = body.scrollTop;
         body.innerHTML = html;
         body.scrollTop = st;

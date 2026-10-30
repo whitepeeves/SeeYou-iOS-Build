@@ -272,7 +272,12 @@ function setupCustomCountrySelector(containerId, hiddenInputId) {
     const prefixDisplay = trigger.querySelector('.prefix-val');
 
     // Poblar opciones
-    const sortedCountries = [...COUNTRY_DATA].sort((a, b) => a.name.localeCompare(b.name));
+    // Nombre del pais en el idioma de la app (Intl.DisplayNames); si no esta soportado se queda el nombre en espanol.
+    const uiLang = (typeof CONFIG !== 'undefined' && CONFIG.currentLanguage) || 'es';
+    let regionNames = null;
+    try { regionNames = new Intl.DisplayNames([uiLang], { type: 'region' }); } catch (e) { regionNames = null; }
+    const localName = (c) => { try { return (regionNames && regionNames.of(c.code)) || c.name; } catch (e) { return c.name; } };
+    const sortedCountries = COUNTRY_DATA.map(c => Object.assign({}, c, { name: localName(c) })).sort((a, b) => a.name.localeCompare(b.name, uiLang));
 
     sortedCountries.forEach(country => {
         const item = document.createElement('div');

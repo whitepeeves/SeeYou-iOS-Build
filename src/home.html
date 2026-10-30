@@ -21,21 +21,22 @@
     <link rel="stylesheet" href="css/tics.css?v=17">
     <link rel="stylesheet" href="css/tic_viewer.css?v=18">
     <script defer src="js/tics_ui.js?v=40"></script>
-    <script defer src="js/tic_viewer.js?v=13"></script>
+    <script defer src="js/tic_viewer.js?v=14"></script>
     <script defer src="js/home_header.js?v=1"></script>
     <script defer src="js/onboarding_tutorial.js?v=3"></script>
     <script defer src="js/badges_ui.js?v=7"></script>
     <script defer src="js/ads_ui.js?v=4"></script>
     <script defer src="js/qr_mini.js?v=1"></script>
-    <script defer src="js/coins_ui.js?v=32"></script>
-    <script defer src="js/coin_shop_ui.js?v=2"></script>
-    <script defer src="js/premium_ui.js?v=2"></script>
+    <script src="js/nomoney.js?v=1"></script>
+    <script defer src="js/coins_ui.js?v=33"></script>
+    <script defer src="js/coin_shop_ui.js?v=3"></script>
+    <script defer src="js/premium_ui.js?v=4"></script>
     <script defer src="js/admob_ui.js?v=4"></script>
-    <script defer src="js/tics_archive.js?v=3"></script>
+    <script defer src="js/tics_archive.js?v=4"></script>
     <script defer src="js/photo_meta.js?v=1"></script>
     <script defer src="js/tic_upload.js?v=3"></script>
     <script defer src="js/outbox.js?v=2"></script>
-    <script defer src="js/feed_tabs.js?v=6"></script>
+    <script defer src="js/feed_tabs.js?v=7"></script>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1B3A5C">
@@ -2782,7 +2783,7 @@
                 <h3 class="create-post-step-title" id="step-title">Crear Tic</h3>
                 <p class="create-post-step-subtitle" id="step-subtitle"></p>
             </div>
-            <button class="close-post-section" onclick="closeCreatePostSection()" title="Cerrar">
+            <button class="close-post-section" onclick="closeCreatePostSection()" title="Cerrar" data-i18n-title="tic_close">
                 <span class="material-icons-outlined">close</span>
             </button>
         </div>
@@ -2796,19 +2797,19 @@
 
         <!-- PASO 2: Ordenar fotos -->
         <div id="step-2" class="create-post-step">
-            <p style="font-size: 13px; color: #5a5f6a; margin: 0 0 12px 0;">Desliza para ver la siguiente o anterior foto, y arrastra para reordenar.</p>
+            <p style="font-size: 13px; color: #5a5f6a; margin: 0 0 12px 0;" data-i18n="hm_reorder_hint">Desliza para ver la siguiente o anterior foto, y arrastra para reordenar.</p>
             <div id="create-post-preview" class="create-post-preview"></div>
         </div>
 
         <!-- PASO 3: Añadir descripción -->
         <div id="step-3" class="create-post-step">
             <textarea id="create-post-caption" placeholder="Describe tu Tic..." data-i18n-placeholder="description_placeholder" rows="4" style="width: 100%; border: 1px solid #d7dbe8; border-radius: 18px; padding: 16px; font-size: 14px; outline: none; resize: vertical;"></textarea>
-            <input id="create-post-tags" type="text" placeholder="Etiquetar personas (IDs separados por comas)" style="width:100%; box-sizing:border-box; margin-top:10px; border:1px solid #d7dbe8; border-radius:14px; padding:12px 14px; font-size:14px; outline:none;">
-            <label for="create-post-visibility" style="display:block; margin-top:12px; font-size:13px; color:#49454F; font-weight:600;">¿Quién puede ver este Tic?</label>
+            <input id="create-post-tags" type="text" placeholder="Etiquetar personas (IDs separados por comas)" data-i18n-placeholder="hm_tags_ph" style="width:100%; box-sizing:border-box; margin-top:10px; border:1px solid #d7dbe8; border-radius:14px; padding:12px 14px; font-size:14px; outline:none;">
+            <label for="create-post-visibility" style="display:block; margin-top:12px; font-size:13px; color:#49454F; font-weight:600;" data-i18n="hm_who_sees">¿Quién puede ver este Tic?</label>
             <select id="create-post-visibility" style="width:100%; box-sizing:border-box; margin-top:6px; border:1px solid #d7dbe8; border-radius:14px; padding:12px 14px; font-size:14px; background:#fff; outline:none;">
-                <option value="public">Público</option>
-                <option value="friends">Solo mis amigos</option>
-                <option value="private">Solo yo</option>
+                <option value="public" data-i18n="vis_public">Público</option>
+                <option value="friends" data-i18n="hm_vis_friends">Solo mis amigos</option>
+                <option value="private" data-i18n="vis_private">Solo yo</option>
             </select>
         </div>
 
@@ -2818,18 +2819,18 @@
             <div class="create-post-frame-editor">
                 <div class="create-post-frame-editor-header">
                     <div>
-                        <strong style="color:#1B3A5C;">Marco</strong>
-                        <p>Pinta sobre un marco en blanco y añade una foto de fondo para personalizar la publicación.</p>
+                        <strong style="color:#1B3A5C;" data-i18n="hm_frame">Marco</strong>
+                        <p data-i18n="hm_frame_hint">Pinta sobre un marco en blanco y añade una foto de fondo para personalizar la publicación.</p>
                     </div>
-                    <button type="button" class="secondary" onclick="initializeFrameEditor()">Crear marco</button>
+                    <button type="button" class="secondary" onclick="initializeFrameEditor()" data-i18n="hm_frame_create">Crear marco</button>
                 </div>
                 <canvas id="create-post-frame-canvas" class="create-post-frame-canvas"></canvas>
                 <div class="create-post-frame-toolbar">
                     <input type="color" id="create-post-frame-color" value="#1B3A5C" onchange="updateFrameBrushColor()">
                     <input type="range" id="create-post-frame-size" min="1" max="28" value="8" onchange="updateFrameBrushSize()">
-                    <button type="button" class="secondary small" onclick="document.getElementById('create-post-frame-background').click()">Foto de fondo</button>
-                    <button type="button" class="secondary small" onclick="clearFrameEditor()">Limpiar</button>
-                    <button type="button" class="secondary small" onclick="disableFrameEditor()">Sin marco</button>
+                    <button type="button" class="secondary small" onclick="document.getElementById('create-post-frame-background').click()" data-i18n="hm_frame_bg">Foto de fondo</button>
+                    <button type="button" class="secondary small" onclick="clearFrameEditor()" data-i18n="hm_frame_clear">Limpiar</button>
+                    <button type="button" class="secondary small" onclick="disableFrameEditor()" data-i18n="hm_frame_none">Sin marco</button>
                 </div>
             </div>
         </div>
@@ -2842,7 +2843,7 @@
     </div>
 
     <!-- PROGRESO DE PUBLICACIÓN -->
-    <div id="publish-progress" class="pubprog" role="alertdialog" aria-live="polite" aria-label="Publicando">
+    <div id="publish-progress" class="pubprog" role="alertdialog" aria-live="polite" aria-label="Publicando" data-i18n-aria-label="hm_publishing">
         <div class="pubprog-card">
             <div class="pubprog-title" id="pubprog-title">Publicando tu Tic</div>
             <div class="pubprog-bar"><i id="pubprog-fill"></i></div>
@@ -2870,11 +2871,11 @@
         <div style="display:flex; align-items:flex-start; gap:12px;">
             <div style="font-size:24px;">🍪</div>
             <div style="flex:1">
-                <div style="font-weight:700; margin-bottom:6px;">Preferencias de cookies</div>
-                <div style="font-size:13px; color:#555;">Usamos cookies para mantener tu sesión iniciada y mejorar la experiencia. Puedes aceptar todas o rechazarlas. Si rechazas, la sesión no se mantendrá al cambiar de página.</div>
+                <div style="font-weight:700; margin-bottom:6px;" data-i18n="hm_cookie_title">Preferencias de cookies</div>
+                <div style="font-size:13px; color:#555;" data-i18n="hm_cookie_text">Usamos cookies para mantener tu sesión iniciada y mejorar la experiencia. Puedes aceptar todas o rechazarlas. Si rechazas, la sesión no se mantendrá al cambiar de página.</div>
                 <div style="margin-top:10px; display:flex; gap:8px;">
-                    <button id="cookie-accept" style="background:#1B3A5C;color:white;padding:8px 12px;border-radius:8px;border:none;">Aceptar todas</button>
-                    <button id="cookie-reject" style="background:transparent;color:#1B3A5C;padding:8px 12px;border-radius:8px;border:1px solid #1B3A5C;">Rechazar</button>
+                    <button id="cookie-accept" style="background:#1B3A5C;color:white;padding:8px 12px;border-radius:8px;border:none;" data-i18n="cookie_accept">Aceptar todas</button>
+                    <button id="cookie-reject" style="background:transparent;color:#1B3A5C;padding:8px 12px;border-radius:8px;border:1px solid #1B3A5C;" data-i18n="cookie_reject">Rechazar</button>
                 </div>
             </div>
         </div>
@@ -2883,12 +2884,12 @@
     <div id="streak-achievement" class="streak-achievement" role="dialog" aria-modal="true" aria-labelledby="streak-achievement-title">
         <canvas id="streak-confetti" aria-hidden="true"></canvas>
         <div class="streak-achievement-card">
-            <p class="streak-achievement-kicker">Nuevo hito desbloqueado</p>
-            <h2 id="streak-achievement-title">¡Racha cumplida!</h2>
+            <p class="streak-achievement-kicker" data-i18n="hm_streak_kicker">Nuevo hito desbloqueado</p>
+            <h2 id="streak-achievement-title" data-i18n="hm_x_streak_t">¡Racha cumplida!</h2>
             <div id="streak-achievement-fire" class="streak-achievement-fire" aria-hidden="true"></div>
             <div id="streak-achievement-days" class="streak-achievement-days">3 días</div>
             <p id="streak-achievement-message" class="streak-achievement-message">Cada Tic cuenta. Sigue así.</p>
-            <button id="streak-achievement-close" class="streak-achievement-close" type="button">Continuar</button>
+            <button id="streak-achievement-close" class="streak-achievement-close" type="button" data-i18n="ch_continue">Continuar</button>
         </div>
     </div>
 
@@ -2898,9 +2899,9 @@
     <script src="js/map_warmup.js?v=2"></script>
     <script src="js/gps_calibrator.js?v=1"></script>
     <script src="js/road_snapper.js?v=2"></script>
-    <script src="js/daily_themes.js?v=3"></script>
+    <script src="js/daily_themes.js?v=6"></script>
     <script src="js/image_cache_manager.js?v=1"></script>
-    <script src="config.js?v=16"></script>
+    <script src="config.js?v=19"></script>
     <script src="js/back_button.js?v=3"></script>
     <script src="js/notifications_system.js?v=10"></script>
     <script>
@@ -3105,7 +3106,7 @@
             <button class="nav-btn" id="nav-perfil" data-section="perfil" onclick="navigate('perfil')" title="Perfil" data-i18n-title="nav_profile">
                 <span class="material-icons-outlined">person</span>
             </button>
-            <button class="nav-btn" onclick="shareInviteOrCopy()" title="Invitar amigos / compartir" aria-label="Invitar amigos">
+            <button class="nav-btn" onclick="shareInviteOrCopy()" title="Invitar amigos / compartir" data-i18n-title="hm_invite_t" aria-label="Invitar amigos" data-i18n-aria-label="hm_invite_a">
                 <span class="material-icons-outlined">share</span>
             </button>
             <button class="nav-btn" id="logout-btn" onclick="event.preventDefault(); CONFIG.logout();" title="Cerrar sesión" data-i18n-title="logout_title">
@@ -3123,7 +3124,7 @@
                     <svg class="home-logo" viewBox="0 0 48 32" aria-hidden="true" focusable="false"><circle cx="17" cy="16" r="10.5" fill="none" stroke="#29a9f0" stroke-width="4.2"/><circle cx="31" cy="16" r="10.5" fill="none" stroke="#1B3A5C" stroke-width="4.2"/></svg>
                     <span class="home-brand-name">SeeYou</span>
                 </div>
-                <div class="home-streak" id="home-streak" hidden title="Tu racha" aria-label="Tu racha">
+                <div class="home-streak" id="home-streak" hidden title="Tu racha" data-i18n-title="hm_my_streak" aria-label="Tu racha" data-i18n-aria-label="hm_my_streak">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-10.23.1-.44-.37-.78-.75-.55C9.29 3.71 6.68 8 8.87 13.62c.18.46-.36.89-.75.59-1.81-1.37-2-3.34-1.84-4.75.06-.52-.62-.77-.91-.34C4.69 10.16 4 11.84 4 14.37c.38 5.6 5.11 7.32 6.81 7.54 2.43.31 5.06-.14 6.95-1.87 2.08-1.93 2.84-5.01 1.72-7.69zm-9.28 5.03c1.44-.35 2.18-1.39 2.38-2.31.33-1.43-.96-2.83-.09-5.09.33 1.87 3.27 3.04 3.27 5.08.08 2.53-2.66 4.7-5.56 2.32z"/></svg>
                     <b id="home-streak-days">0</b>
                 </div>
@@ -3135,7 +3136,7 @@
 
             <!-- Pestañas Feed / Amigos -->
             <div id="feed-tabs" style="display:flex; gap:8px; padding:10px 16px 4px;">
-                <button type="button" class="feed-tab-btn active" data-feed-tab="feed">Feed</button>
+                <button type="button" class="feed-tab-btn active" data-feed-tab="feed" data-i18n="hm_feed">Feed</button>
                 <button type="button" class="feed-tab-btn" data-feed-tab="following">Amigos</button>
             </div>
 
@@ -3146,40 +3147,40 @@
         </div>
 
         <div id="mapa-section" style="display:none; width:100%; height:100%; position:absolute; inset:0;">
-            <button class="btn-map-type" onclick="navigate('inicio')" title="Volver a Inicio" style="position:absolute; top:18px; left:18px; z-index:1000; background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:10px 14px; color:#1f2937; box-shadow:0 8px 24px rgba(15,23,42,0.12);">
+            <button class="btn-map-type" onclick="navigate('inicio')" title="Volver a Inicio" data-i18n-title="hm_back_home" style="position:absolute; top:18px; left:18px; z-index:1000; background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:10px 14px; color:#1f2937; box-shadow:0 8px 24px rgba(15,23,42,0.12);">
                 <span class="material-icons-outlined">arrow_back</span>
             </button>
             <div class="map-controls">
-                <button type="button" class="btn-map-type" id="map-menu-btn" onclick="toggleMapMenu(event)" title="Opciones del mapa" aria-label="Opciones del mapa" aria-expanded="false">
+                <button type="button" class="btn-map-type" id="map-menu-btn" onclick="toggleMapMenu(event)" title="Opciones del mapa" data-i18n-title="hm_map_options" aria-label="Opciones del mapa" data-i18n-aria-label="hm_map_options" aria-expanded="false">
                     <span class="material-icons-outlined" id="map-menu-icon">expand_more</span>
                 </button>
                 <div id="map-menu" class="map-menu" hidden>
-                    <button class="btn-map-type" onclick="toggleMapMode()" title="Cambiar Vista">
+                    <button class="btn-map-type" onclick="toggleMapMode()" title="Cambiar Vista" data-i18n-title="hm_change_view">
                         <span class="material-icons-outlined">layers</span>
                     </button>
-                    <button class="btn-toggle-photos" id="btn-toggle-photos" onclick="togglePhotosVisibility()" title="Ocultar/Mostrar Fotos">
+                    <button class="btn-toggle-photos" id="btn-toggle-photos" onclick="togglePhotosVisibility()" title="Ocultar/Mostrar Fotos" data-i18n-title="hm_toggle_photos">
                         <span class="material-icons-outlined" id="toggle-photos-icon">visibility</span>
                     </button>
                     <div class="mc-item">
-                        <button class="btn-map-type" id="btn-filter-map" onclick="toggleFriendFilter()" title="Ver tics de..." aria-expanded="false">
+                        <button class="btn-map-type" id="btn-filter-map" onclick="toggleFriendFilter()" title="Ver tics de..." data-i18n-title="hm_filter_tics" aria-expanded="false">
                             <span class="material-icons-outlined" id="filter-map-icon">group</span>
                         </button>
                         <div id="map-friends-panel" class="mc-panel" hidden></div>
                     </div>
                     <div class="mc-item">
-                        <button class="btn-map-type" id="btn-color-map" onclick="toggleColorPicker()" title="Color de mi hilo">
+                        <button class="btn-map-type" id="btn-color-map" onclick="toggleColorPicker()" title="Color de mi hilo" data-i18n-title="hm_thread_color">
                             <span class="material-icons-outlined">palette</span>
                         </button>
                         <div id="color-picker-popover"></div>
                     </div>
-                    <button id="map-tour-button" class="map-tour-button" onclick="startMapTour()" title="Recorrer mis Tics por el mapa" aria-label="Recorrer mis Tics por el mapa" style="display:none;">
+                    <button id="map-tour-button" class="map-tour-button" onclick="startMapTour()" title="Recorrer mis Tics por el mapa" data-i18n-title="hm_map_tour" aria-label="Recorrer mis Tics por el mapa" data-i18n-aria-label="hm_map_tour" style="display:none;">
                         <span class="material-icons-outlined" id="map-tour-button-icon">play_arrow</span>
                     </button>
                 </div>
             </div>
             <div id="main-map" style="width:100%; height:100%; z-index:1;"></div>
             <div id="map-photo-details">
-                <button onclick="closeMapPhotoDetails()" aria-label="Cerrar" style="float:right; border:0; background:none; font-size:20px; cursor:pointer; color:#667085;">&times;</button>
+                <button onclick="closeMapPhotoDetails()" aria-label="Cerrar" data-i18n-aria-label="tic_close" style="float:right; border:0; background:none; font-size:20px; cursor:pointer; color:#667085;">&times;</button>
                 <strong id="map-photo-details-title">Tic</strong>
                 <div id="map-photo-details-content"></div>
             </div>
@@ -3191,10 +3192,10 @@
                     <div class="mt-bar"><i id="mt-bar-fill"></i></div>
                 </div>
                 <div class="mt-btns">
-                    <button onclick="mapTourStep(-1)" aria-label="Anterior"><span class="material-icons-outlined">skip_previous</span></button>
-                    <button onclick="mapTourTogglePause()" aria-label="Pausar"><span class="material-icons-outlined" id="mt-pause-icon">pause</span></button>
-                    <button onclick="mapTourStep(1)" aria-label="Siguiente"><span class="material-icons-outlined">skip_next</span></button>
-                    <button onclick="stopMapTour()" aria-label="Terminar recorrido"><span class="material-icons-outlined">close</span></button>
+                    <button onclick="mapTourStep(-1)" aria-label="Anterior" data-i18n-aria-label="hm_prev"><span class="material-icons-outlined">skip_previous</span></button>
+                    <button onclick="mapTourTogglePause()" aria-label="Pausar" data-i18n-aria-label="hm_pause"><span class="material-icons-outlined" id="mt-pause-icon">pause</span></button>
+                    <button onclick="mapTourStep(1)" aria-label="Siguiente" data-i18n-aria-label="next"><span class="material-icons-outlined">skip_next</span></button>
+                    <button onclick="stopMapTour()" aria-label="Terminar recorrido" data-i18n-aria-label="hm_end_tour"><span class="material-icons-outlined">close</span></button>
                 </div>
             </div>
         </div>
@@ -3203,7 +3204,7 @@
             <div style="display:flex; flex-direction:column; gap:20px; height:100%; max-width:1200px; margin:0 auto;">
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; padding:24px 0;">
                     <h1 style="margin:0; font-size:32px; color:#1D2939;" data-i18n="nav_activities">Actividades</h1>
-                    <p id="activities-subtitle" style="margin:0; color:#4B5563; max-width:680px; line-height:1.6;">Visualiza tu recorrido y controla tu día sin perder la red social.</p>
+                    <p id="activities-subtitle" data-i18n="hm_x_act_sub" style="margin:0; color:#4B5563; max-width:680px; line-height:1.6;">Visualiza tu recorrido y controla tu día sin perder la red social.</p>
                     <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:14px; width:100%;">
                         <button id="activities-map-btn" class="secondary" onclick="navigate('actividades-map')" style="min-width:220px; padding:18px 24px; font-size:16px; border-radius:999px;" data-i18n="view_map">Ver Mapa</button>
                         <button id="day-toggle-btn" class="primary" onclick="toggleDayTracking()" style="min-width:260px; padding:18px 28px; font-size:16px; border-radius:999px;" data-i18n="start_day">Iniciar tu día</button>
@@ -3224,10 +3225,10 @@
                     <div id="day-map-container" style="flex:1; min-height:320px; border-radius:24px; overflow:hidden; background:#0f172a; box-shadow:0 20px 40px rgba(15,23,42,0.12); position:relative;">
                         <div id="day-map-cesium" style="width:100%; height:100%;"></div>
                         <div id="day-map-overlay" style="position:absolute; top:18px; right:18px; display:flex; gap:10px; z-index:2;">
-                            <button class="btn-map-type" onclick="zoomDayMap(-1)" title="Alejar" style="width:46px; height:46px; border-radius:14px;">
+                            <button class="btn-map-type" onclick="zoomDayMap(-1)" title="Alejar" data-i18n-title="hm_zoom_out" style="width:46px; height:46px; border-radius:14px;">
                                 <span class="material-icons-outlined">zoom_out</span>
                             </button>
-                            <button class="btn-map-type" onclick="zoomDayMap(1)" title="Acercar" style="width:46px; height:46px; border-radius:14px;">
+                            <button class="btn-map-type" onclick="zoomDayMap(1)" title="Acercar" data-i18n-title="hm_zoom_in" style="width:46px; height:46px; border-radius:14px;">
                                 <span class="material-icons-outlined">zoom_in</span>
                             </button>
                         </div>
@@ -3241,7 +3242,7 @@
         </div>
 
         <div id="perfil-section" style="display:none; width:100%; height:100%; background:#fcfbff; padding:20px; box-sizing:border-box; overflow-y:auto;">
-            <div class="ps-gear-bar"><button type="button" class="ps-gear" onclick="showAccountConfig()" aria-label="Editar perfil" title="Editar perfil"><span class="material-icons-outlined">edit</span></button><button type="button" class="ps-gear" onclick="openProfileSettings()" aria-label="Configuración" title="Configuración"><span class="material-icons-outlined">settings</span></button></div>
+            <div class="ps-gear-bar"><button type="button" class="ps-gear" onclick="showAccountConfig()" aria-label="Editar perfil" data-i18n-aria-label="edit_profile" title="Editar perfil" data-i18n-title="edit_profile"><span class="material-icons-outlined">edit</span></button><button type="button" class="ps-gear" onclick="openProfileSettings()" aria-label="Configuración" title="Configuración"><span class="material-icons-outlined">settings</span></button></div>
             <div id="profile-coins-bar" class="cn-bar"></div>
             <div style="display:flex; flex-direction:column; align-items:center; margin-top:52px;">
                 <div id="perfil-banner-cover" class="ps-banner-cover"></div>
@@ -3280,7 +3281,7 @@
                     <button type="button" id="profile-tics-more" class="tarc-cta" onclick="openTicsArchive()" hidden data-i18n="prof_see_all_tics">Ver todos mis Tics por fecha o lugar</button>
                 </section>
                 
-                <div id="profile-settings-panel" class="ps-panel" hidden role="dialog" aria-modal="true" aria-label="Configuración">
+                <div id="profile-settings-panel" class="ps-panel" hidden role="dialog" aria-modal="true" aria-label="Configuración" data-i18n-aria-label="hm_x_settings">
                     <div class="ps-head"><button type="button" class="ps-back" onclick="closeProfileSettings()" aria-label="Cerrar configuración" data-i18n-aria-label="cfg_close"><span class="material-icons-outlined">arrow_back</span></button><h3 data-i18n="cfg_title">Configuración</h3></div>
                     <div class="ps-scroll">
                 <div style="width:100%; max-width:420px; margin:0 auto;">
@@ -3314,39 +3315,45 @@
                         <div class="cfg-theme-block">
                             <p class="cfg-theme-title" data-i18n="theme_label">Tema</p>
                             <div id="theme-selector" class="cfg-theme-pills">
-                                <button type="button" class="theme-option" data-theme="light">Normal</button>
-                                <button type="button" class="theme-option" data-theme="dark">Oscuro</button>
-                                <button type="button" class="theme-option" data-theme="blue">Azul oscuro</button>
+                                <button type="button" class="theme-option" data-theme="light" data-i18n="hm_theme_normal">Normal</button>
+                                <button type="button" class="theme-option" data-theme="dark" data-i18n="hm_theme_dark">Oscuro</button>
+                                <button type="button" class="theme-option" data-theme="blue" data-i18n="hm_theme_blue">Azul oscuro</button>
                             </div>
                         </div>
+                    </div>
+
+                    <p class="cfg-section-title" data-i18n="cfg_notif_title">AVISOS</p>
+                    <div class="cfg-card" style="padding:4px 16px 8px;">
+                        <label class="cfg-fx-row" style="border-top:0; margin-top:8px;"><span><b data-i18n="cfg_notif_friend_t">Tics de amigos cercanos</b><small data-i18n="cfg_notif_friend_x">Te avisamos cuando suben un Tic las personas con las que más hablas e interactúas.</small></span><input type="checkbox" id="push-pref-friend" checked></label>
+                        <label class="cfg-fx-row"><span><b data-i18n="cfg_notif_remind_t">Recordatorios de tu Tic</b><small data-i18n="cfg_notif_remind_x">Un aviso por la tarde si aún no has subido tu Tic de hoy, o si tu racha está en juego.</small></span><input type="checkbox" id="push-pref-remind" checked></label>
                     </div>
 
                     <div class="cfg-card pm-card" id="premium-card" style="padding:16px;"></div>
 
                     <div class="cfg-card" style="padding:14px 16px 16px;">
-                        <p class="cfg-theme-title" style="margin:0 0 10px;">Banner de tu perfil</p>
+                        <p class="cfg-theme-title" style="margin:0 0 10px;" data-i18n="hm_banner_title">Banner de tu perfil</p>
                         <div id="profile-banner-selector" class="cfg-banner-swatches"></div>
                         <p id="profile-banner-hint" class="cfg-banner-hint"></p>
-                        <div class="cfg-fx-row"><span><b>Forma del banner<span class="cfg-pm-tag">PREMIUM</span></b><small>Dibuja a mano (rayos, lagrimas, una ola...) la parte de debajo de tu banner. Se ve tu foto o color real, y lo ve quien visite tu perfil.</small></span><button type="button" id="banner-mask-edit-btn" class="cfg-banner-mask-btn">Editar forma</button></div>
+                        <div class="cfg-fx-row"><span><b><span data-i18n="hm_banner_shape">Forma del banner</span><span class="cfg-pm-tag">PREMIUM</span></b><small data-i18n="hm_banner_shape_x">Dibuja a mano (rayos, lagrimas, una ola...) la parte de debajo de tu banner. Se ve tu foto o color real, y lo ve quien visite tu perfil.</small></span><button type="button" id="banner-mask-edit-btn" class="cfg-banner-mask-btn" data-i18n="hm_edit_shape">Editar forma</button></div>
                     </div>
 
                     <div class="cfg-card" style="padding:14px 16px 16px;">
-                        <p class="cfg-theme-title" style="margin:0 0 10px;">Colores de la app</p>
+                        <p class="cfg-theme-title" style="margin:0 0 10px;" data-i18n="hm_palette_title">Colores de la app</p>
                         <div id="palette-selector" class="cfg-pal-grid" data-no-palette></div>
                         <div class="cfg-pal-custom" data-no-palette>
-                            <span>Personalizada</span>
-                            <input type="color" id="palette-custom-a" aria-label="Color principal">
-                            <input type="color" id="palette-custom-b" aria-label="Color secundario">
-                            <button type="button" id="palette-custom-apply">Aplicar</button>
+                            <span data-i18n="hm_custom">Personalizada</span>
+                            <input type="color" id="palette-custom-a" aria-label="Color principal" data-i18n-aria-label="hm_color_a">
+                            <input type="color" id="palette-custom-b" aria-label="Color secundario" data-i18n-aria-label="hm_color_b">
+                            <button type="button" id="palette-custom-apply" data-i18n="hm_apply">Aplicar</button>
                         </div>
-                        <p class="cfg-banner-hint">Solo tú ves tus colores, en este dispositivo. El resto de personas sigue viendo la app con los suyos.</p>
+                        <p class="cfg-banner-hint" data-i18n="hm_palette_hint">Solo tú ves tus colores, en este dispositivo. El resto de personas sigue viendo la app con los suyos.</p>
                     </div>
 
                     <div id="language-selector" class="cfg-lang-panel" style="display:none;">
                         <p data-i18n="select_language" class="cfg-section-title" style="margin:0 0 10px 2px;">Selecciona el idioma</p>
                         <div class="cfg-lang-search">
                             <span class="material-icons-outlined">search</span>
-                            <input type="text" id="language-search-input" oninput="filterLanguageOptions(this.value)" placeholder="Buscar idioma" autocomplete="off">
+                            <input type="text" id="language-search-input" oninput="filterLanguageOptions(this.value)" placeholder="Buscar idioma" data-i18n-placeholder="hm_search_lang" autocomplete="off">
                         </div>
                         <div class="cfg-lang-list" id="language-options-list">
                             <button type="button" class="cfg-lang-row" data-lang-name="espanol" onclick="CONFIG.setLanguage('es')">Español</button>
@@ -3368,7 +3375,7 @@
                             <button type="button" class="cfg-lang-row" data-lang-name="nihongo" onclick="CONFIG.setLanguage('ja')">日本語</button>
                             <button type="button" class="cfg-lang-row" data-lang-name="hangugeo" onclick="CONFIG.setLanguage('ko')">한국어</button>
                         </div>
-                        <p id="language-no-results" class="cfg-lang-empty" hidden>Sin resultados</p>
+                        <p id="language-no-results" class="cfg-lang-empty" hidden data-i18n="ch_noresults_t">Sin resultados</p>
                     </div>
 
                     <p class="cfg-section-title" data-i18n="contacts">CONTACTOS</p>
@@ -3419,31 +3426,31 @@
     <!-- EDIT PROFILE PANEL -->
     <div id="edit-profile-panel" class="profile-drawer ep-panel" style="display:none;">
         <div class="ep-head">
-            <button type="button" class="ps-back" onclick="showProfileMain()" aria-label="Volver"><span class="material-icons-outlined">arrow_back</span></button>
-            <h3>Editar perfil</h3>
-            <button type="button" id="save-profile-btn" class="ep-save">Guardar</button>
+            <button type="button" class="ps-back" onclick="showProfileMain()" aria-label="Volver" data-i18n-aria-label="cfg_back"><span class="material-icons-outlined">arrow_back</span></button>
+            <h3 data-i18n="edit_profile">Editar perfil</h3>
+            <button type="button" id="save-profile-btn" class="ep-save" data-i18n="bm_save">Guardar</button>
         </div>
         <div class="ep-scroll">
             <div class="ep-wrap">
                 <div class="ep-avatar-block">
-                    <button type="button" class="ep-avatar" onclick="document.getElementById('edit-profile-avatar-input').click()" aria-label="Cambiar foto de perfil">
+                    <button type="button" class="ep-avatar" onclick="document.getElementById('edit-profile-avatar-input').click()" aria-label="Cambiar foto de perfil" data-i18n-aria-label="hm_change_avatar">
                         <img id="edit-profile-avatar-img" alt="">
                         <span id="edit-profile-avatar-placeholder" class="material-icons-outlined" style="display:none">person</span>
                         <span class="ep-avatar-badge"><span class="material-icons-outlined">photo_camera</span></span>
                     </button>
-                    <button type="button" class="ep-link" onclick="document.getElementById('edit-profile-avatar-input').click()">Cambiar foto</button>
+                    <button type="button" class="ep-link" onclick="document.getElementById('edit-profile-avatar-input').click()" data-i18n="tic_list_cover_change">Cambiar foto</button>
                     <input type="file" id="edit-profile-avatar-input" accept="image/*" style="display:none">
                 </div>
                 <div class="ep-card">
-                    <label class="ep-label" for="edit-profile-name">Nombre</label>
-                    <input id="edit-profile-name" class="ep-input" type="text" maxlength="40" autocomplete="off" placeholder="Tu nombre" />
-                    <label class="ep-label" for="edit-profile-bio" style="margin-top:16px">Descripción <span id="edit-profile-bio-count" class="ep-count">0/200</span></label>
-                    <textarea id="edit-profile-bio" class="ep-input" maxlength="200" rows="4" placeholder="Cuenta algo sobre ti..." oninput="var c=document.getElementById('edit-profile-bio-count'); if(c) c.textContent=this.value.length+'/200';"></textarea>
+                    <label class="ep-label" for="edit-profile-name" data-i18n="tic_list_name_label">Nombre</label>
+                    <input id="edit-profile-name" class="ep-input" type="text" maxlength="40" autocomplete="off" placeholder="Tu nombre" data-i18n-placeholder="hm_your_name" />
+                    <label class="ep-label" for="edit-profile-bio" style="margin-top:16px"><span data-i18n="hm_j018">Descripción</span> <span id="edit-profile-bio-count" class="ep-count">0/200</span></label>
+                    <textarea id="edit-profile-bio" class="ep-input" maxlength="200" rows="4" placeholder="Cuenta algo sobre ti..." data-i18n-placeholder="hm_bio_ph" oninput="var c=document.getElementById('edit-profile-bio-count'); if(c) c.textContent=this.value.length+'/200';"></textarea>
                 </div>
-                <p class="ep-section">Visibilidad de la cuenta</p>
+                <p class="ep-section" data-i18n="hm_vis_section">Visibilidad de la cuenta</p>
                 <div class="ep-vis">
-                    <label class="ep-vis-opt"><input type="radio" name="account-visibility" value="public" id="visibility-public" checked><span class="ep-vis-body"><span class="material-icons-outlined">public</span><b>Pública</b><small>Cualquiera ve tu perfil y tus fotos</small></span></label>
-                    <label class="ep-vis-opt"><input type="radio" name="account-visibility" value="private" id="visibility-private"><span class="ep-vis-body"><span class="material-icons-outlined">lock</span><b>Privada</b><small>Solo tus amigos pueden verte</small></span></label>
+                    <label class="ep-vis-opt"><input type="radio" name="account-visibility" value="public" id="visibility-public" checked><span class="ep-vis-body"><span class="material-icons-outlined">public</span><b data-i18n="hm_vis_public">Pública</b><small data-i18n="hm_vis_public_x">Cualquiera ve tu perfil y tus fotos</small></span></label>
+                    <label class="ep-vis-opt"><input type="radio" name="account-visibility" value="private" id="visibility-private"><span class="ep-vis-body"><span class="material-icons-outlined">lock</span><b data-i18n="hm_vis_private">Privada</b><small data-i18n="hm_vis_private_x">Solo tus amigos pueden verte</small></span></label>
                 </div>
             </div>
         </div>
@@ -3451,19 +3458,19 @@
 
     <!-- SEGURIDAD DE LA CUENTA (lista) -->
     <div id="account-security-panel" class="profile-drawer ep-panel" style="display:none;">
-        <div class="ep-head"><button type="button" class="ps-back" onclick="backToSettings()" aria-label="Volver"><span class="material-icons-outlined">arrow_back</span></button><h3>Seguridad de la cuenta</h3></div>
+        <div class="ep-head"><button type="button" class="ps-back" onclick="backToSettings()" aria-label="Volver" data-i18n-aria-label="cfg_back"><span class="material-icons-outlined">arrow_back</span></button><h3 data-i18n="account_security">Seguridad de la cuenta</h3></div>
         <div class="ep-scroll">
-            <div class="sx-hero"><div class="sx-shield"><span class="material-icons-outlined">verified_user</span></div><b>Tu cuenta está protegida</b><p>Gestiona tu contraseña y revisa dónde has iniciado sesión.</p></div>
-            <p class="cfg-section-title">Acceso</p>
+            <div class="sx-hero"><div class="sx-shield"><span class="material-icons-outlined">verified_user</span></div><b data-i18n="hm_protected">Tu cuenta está protegida</b><p data-i18n="hm_protected_x">Gestiona tu contraseña y revisa dónde has iniciado sesión.</p></div>
+            <p class="cfg-section-title" data-i18n="hm_access">Acceso</p>
             <div class="cfg-card">
                 <button type="button" class="cfg-row" onclick="showChangePasswordForm()">
                     <span class="cfg-icon"><span class="material-icons-outlined">lock</span></span>
-                    <span class="sx-t"><b>Contraseña</b><small>Cámbiala cuando quieras</small></span>
+                    <span class="sx-t"><b data-i18n="label_password">Contraseña</b><small data-i18n="hm_pw_x">Cámbiala cuando quieras</small></span>
                     <span class="material-icons-outlined cfg-chevron">chevron_right</span>
                 </button>
                 <button type="button" class="cfg-row" onclick="showSessions()">
                     <span class="cfg-icon"><span class="material-icons-outlined">devices</span></span>
-                    <span class="sx-t"><b>Sesiones iniciadas</b><small>Dispositivos donde has entrado</small></span>
+                    <span class="sx-t"><b data-i18n="hm_sessions">Sesiones iniciadas</b><small data-i18n="hm_sessions_x">Dispositivos donde has entrado</small></span>
                     <span class="material-icons-outlined cfg-chevron">chevron_right</span>
                 </button>
             </div>
@@ -3473,30 +3480,30 @@
     <!-- CHANGE PASSWORD PANEL -->
     <div id="profile-drawer-overlay" class="profile-drawer-overlay" onclick="backToSettings()"></div>
     <div id="change-password-panel" class="profile-drawer ep-panel" style="display:none;">
-        <div class="ep-head"><button type="button" class="ps-back" onclick="backToAccountSecurity()" aria-label="Volver"><span class="material-icons-outlined">arrow_back</span></button><h3>Contraseña</h3></div>
+        <div class="ep-head"><button type="button" class="ps-back" onclick="backToAccountSecurity()" aria-label="Volver" data-i18n-aria-label="cfg_back"><span class="material-icons-outlined">arrow_back</span></button><h3 data-i18n="label_password">Contraseña</h3></div>
         <div class="ep-scroll">
-            <label class="sx-lbl" for="current-password">Contraseña actual</label>
-            <div class="sx-in"><input id="current-password" type="password" autocomplete="current-password" /><button type="button" class="sx-eye" onclick="sxToggleEye(this)" aria-label="Mostrar u ocultar"><span class="material-icons-outlined">visibility</span></button></div>
-            <label class="sx-lbl" for="new-password">Nueva contraseña</label>
-            <div class="sx-in"><input id="new-password" type="password" autocomplete="new-password" oninput="sxCheckPasswords()" /><button type="button" class="sx-eye" onclick="sxToggleEye(this)" aria-label="Mostrar u ocultar"><span class="material-icons-outlined">visibility</span></button></div>
+            <label class="sx-lbl" for="current-password" data-i18n="hm_pw_current">Contraseña actual</label>
+            <div class="sx-in"><input id="current-password" type="password" autocomplete="current-password" /><button type="button" class="sx-eye" onclick="sxToggleEye(this)" aria-label="Mostrar u ocultar" data-i18n-aria-label="hm_show_hide"><span class="material-icons-outlined">visibility</span></button></div>
+            <label class="sx-lbl" for="new-password" data-i18n="hm_pw_new">Nueva contraseña</label>
+            <div class="sx-in"><input id="new-password" type="password" autocomplete="new-password" oninput="sxCheckPasswords()" /><button type="button" class="sx-eye" onclick="sxToggleEye(this)" aria-label="Mostrar u ocultar" data-i18n-aria-label="hm_show_hide"><span class="material-icons-outlined">visibility</span></button></div>
             <div class="sx-bar" id="sx-bar"><i></i><i></i><i></i><i></i></div>
             <p class="sx-hint" id="sx-hint">Usa 8 o más caracteres, con letras y números.</p>
-            <label class="sx-lbl" for="confirm-new-password">Repite la nueva contraseña</label>
+            <label class="sx-lbl" for="confirm-new-password" data-i18n="hm_pw_repeat">Repite la nueva contraseña</label>
             <div class="sx-in" id="sx-confirm-box"><input id="confirm-new-password" type="password" autocomplete="new-password" oninput="sxCheckPasswords()" /><span class="material-icons-outlined sx-ok" id="sx-ok">check</span></div>
-            <button type="button" id="change-password-btn" class="sx-btn">Cambiar contraseña</button>
+            <button type="button" id="change-password-btn" class="sx-btn" data-i18n="hm_pw_change">Cambiar contraseña</button>
         </div>
     </div>
 
     <!-- SESSIONS PANEL -->
     <div id="sessions-panel" class="profile-drawer ep-panel" style="display:none;">
-        <div class="ep-head"><button type="button" class="ps-back" onclick="backFromSessions()" aria-label="Volver"><span class="material-icons-outlined">arrow_back</span></button><h3>Sesiones iniciadas</h3></div>
+        <div class="ep-head"><button type="button" class="ps-back" onclick="backFromSessions()" aria-label="Volver" data-i18n-aria-label="cfg_back"><span class="material-icons-outlined">arrow_back</span></button><h3 data-i18n="hm_sessions">Sesiones iniciadas</h3></div>
         <div class="ep-scroll"><div id="sessions-list"></div></div>
     </div>
 
     <div id="blocked-panel" class="profile-drawer ep-panel" style="display:none;">
         <div class="ep-head"><button type="button" class="ps-back" onclick="backToSettings()" aria-label="Volver" data-i18n-aria-label="cfg_back"><span class="material-icons-outlined">arrow_back</span></button><h3 data-i18n="cfg_blocked">Usuarios bloqueados</h3></div>
         <div class="ep-scroll">
-            <div class="sx-note"><span class="material-icons-outlined">info</span><span>Las personas bloqueadas no pueden ver tus Tics, escribirte ni enviarte solicitudes de amistad, y tú dejas de verlas en toda la app.</span></div>
+            <div class="sx-note"><span class="material-icons-outlined">info</span><span data-i18n="hm_blocked_note">Las personas bloqueadas no pueden ver tus Tics, escribirte ni enviarte solicitudes de amistad, y tú dejas de verlas en toda la app.</span></div>
             <div id="blocked-list"></div>
         </div>
     </div>
@@ -3609,7 +3616,7 @@
                     <span class="material-icons-outlined">close</span>
                 </button>
                 <div class="edit-tools">
-                    <button class="btn-edit-tool" id="btn-edit-bg" type="button" onclick="toggleEditBgStrip()" aria-label="Fondo">
+                    <button class="btn-edit-tool" id="btn-edit-bg" type="button" onclick="toggleEditBgStrip()" aria-label="Fondo" data-i18n-aria-label="hm_bg">
                         <span class="material-icons-outlined">wallpaper</span>
                     </button>
                     <button class="btn-edit-tool" onclick="openTextLayerEditor(null)">
@@ -3627,10 +3634,10 @@
                     <!-- El selector de fecha va transparente ENCIMA del boton: en iPhone (y en cualquier movil) el toque cae directamente sobre el campo y abre el calendario nativo.
                          (showPicker() sobre un campo oculto no funciona en iOS, por eso antes no se podia cambiar la hora.) -->
                     <span style="position:relative; display:inline-flex;">
-                        <button class="btn-edit-tool" id="btn-add-date" type="button" aria-label="Fecha y hora">
+                        <button class="btn-edit-tool" id="btn-add-date" type="button" aria-label="Fecha y hora" data-i18n-aria-label="hm_datetime">
                             <span class="material-icons-outlined">schedule</span>
                         </button>
-                        <input type="datetime-local" id="edit-date-input" aria-label="Fecha y hora del Tic"
+                        <input type="datetime-local" id="edit-date-input" aria-label="Fecha y hora del Tic" data-i18n-aria-label="hm_datetime_tic"
                             style="position:absolute; inset:0; width:100%; height:100%; opacity:0; border:0; padding:0; margin:0; font-size:16px; cursor:pointer;"
                             onfocus="prepareDateInput(this)" onchange="onDateSelected(this.value)">
                     </span>
@@ -3667,7 +3674,7 @@
             </div>
 
             <div class="edit-footer">
-                <div id="edit-bg-strip" role="group" aria-label="Fondo"></div>
+                <div id="edit-bg-strip" role="group" aria-label="Fondo" data-i18n-aria-label="hm_bg"></div>
                 <div class="edit-caption-row">
                     <input type="text" id="edit-caption-input" class="edit-caption-input"
                         placeholder="Añade un comentario..." data-i18n-placeholder="add_comment_placeholder">
@@ -3682,21 +3689,21 @@
     <!-- BARRA DE TEXTO: se escribe directamente sobre la foto; esta barra va pegada al teclado -->
     <div id="text-edit-bar">
         <div class="teb-row">
-            <button type="button" class="teb-btn" id="teb-bg" title="Fondo del texto" aria-label="Fondo del texto">A</button>
-            <button type="button" class="teb-btn" id="teb-eye" title="Coger color de la foto" aria-label="Coger color de la foto"><span class="material-icons-outlined">colorize</span></button>
-            <button type="button" class="teb-btn" id="teb-del" title="Quitar texto" aria-label="Quitar texto"><span class="material-icons-outlined">delete_outline</span></button>
+            <button type="button" class="teb-btn" id="teb-bg" title="Fondo del texto" data-i18n-title="hm_text_bg" aria-label="Fondo del texto" data-i18n-aria-label="hm_text_bg">A</button>
+            <button type="button" class="teb-btn" id="teb-eye" title="Coger color de la foto" data-i18n-title="hm_pick_color" aria-label="Coger color de la foto" data-i18n-aria-label="hm_pick_color"><span class="material-icons-outlined">colorize</span></button>
+            <button type="button" class="teb-btn" id="teb-del" title="Quitar texto" data-i18n-title="hm_remove_text" aria-label="Quitar texto" data-i18n-aria-label="hm_remove_text"><span class="material-icons-outlined">delete_outline</span></button>
             <span style="flex:1"></span>
-            <button type="button" class="teb-done" id="teb-done">Listo</button>
+            <button type="button" class="teb-done" id="teb-done" data-i18n="ch_done">Listo</button>
         </div>
         <div id="teb-colors"></div>
     </div>
     <div id="eyedrop-layer"></div>
-    <div id="eyedrop-hint">Arrastra sobre la foto y suelta para coger el color</div>
+    <div id="eyedrop-hint" data-i18n="hm_eyedrop">Arrastra sobre la foto y suelta para coger el color</div>
     <div id="eyedrop-loupe"></div>
 
     <!-- RECORTAR FOTO AÑADIDA -->
     <div id="crop-modal">
-        <div class="crop-top">Recortar</div>
+        <div class="crop-top" data-i18n="hm_crop">Recortar</div>
         <div id="crop-stage">
             <img id="crop-img" alt="">
             <div id="crop-rect">
@@ -3705,9 +3712,9 @@
             </div>
         </div>
         <div class="crop-bar">
-            <button type="button" id="crop-cancel">Cancelar</button>
-            <button type="button" id="crop-reset">Restablecer</button>
-            <button type="button" class="primary" id="crop-apply">Aplicar</button>
+            <button type="button" id="crop-cancel" data-i18n="cancel">Cancelar</button>
+            <button type="button" id="crop-reset" data-i18n="hm_reset">Restablecer</button>
+            <button type="button" class="primary" id="crop-apply" data-i18n="hm_apply">Aplicar</button>
         </div>
     </div>
 
@@ -3733,7 +3740,7 @@
                 <strong id="music-confirm-title" style="display:block; font-size:14px; color:#1D1B20; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></strong>
                 <span id="music-confirm-artist" style="display:block; font-size:12px; color:#6B7280; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></span>
             </div>
-            <button type="button" onclick="confirmMusicSelection()" title="Usar esta canción" aria-label="Usar esta canción"
+            <button type="button" onclick="confirmMusicSelection()" title="Usar esta canción" aria-label="Usar esta canción" data-i18n-title="hm_x_use_song" data-i18n-aria-label="hm_x_use_song"
                 style="flex-shrink:0; background:var(--primary); border:none; color:#fff; width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
                 <span class="material-icons-outlined" style="font-size:24px;">arrow_forward</span>
             </button>
@@ -3777,15 +3784,15 @@
                 onclick="document.getElementById('map-picker-modal').style.display='none'">
                 <span class="material-icons-outlined">arrow_back</span>
             </button>
-            <div style="flex:1; font-weight:700;">Toca el mapa para situar</div>
+            <div style="flex:1; font-weight:700;" data-i18n="hm_map_pick">Toca el mapa para situar</div>
             <button class="map-picker-confirm" onclick="confirmMapPicker()"
-                style="background:var(--primary); color:white; border:none; padding:8px 16px; border-radius:30px; font-weight:700; font-size:14px;">CONFIRMAR</button>
+                style="background:var(--primary); color:white; border:none; padding:8px 16px; border-radius:30px; font-weight:700; font-size:14px;" data-i18n="hm_confirm_caps">CONFIRMAR</button>
         </div>
         <div class="map-picker-body">
             <div id="location-picker-map" style="position:absolute; inset:0; z-index:0;"></div>
             <!-- Botón cambiar vista (satélite/calles) -->
             <button id="btn-picker-map-type" onclick="togglePickerMapMode()"
-                style="position:absolute; top:16px; right:16px; z-index:100; background:white; border:none; border-radius:12px; width:44px; height:44px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; color:#1B3A5C; transition:transform 0.1s;" title="Cambiar Vista">
+                style="position:absolute; top:16px; right:16px; z-index:100; background:white; border:none; border-radius:12px; width:44px; height:44px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; color:#1B3A5C; transition:transform 0.1s;" title="Cambiar Vista" data-i18n-title="hm_change_view">
                 <span class="material-icons-outlined">layers</span>
             </button>
         </div>
@@ -3820,12 +3827,12 @@
                 </button>
             </div>
             <div id="story-menu-panel" class="story-menu-panel">
-                <button onclick="closeStoryMenu()">Cerrar</button>
-                <button onclick="toggleLikeCurrentStory()">Me gusta</button>
-                <button onclick="shareCurrentStory()">Compartir</button>
-                <button onclick="editCurrentTic()">Editar / visibilidad</button>
-                <button onclick="showCurrentTicViewers()">Quién lo ha visto</button>
-                <button onclick="deleteCurrentTic()" style="color:#ef4444;">Borrar Tic</button>
+                <button onclick="closeStoryMenu()" data-i18n="tic_close">Cerrar</button>
+                <button onclick="toggleLikeCurrentStory()" data-i18n="tic_aria_like">Me gusta</button>
+                <button onclick="shareCurrentStory()" data-i18n="tic_menu_share">Compartir</button>
+                <button onclick="editCurrentTic()" data-i18n="hm_edit_vis">Editar / visibilidad</button>
+                <button onclick="showCurrentTicViewers()" data-i18n="hm_x_viewers">Quién lo ha visto</button>
+                <button onclick="deleteCurrentTic()" style="color:#ef4444;" data-i18n="tic_menu_delete">Borrar Tic</button>
             </div>
 
             <div class="story-footer">
@@ -4028,16 +4035,16 @@
                     const message = document.getElementById('streak-achievement-message');
                     if (!modal || !canvas || !fire || !days || !message) return;
 
-                    days.textContent = milestone === 1 ? '1 día' : `${milestone} días`;
+                    days.textContent = milestone === 1 ? CONFIG.translate('hm_m_day1', '1 día') : CONFIG.translate('hm_m_days', '{{n}} días').replace('{{n}}', milestone);
                     message.textContent = milestone === 1
-                        ? 'Has empezado tu racha. Vuelve mañana para mantenerla.'
+                        ? CONFIG.translate('hm_j001', 'Has empezado tu racha. Vuelve mañana para mantenerla.')
                         : milestone === 365
-                            ? 'Un año entero compartiendo tu mundo. Esto es enorme.'
+                            ? CONFIG.translate('hm_j002', 'Un año entero compartiendo tu mundo. Esto es enorme.')
                             : milestone === 7
-                                ? 'Una semana entera seguida. Ya es un hábito.'
+                                ? CONFIG.translate('hm_j003', 'Una semana entera seguida. Ya es un hábito.')
                                 : milestone === 30
-                                    ? 'Un mes sin fallar ni un día. Increíble.'
-                                    : `Llevas ${milestone} días seguidos. Sigue construyendo tu historia.`;
+                                    ? CONFIG.translate('hm_j004', 'Un mes sin fallar ni un día. Increíble.')
+                                    : CONFIG.translate('hm_m_streak_n', 'Llevas {{n}} días seguidos. Sigue construyendo tu historia.').replace('{{n}}', milestone);
                     fire.innerHTML = '';
                     if (window.lottie) {
                         window.lottie.loadAnimation({ container: fire, renderer: 'svg', loop: true, autoplay: true, path: fireLottieUrl });
@@ -4165,7 +4172,7 @@
                     // Racha viva pero sin tic hoy todavía: se ve un poco apagada como recordatorio (sin ventana emergente)
                     const pending = visibleStreak > 0 && profileData && profileData.streak_today_done === false;
                     profileStreakWrap.style.opacity = visibleStreak > 0 ? (pending ? '0.8' : '1') : '0.78';
-                    profileStreakWrap.title = pending ? 'Publica tu tic de hoy para mantener la racha' : '';
+                    profileStreakWrap.title = pending ? CONFIG.translate('hm_j005', 'Publica tu tic de hoy para mantener la racha') : '';
                 } catch (error) {
                     console.warn('Error calculando racha del usuario:', error);
                     renderStreak(manualStreak > 0 ? manualStreak : 0);
@@ -4267,7 +4274,7 @@
                 if (!userId || !followersCount || !followingCount) return;
                 try {
                     const response = await fetch(`${CONFIG.API_BASE_URL}/api/follows/${encodeURIComponent(userId)}`);
-                    if (!response.ok) throw new Error('No se pudo cargar la red');
+                    if (!response.ok) throw new Error(CONFIG.translate('hm_j006', 'No se pudo cargar la red'));
                     const network = await response.json();
                     window.__profileNetwork.followers = Array.isArray(network.followers) ? network.followers : [];
                     window.__profileNetwork.following = Array.isArray(network.following) ? network.following : [];
@@ -4409,7 +4416,7 @@
                 fetch(`${CONFIG.API_BASE_URL}/api/publicaciones/${encodeURIComponent(ticId)}?viewerId=${encodeURIComponent(currentUserId || '')}`)
                     .then((r) => r.ok ? r.json() : Promise.reject(r))
                     .then((pub) => openWithList(pub, [pub]))
-                    .catch(() => { if (typeof showToast === 'function') showToast('Ese Tic ya no está disponible'); });
+                    .catch(() => { if (typeof showToast === 'function') showToast(CONFIG.translate('hm_j007', 'Ese Tic ya no está disponible')); });
             };
             // El feed tarda un poco en llegar la primera vez: se reintenta unas cuantas veces
             // antes de rendirse y pedirlo suelto al servidor.
@@ -4426,13 +4433,13 @@
         window.copyProfileId = () => {
             const profileId = localStorage.getItem('current_user') || '';
             if (!profileId) {
-                showToast('ID no disponible');
+                showToast(CONFIG.translate('hm_j008', 'ID no disponible'));
                 return;
             }
             navigator.clipboard.writeText(profileId).then(() => {
                 showToast('ID copiado');
             }).catch(() => {
-                showToast('No se pudo copiar');
+                showToast(CONFIG.translate('hm_j009', 'No se pudo copiar'));
             });
         };
 
@@ -4555,7 +4562,7 @@
             const preview = document.getElementById('create-post-preview');
             if (!preview) return;
             if (!createPostFiles.length) {
-                preview.innerHTML = '<div style="padding:20px; color:#5a5f6a; text-align:center;">Selecciona fotos para empezar</div>';
+                preview.innerHTML = '<div style="padding:20px; color:#5a5f6a; text-align:center;">' + CONFIG.translate('hm_m_select_photos', 'Selecciona fotos para empezar') + '</div>';
                 return;
             }
 
@@ -4596,7 +4603,7 @@
             if (!note || !file || !window.PhotoMeta) return;
             window.PhotoMeta.describe(file).then((text) => {
                 if (document.getElementById('create-post-meta-note') === note && createPostFiles[createPostPreviewIndex] === file) {
-                    note.textContent = text ? text + ' (se añadirá automáticamente)' : '';
+                    note.textContent = text ? text + " " + CONFIG.translate('hm_j010', '(se añadirá automáticamente)') : '';
                 }
             }).catch(() => {});
         }
@@ -4912,7 +4919,7 @@
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (event) => resolve(event.target.result);
-                reader.onerror = () => reject(reader.error || new Error('No se pudo leer la imagen'));
+                reader.onerror = () => reject(reader.error || new Error(CONFIG.translate('hm_j011', 'No se pudo leer la imagen')));
                 reader.readAsDataURL(file);
             });
         }
@@ -4921,7 +4928,7 @@
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => resolve(img);
-                img.onerror = () => reject(new Error('No se pudo cargar la imagen'));
+                img.onerror = () => reject(new Error(CONFIG.translate('hm_j012', 'No se pudo cargar la imagen')));
                 img.src = src;
             });
         }
@@ -4968,25 +4975,25 @@
             const subtitleEl = document.getElementById('step-subtitle');
             const nextBtn = document.getElementById('btn-next');
             const backBtn = document.getElementById('btn-back');
-            const createLabel = isPublication ? 'Crear publicación' : 'Crear Tic';
-            const descriptionLabel = isPublication ? 'Añade una descripción a tu publicación' : 'Añade una descripción a tu Tic';
+            const createLabel = isPublication ? CONFIG.translate('hm_j013', 'Crear publicación') : 'Crear Tic';
+            const descriptionLabel = isPublication ? CONFIG.translate('hm_j014', 'Añade una descripción a tu publicación') : CONFIG.translate('hm_j015', 'Añade una descripción a tu Tic');
 
             if (step === 1) {
                 titleEl.textContent = createLabel;
-                subtitleEl.textContent = 'Selecciona una o más fotos';
+                subtitleEl.textContent = CONFIG.translate('hm_j016', 'Selecciona una o más fotos');
                 nextBtn.textContent = 'Siguiente';
                 backBtn.style.display = 'none';
                 nextBtn.disabled = true;
                 nextBtn.style.opacity = '0.5';
             } else if (step === 2) {
                 titleEl.textContent = 'Ordenar fotos';
-                subtitleEl.textContent = 'Arrastra para cambiar el orden';
+                subtitleEl.textContent = CONFIG.translate('hm_j017', 'Arrastra para cambiar el orden');
                 nextBtn.textContent = 'Siguiente';
                 backBtn.style.display = 'block';
                 nextBtn.disabled = false;
                 nextBtn.style.opacity = '1';
             } else if (step === 3) {
-                titleEl.textContent = 'Descripción';
+                titleEl.textContent = CONFIG.translate('hm_j018', 'Descripción');
                 subtitleEl.textContent = descriptionLabel;
                 nextBtn.textContent = isPublication ? 'Siguiente' : 'Publicar';
                 backBtn.style.display = 'block';
@@ -4994,7 +5001,7 @@
                 nextBtn.style.opacity = '1';
             } else if (step === 4) {
                 titleEl.textContent = 'Marco';
-                subtitleEl.textContent = 'Personaliza el marco de tu publicación';
+                subtitleEl.textContent = CONFIG.translate('hm_j019', 'Personaliza el marco de tu publicación');
                 nextBtn.textContent = 'Publicar';
                 backBtn.style.display = 'block';
                 nextBtn.disabled = false;
@@ -5006,7 +5013,7 @@
         function goToNextStep() {
             if (typeof isPublishingTic !== 'undefined' && isPublishingTic) return;
             if (currentCreatePostStep === 1 && createPostFiles.length === 0) {
-                showToast('Selecciona al menos una foto');
+                showToast(CONFIG.translate('hm_j020', 'Selecciona al menos una foto'));
                 return;
             }
             const isPublication = window.currentCreatePostMode === 'publication';
@@ -5086,12 +5093,12 @@
         async function submitCreatePost() {
             if (isPublishingTic) return;   // evita subir el Tic dos veces si se pulsa "Publicar" varias veces
             if (!createPostFiles.length) {
-                showToast('Selecciona al menos una foto');
+                showToast(CONFIG.translate('hm_j020', 'Selecciona al menos una foto'));
                 return;
             }
             const currentUserId = localStorage.getItem('current_user_id') || localStorage.getItem('current_user');
             if (!currentUserId) {
-                showToast('Error: Usuario no identificado');
+                showToast(CONFIG.translate('hm_j021', 'Error: Usuario no identificado'));
                 return;
             }
 
@@ -5189,7 +5196,7 @@
                     }
                 }
             } catch (err) {
-                failureMessage = (err && err.message) || 'Error inesperado';
+                failureMessage = (err && err.message) || CONFIG.translate('hm_m_unexpected', 'Error inesperado');
                 console.error('[PUBLISH ERROR]', err);
             }
 
@@ -5200,7 +5207,7 @@
                 await afterTicPublished(job, s.userId, s.total, s.streak);
             } else {
                 failTicJob(job, failureMessage);
-                showToast(`No se pudo publicar${s.total > 1 ? ` la foto ${s.done + 1}` : ''}: ${failureMessage}. Toca el Tic para reintentar.`);
+                showToast((s.total > 1 ? CONFIG.translate('hm_m_pubfail_n', 'No se pudo publicar la foto {{n}}: {{msg}}. Toca el Tic para reintentar.').replace('{{n}}', s.done + 1) : CONFIG.translate('hm_m_pubfail', 'No se pudo publicar: {{msg}}. Toca el Tic para reintentar.')).replace('{{msg}}', failureMessage));
             }
         }
 
@@ -5272,7 +5279,7 @@
             if (!n) score = 0; else score = Math.max(1, score);
             const bar = document.getElementById('sx-bar'); if (bar) bar.dataset.s = String(score);
             const hint = document.getElementById('sx-hint');
-            if (hint) { hint.textContent = !n ? 'Usa 8 o más caracteres, con letras y números.' : score <= 1 ? 'Débil: añade más caracteres y números.' : score === 2 ? 'Mejorable: prueba con una frase más larga.' : 'Contraseña segura'; hint.style.color = score >= 3 ? '#22a35a' : ''; }
+            if (hint) { hint.textContent = !n ? CONFIG.translate('hm_pw_hint', 'Usa 8 o más caracteres, con letras y números.') : score <= 1 ? CONFIG.translate('hm_m_pw_weak', 'Débil: añade más caracteres y números.') : score === 2 ? CONFIG.translate('hm_m_pw_mid', 'Mejorable: prueba con una frase más larga.') : CONFIG.translate('hm_m_pw_ok', 'Contraseña segura'); hint.style.color = score >= 3 ? '#22a35a' : ''; }
             const box = document.getElementById('sx-confirm-box');
             if (box) { box.classList.toggle('match', !!c && c === n); box.classList.toggle('nomatch', !!c && c !== n && c.length >= n.length); }
         }
@@ -5303,7 +5310,7 @@
             if (/iPad/i.test(ua)) os = 'iPad';
             let br = /Edg\//i.test(ua) ? 'Edge' : /OPR\/|Opera/i.test(ua) ? 'Opera' : /Firefox/i.test(ua) ? 'Firefox' : /Chrome|CriOS/i.test(ua) ? 'Chrome' : /Safari/i.test(ua) ? 'Safari' : '';
             const mobile = /iPhone|iPad|iPod|Android/i.test(ua);
-            const title = app ? ((os || 'Móvil') + ' · App SeeYou') : ((br || 'Navegador') + (os ? ' · ' + os : ''));
+            const title = app ? ((os || CONFIG.translate('hm_j022', 'Móvil')) + ' · App SeeYou') : ((br || 'Navegador') + (os ? ' · ' + os : ''));
             return { title: ua ? title : 'Dispositivo desconocido', icon: mobile ? 'smartphone' : 'computer' };
         }
         function sxWhen(iso) {
@@ -5328,12 +5335,12 @@
             const userId = localStorage.getItem('current_user_id') || localStorage.getItem('current_user');
             fetch(`${CONFIG.API_BASE_URL}/api/sessions/${encodeURIComponent(userId)}`).then(r=>r.json()).then(data=>{
                 if (!Array.isArray(data) || data.length===0) {
-                    list.innerHTML = '<p class="sx-empty">No hay inicios de sesión registrados.</p>';
+                    list.innerHTML = '<p class="sx-empty">' + CONFIG.translate('hm_m_no_sessions', 'No hay inicios de sesión registrados.') + '</p>';
                     return;
                 }
                 const row = (s) => {
                     const ua = sxParseUA(s.userAgent);
-                    const tag = s.isUsual ? '<span class="sx-badge ok">Habitual</span>' : '<span class="sx-badge">Nuevo</span>';
+                    const tag = s.isUsual ? '<span class="sx-badge ok">' + CONFIG.translate('hm_m_usual', 'Habitual') + '</span>' : '<span class="sx-badge">' + CONFIG.translate('hm_m_new', 'Nuevo') + '</span>';
                     return `<div class="cfg-row" style="cursor:default"><span class="cfg-icon"><span class="material-icons-outlined">${ua.icon}</span></span><span class="sx-t"><b>${escapeHtml(ua.title)}${tag}</b><small>${escapeHtml(sxWhen(s.createdAt))} · IP ${escapeHtml(sxMaskIp(s.ip))}</small></span></div>`;
                 };
                 const cur = data.find(s => s.isCurrent);
@@ -5341,11 +5348,11 @@
                 let html = '';
                 if (cur) {
                     const ua = sxParseUA(cur.userAgent);
-                    html += `<p class="cfg-section-title">Este dispositivo</p><div class="sx-cur"><span class="cfg-icon"><span class="material-icons-outlined">${ua.icon}</span></span><div><b>${escapeHtml(ua.title)}</b><small>Activo ahora · IP ${escapeHtml(sxMaskIp(cur.ip))}</small></div></div>`;
+                    html += `<p class="cfg-section-title">${CONFIG.translate('hm_m_this_device', 'Este dispositivo')}</p><div class="sx-cur"><span class="cfg-icon"><span class="material-icons-outlined">${ua.icon}</span></span><div><b>${escapeHtml(ua.title)}</b><small>${CONFIG.translate('hm_m_active_now', 'Activo ahora')} · IP ${escapeHtml(sxMaskIp(cur.ip))}</small></div></div>`;
                 }
-                if (others.length) html += `<p class="cfg-section-title">Otros inicios de sesión</p><div class="cfg-card">${others.map(row).join('')}</div><div class="sx-note"><span class="material-icons-outlined">info</span><span>¿No reconoces alguno? Cambia tu contraseña desde Seguridad.</span></div>`;
+                if (others.length) html += `<p class="cfg-section-title">${CONFIG.translate('hm_m_other_sessions', 'Otros inicios de sesión')}</p><div class="cfg-card">${others.map(row).join('')}</div><div class="sx-note"><span class="material-icons-outlined">info</span><span>${CONFIG.translate('hm_m_not_you', '¿No reconoces alguno? Cambia tu contraseña desde Seguridad.')}</span></div>`;
                 list.innerHTML = html;
-            }).catch(e=>{ list.innerHTML = '<p class="sx-empty" style="color:#ef4444">Error cargando sesiones</p>'; });
+            }).catch(e=>{ list.innerHTML = '<p class="sx-empty" style="color:#ef4444">' + CONFIG.translate('hm_m_sessions_err', 'Error cargando sesiones') + '</p>'; });
         }
 
         async function showBlockedUsers() {
@@ -5364,7 +5371,7 @@
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 const blocked = await res.json();
                 if (!Array.isArray(blocked) || blocked.length === 0) {
-                    list.innerHTML = '<p class="sx-empty">No has bloqueado a nadie.</p>';
+                    list.innerHTML = '<p class="sx-empty">' + CONFIG.translate('hm_m_no_blocked', 'No has bloqueado a nadie.') + '</p>';
                     return;
                 }
                 list.innerHTML = '<div class="cfg-card">' + blocked.map(u => {
@@ -5390,11 +5397,11 @@
                     } catch (err) {
                         btn.disabled = false;
                         btn.textContent = 'Desbloquear';
-                        showToast('No se pudo desbloquear');
+                        showToast(CONFIG.translate('hm_j023', 'No se pudo desbloquear'));
                     }
                 };
             } catch (err) {
-                list.innerHTML = '<p style="text-align:center;color:#b3261e;padding:22px;margin:0;">No se pudo cargar la lista.</p>';
+                list.innerHTML = '<p style="text-align:center;color:#b3261e;padding:22px;margin:0;">' + CONFIG.translate('hm_m_list_err', 'No se pudo cargar la lista.') + '</p>';
             }
         }
 
@@ -5426,7 +5433,7 @@
                 if (data && data.reverted) {
                     bannerPickerState.current = 'azul';
                     bannerPickerState.hasImage = false;
-                    if (window.showToast) showToast('Te quedaste sin monedas y tu banner con imagen se desactivó.');
+                    if (window.showToast) showToast(CONFIG.translate('hm_j024', 'Te quedaste sin monedas y tu banner con imagen se desactivó.'));
                     try { renderProfileBannerCover(); } catch (e) { }
                     try { renderProfileBannerPicker(); } catch (e) { }
                 }
@@ -5455,7 +5462,7 @@
             var btn = document.getElementById('banner-mask-edit-btn');
             if (!btn) return;
             btn.onclick = function () {
-                if (!(window.SeePremium && window.SeePremium.active)) { if (window.SeePremium) window.SeePremium.promptUpgrade('Editar la forma del banner'); return; }
+                if (!(window.SeePremium && window.SeePremium.active)) { if (window.SeePremium) window.SeePremium.promptUpgrade(CONFIG.translate('hm_j025', 'Editar la forma del banner')); return; }
                 var u = window.__bannerUser || {};
                 var bannerImageUrl = '';
                 if (u.banner === 'imagen' && u.banner_image_url) {
@@ -5468,12 +5475,12 @@
                         fetch(CONFIG.API_BASE_URL + '/api/me/banner-mask', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mask: dataUrl }) })
                             .then(function (r) { return r.json().catch(function () { return {}; }).then(function (data) { return { ok: r.ok, data: data }; }); })
                             .then(function (res) {
-                                if (!res.ok) { if (window.showToast) showToast((res.data && res.data.message) || 'No se pudo guardar.'); return; }
-                                if (window.showToast) showToast('¡Forma del banner guardada!');
+                                if (!res.ok) { if (window.showToast) showToast((res.data && res.data.message) || CONFIG.translate('hm_j026', 'No se pudo guardar.')); return; }
+                                if (window.showToast) showToast(CONFIG.translate('hm_j027', '¡Forma del banner guardada!'));
                                 close();
                                 try { renderProfileBannerCover(); } catch (e) { }
                             })
-                            .catch(function () { if (window.showToast) showToast('No se pudo guardar. Inténtalo de nuevo.'); });
+                            .catch(function () { if (window.showToast) showToast(CONFIG.translate('hm_j028', 'No se pudo guardar. Inténtalo de nuevo.')); });
                     }
                 });
             };
@@ -5512,17 +5519,17 @@
                 var prem = !!(window.SeePremium && window.SeePremium.active);
                 var locked = !prem && !free.includes(key) && !bannerPickerState.unlocked.includes(key);
                 var cost = window.PROFILE_BANNER_COST[key];
-                return '<button type="button" class="cfg-banner-swatch' + (locked ? ' is-locked' : '') + '" data-banner="' + key + '" style="background:' + window.PROFILE_BANNERS[key] + '" aria-label="Banner ' + key + '">' +
+                return '<button type="button" class="cfg-banner-swatch' + (locked ? ' is-locked' : '') + '" data-banner="' + key + '" style="background:' + window.PROFILE_BANNERS[key] + '" aria-label="' + (CONFIG.translate('hm_bn_' + key, 'Banner ' + key)) + '">' +
                     '<span class="cfg-banner-check">&check;</span>' + (locked ? '<span class="cfg-banner-lock">🔒 ' + cost + '</span>' : '') + '</button>';
             }).join('') +
-                '<button type="button" class="cfg-banner-swatch cfg-banner-image' + (bannerPickerState.hasImage ? '' : ' is-locked') + '" data-banner="imagen" aria-label="Imagen propia">' +
-                (bannerPickerState.hasImage ? '<span class="cfg-banner-check">&check;</span>' : '<span class="cfg-banner-lock">📷 ' + ((window.SeePremium && window.SeePremium.active) ? 'gratis' : '1/día') + '</span>') + '</button>';
+                '<button type="button" class="cfg-banner-swatch cfg-banner-image' + (bannerPickerState.hasImage ? '' : ' is-locked') + '" data-banner="imagen" aria-label="' + CONFIG.translate('hm_bn_propia', 'Imagen propia') + '">' +
+                (bannerPickerState.hasImage ? '<span class="cfg-banner-check">&check;</span>' : '<span class="cfg-banner-lock">📷 ' + ((window.SeePremium && window.SeePremium.active) ? CONFIG.translate('hm_m_free', 'gratis') : CONFIG.translate('hm_m_perday', '1/día')) + '</span>') + '</button>';
             wrap.querySelectorAll('.cfg-banner-swatch').forEach(function (btn) {
                 btn.classList.toggle('is-selected', btn.dataset.banner === bannerPickerState.current);
                 btn.addEventListener('click', function () { onBannerSwatchClick(btn, wrap); });
             });
             var hint = document.getElementById('profile-banner-hint');
-            if (hint) hint.textContent = (window.SeePremium && window.SeePremium.active) ? 'Con Premium tienes todos los fondos gratis, incluida tu imagen propia.' : 'Los colores con 🔒 se desbloquean una vez con monedas. La imagen propia cuesta 1 moneda cada día que la mantengas. Con Premium son todos gratis.';
+            if (hint) hint.textContent = (window.SeePremium && window.SeePremium.active) ? CONFIG.translate('hm_j029', 'Con Premium tienes todos los fondos gratis, incluida tu imagen propia.') : CONFIG.translate('hm_j030', 'Los colores con 🔒 se desbloquean una vez con monedas. La imagen propia cuesta 1 moneda cada día que la mantengas. Con Premium son todos gratis.');
         }
         function onBannerSwatchClick(btn, wrap) {
             var key = btn.dataset.banner;
@@ -5544,7 +5551,7 @@
                 if (!file) return;
                 if (window.showToast) showToast('Preparando imagen…');
                 prepareBannerImage(file).then(function (dataUrl) { uploadBannerImage(dataUrl, window.__bannerWrap); })
-                    .catch(function () { if (window.showToast) showToast('No se pudo leer esa imagen. Prueba con otra.'); });
+                    .catch(function () { if (window.showToast) showToast(CONFIG.translate('hm_j031', 'No se pudo leer esa imagen. Prueba con otra.')); });
             });
             document.body.appendChild(input);
             return input;
@@ -5583,7 +5590,7 @@
         async function uploadBannerImage(dataUrl, wrap) {
             const uid = getCurrentUserId();
             const token = localStorage.getItem('seeYou_auth_token');
-            if (!uid || !token) { if (window.showToast) showToast('Sesión caducada. Vuelve a iniciar sesión'); return; }
+            if (!uid || !token) { if (window.showToast) showToast(CONFIG.translate('hm_j032', 'Sesión caducada. Vuelve a iniciar sesión')); return; }
             if (window.showToast) showToast('Subiendo imagen…');
             try {
                 const res = await fetch(`${CONFIG.API_BASE_URL}/api/users/${encodeURIComponent(uid)}/banner-image`, {
@@ -5594,9 +5601,9 @@
                 const data = await res.json().catch(function () { return {}; });
                 if (!res.ok) {
                     if (res.status === 402) {
-                        if (window.showToast) showToast(data.message || 'Necesitas al menos 1 moneda para el banner con imagen.');
+                        if (window.showToast) showToast(data.message || CONFIG.translate('hm_j033', 'Necesitas al menos 1 moneda para el banner con imagen.'));
                         if (window.SeeYouCoins && SeeYouCoins.openSheet) SeeYouCoins.openSheet(uid);
-                    } else if (window.showToast) showToast((data.message || 'No se pudo subir el banner') + (res.status >= 500 ? ' (' + res.status + ')' : ''));
+                    } else if (window.showToast) showToast((data.message || CONFIG.translate('hm_j034', 'No se pudo subir el banner')) + (res.status >= 500 ? ' (' + res.status + ')' : ''));
                     return;
                 }
                 bannerPickerState.hasImage = true;
@@ -5611,16 +5618,16 @@
                         cover.style.background = "url('" + bImg + "') center / cover no-repeat";
                     }
                 } catch (e) { }
-                if (window.showToast) showToast('¡Banner con tu imagen activado! Se cobrará 1 moneda cada día que lo mantengas.');
+                if (window.showToast) showToast(CONFIG.translate('hm_j035', '¡Banner con tu imagen activado! Se cobrará 1 moneda cada día que lo mantengas.'));
                 try { window.SeeYouCoins && SeeYouCoins.refresh && SeeYouCoins.refresh(); } catch (e) { }
             } catch (e) {
-                if (window.showToast) showToast('No se pudo subir el banner. Inténtalo de nuevo.');
+                if (window.showToast) showToast(CONFIG.translate('hm_j036', 'No se pudo subir el banner. Inténtalo de nuevo.'));
             }
         }
         async function unlockAndSaveBanner(key, wrap) {
             const uid = getCurrentUserId();
             const token = localStorage.getItem('seeYou_auth_token');
-            if (!uid || !token) { if (window.showToast) showToast('Sesión caducada. Vuelve a iniciar sesión'); return; }
+            if (!uid || !token) { if (window.showToast) showToast(CONFIG.translate('hm_j032', 'Sesión caducada. Vuelve a iniciar sesión')); return; }
             try {
                 const res = await fetch(`${CONFIG.API_BASE_URL}/api/users/${encodeURIComponent(uid)}/unlock-banner`, {
                     method: 'POST',
@@ -5630,27 +5637,27 @@
                 const data = await res.json();
                 if (!res.ok) {
                     if (res.status === 402) {
-                        if (window.showToast) showToast('Te faltan monedas: este banner cuesta ' + data.cost + '.');
+                        if (window.showToast) showToast(CONFIG.translate('hm_j037', 'Te faltan monedas: este banner cuesta') + " " + data.cost + '.');
                         const shown = window.SeeYouAdMob && SeeYouAdMob.available && SeeYouAdMob.available() && SeeYouAdMob.offerSheet(uid, {
                             need: Number(data.cost) || 0,
-                            text: 'Este banner cuesta ' + data.cost + ' monedas.',
+                            text: CONFIG.translate('hm_j038', 'Este banner cuesta') + " " + data.cost + ' monedas.',
                             onEarned: function () { unlockAndSaveBanner(key, wrap); }
                         });
                         if (!shown && window.SeeYouCoins && SeeYouCoins.openSheet) SeeYouCoins.openSheet(uid);
-                    } else if (window.showToast) showToast(data.message || 'No se pudo desbloquear');
+                    } else if (window.showToast) showToast(data.message || CONFIG.translate('hm_j023', 'No se pudo desbloquear'));
                     return;
                 }
                 bannerPickerState.unlocked = data.unlocked || bannerPickerState.unlocked.concat([key]);
-                if (window.showToast) showToast(data.already ? 'Ya tenías este banner desbloqueado' : '¡Banner desbloqueado!');
+                if (window.showToast) showToast(data.already ? CONFIG.translate('hm_j039', 'Ya tenías este banner desbloqueado') : CONFIG.translate('hm_j040', '¡Banner desbloqueado!'));
                 saveProfileBanner(key, wrap);
             } catch (e) {
-                if (window.showToast) showToast('No se pudo desbloquear el banner. Inténtalo de nuevo.');
+                if (window.showToast) showToast(CONFIG.translate('hm_j041', 'No se pudo desbloquear el banner. Inténtalo de nuevo.'));
             }
         }
         async function saveProfileBanner(key, wrap) {
             const uid = getCurrentUserId();
             const token = localStorage.getItem('seeYou_auth_token');
-            if (!uid || !token) { if (window.showToast) showToast('Sesión caducada. Vuelve a iniciar sesión'); return; }
+            if (!uid || !token) { if (window.showToast) showToast(CONFIG.translate('hm_j032', 'Sesión caducada. Vuelve a iniciar sesión')); return; }
             bannerPickerState.current = key;
             renderProfileBannerPicker();
             try {
@@ -5660,10 +5667,10 @@
                     body: JSON.stringify({ banner: key })
                 });
                 if (!res.ok) throw new Error('banner');
-                if (window.showToast) showToast('Banner del perfil actualizado');
+                if (window.showToast) showToast(CONFIG.translate('hm_j042', 'Banner del perfil actualizado'));
                 try { renderProfileBannerCover(); } catch (e) { }
             } catch (e) {
-                if (window.showToast) showToast('No se pudo guardar el banner. Inténtalo de nuevo.');
+                if (window.showToast) showToast(CONFIG.translate('hm_j043', 'No se pudo guardar el banner. Inténtalo de nuevo.'));
             }
         }
         function loadProfileBannerState() {
@@ -5677,6 +5684,33 @@
                 renderProfileBannerPicker();
             }).catch(function () { });
         }
+        function setupPushPrefs() {
+            const f = document.getElementById('push-pref-friend');
+            const r = document.getElementById('push-pref-remind');
+            if (!f || !r) return;
+            const token = localStorage.getItem('seeYou_auth_token');
+            if (!token) return;
+            const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+            const base = `${CONFIG.API_BASE_URL}/api/push/prefs`;
+            const apply = (d) => { f.checked = d.friend_tic !== false; r.checked = d.reminders !== false; };
+            fetch(base, { headers, cache: 'no-store' }).then((res) => res.ok ? res.json() : null).then((d) => { if (d) apply(d); }).catch(() => { });
+            if (f.dataset.bound) return;
+            f.dataset.bound = '1';
+            const save = async () => {
+                const body = { friend_tic: f.checked, reminders: r.checked };
+                try {
+                    const res = await fetch(base, { method: 'PUT', headers, body: JSON.stringify(body) });
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    apply(await res.json());
+                } catch (e) {
+                    try { showToast(CONFIG.translate('cfg_notif_err', 'No se pudo guardar. Inténtalo de nuevo.')); } catch (e2) { }
+                    fetch(base, { headers, cache: 'no-store' }).then((x) => x.ok ? x.json() : null).then((d) => { if (d) apply(d); }).catch(() => { });
+                }
+            };
+            f.addEventListener('change', save);
+            r.addEventListener('change', save);
+        }
+
         function openProfileSettings() {
             const panel = document.getElementById('profile-settings-panel');
             if (!panel) { console.error('[SeeYou] openProfileSettings: no se encontró #profile-settings-panel en el DOM'); try { showToast('No se pudo abrir Configuración. Reinicia la app e inténtalo de nuevo.'); } catch (e) { } return; }
@@ -5685,6 +5719,7 @@
             // en vez de quedarse "sin reaccionar" al tocar el engranaje.
             panel.hidden = false;
             document.body.style.overflow = 'hidden';
+            try { setupPushPrefs(); } catch (e) { console.error('[SeeYou] setupPushPrefs:', e); }
             try { renderProfileBannerPicker(); } catch (e) { console.error('[SeeYou] renderProfileBannerPicker:', e); }
             try { renderPalettePicker(); } catch (e) { console.error('[SeeYou] renderPalettePicker:', e); }
             try { setupBannerMaskButton(); } catch (e) { console.error('[SeeYou] setupBannerMaskButton:', e); }
@@ -5736,13 +5771,13 @@
             ov.id = 'del-account-overlay';
             ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;';
             ov.innerHTML = '<div style="background:#fff;border-radius:18px;max-width:380px;width:100%;padding:22px;font-family:inherit;color:#1c1b1f;">'
-                + '<h3 style="margin:0 0 8px;font-size:19px;">Eliminar mi cuenta</h3>'
-                + '<p style="margin:0 0 14px;font-size:14px;line-height:1.45;color:#49454f;">Se borrarán para siempre tu perfil, tus Tics, chats, amistades, monedas y todo lo asociado a tu cuenta. <b>No se puede deshacer.</b></p>'
-                + '<input id="del-account-pass" type="password" autocomplete="current-password" placeholder="Tu contraseña" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #cac4d0;border-radius:10px;font-size:15px;">'
+                + '<h3 style="margin:0 0 8px;font-size:19px;">' + CONFIG.translate('hm_m_del_title', 'Eliminar mi cuenta') + '</h3>'
+                + '<p style="margin:0 0 14px;font-size:14px;line-height:1.45;color:#49454f;">' + CONFIG.translate('hm_m_del_text', 'Se borrarán para siempre tu perfil, tus Tics, chats, amistades, monedas y todo lo asociado a tu cuenta.') + ' <b>' + CONFIG.translate('hm_m_del_undo', 'No se puede deshacer.') + '</b></p>'
+                + '<input id="del-account-pass" type="password" autocomplete="current-password" placeholder="' + CONFIG.translate('hm_m_your_password', 'Tu contraseña') + '" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #cac4d0;border-radius:10px;font-size:15px;">'
                 + '<p id="del-account-err" style="color:#b3261e;font-size:13px;margin:8px 0 0;min-height:16px;"></p>'
                 + '<div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end;">'
-                + '<button type="button" id="del-account-cancel" style="padding:10px 16px;border:0;border-radius:10px;background:#eee;font-size:14px;cursor:pointer;">Cancelar</button>'
-                + '<button type="button" id="del-account-ok" style="padding:10px 16px;border:0;border-radius:10px;background:#b3261e;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">Eliminar para siempre</button>'
+                + '<button type="button" id="del-account-cancel" style="padding:10px 16px;border:0;border-radius:10px;background:#eee;font-size:14px;cursor:pointer;">' + CONFIG.translate('cancel', 'Cancelar') + '</button>'
+                + '<button type="button" id="del-account-ok" style="padding:10px 16px;border:0;border-radius:10px;background:#b3261e;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">' + CONFIG.translate('hm_m_del_forever', 'Eliminar para siempre') + '</button>'
                 + '</div></div>';
             document.body.appendChild(ov);
             const close = () => ov.remove();
@@ -5754,7 +5789,7 @@
             setTimeout(() => input.focus(), 50);
             btn.onclick = async () => {
                 const password = input.value;
-                if (!password) { err.textContent = 'Escribe tu contraseña.'; return; }
+                if (!password) { err.textContent = CONFIG.translate('hm_j044', 'Escribe tu contraseña.'); return; }
                 btn.disabled = true; btn.textContent = 'Eliminando…'; err.textContent = '';
                 try {
                     const res = await fetch(`${CONFIG.API_BASE_URL}/api/account/delete`, {
@@ -5763,12 +5798,12 @@
                         body: JSON.stringify({ password })
                     });
                     const data = await res.json().catch(() => ({}));
-                    if (!res.ok) { err.textContent = data.message || 'No se pudo eliminar la cuenta.'; btn.disabled = false; btn.textContent = 'Eliminar para siempre'; return; }
+                    if (!res.ok) { err.textContent = data.message || CONFIG.translate('hm_j045', 'No se pudo eliminar la cuenta.'); btn.disabled = false; btn.textContent = CONFIG.translate('hm_j046', 'Eliminar para siempre'); return; }
                     if (typeof CONFIG !== 'undefined' && CONFIG.clearSessionStorageKeepingDeviceFlags) CONFIG.clearSessionStorageKeepingDeviceFlags(); else localStorage.clear();
-                    try { sessionStorage.setItem('sy_account_msg', 'Tu cuenta se ha eliminado correctamente.'); } catch (e) { }
+                    try { sessionStorage.setItem('sy_account_msg', CONFIG.translate('hm_j047', 'Tu cuenta se ha eliminado correctamente.')); } catch (e) { }
                     window.location.href = 'index.html';
                 } catch (e) {
-                    err.textContent = 'Error de conexión. Inténtalo de nuevo.'; btn.disabled = false; btn.textContent = 'Eliminar para siempre';
+                    err.textContent = CONFIG.translate('hm_j048', 'Error de conexión. Inténtalo de nuevo.'); btn.disabled = false; btn.textContent = CONFIG.translate('hm_j046', 'Eliminar para siempre');
                 }
             };
         }
@@ -5817,12 +5852,12 @@
             const count = document.getElementById('network-modal-count');
             if (count) count.textContent = String(all.length);
             const orderBtn = document.getElementById('network-order');
-            if (orderBtn) orderBtn.textContent = state.order === 'desc' ? 'Más recientes' : 'Más antiguos';
+            if (orderBtn) orderBtn.textContent = state.order === 'desc' ? CONFIG.translate('hm_j049', 'Más recientes') : CONFIG.translate('hm_j050', 'Más antiguos');
             const esc = (v) => String(v == null ? '' : v).replace(/&(?:amp|lt|gt|quot|#0?39);/g, (m) => ({ '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&#039;': "'" }[m])).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
             if (!rows.length) {
                 const msg = all.length
-                    ? 'No hay nadie que coincida con esa búsqueda.'
-                    : (state.kind === 'followers' ? 'Todavía no tienes seguidores.' : 'Todavía no sigues a nadie.');
+                    ? CONFIG.translate('hm_j051', 'No hay nadie que coincida con esa búsqueda.')
+                    : (state.kind === 'followers' ? CONFIG.translate('hm_j052', 'Todavía no tienes seguidores.') : CONFIG.translate('hm_j053', 'Todavía no sigues a nadie.'));
                 list.innerHTML = '<div class="net-empty">' + msg + '</div>';
                 return;
             }
@@ -5830,7 +5865,7 @@
                 const name = u.name || u.username || 'Usuario';
                 const avatar = window.SocialUI ? window.SocialUI.avatarInner(name, u.avatar || u.foto) : '<span>' + esc(name.charAt(0).toUpperCase()) + '</span>';
                 const since = netFormatDate(u.since);
-                const sub = [u.username ? '@' + u.username : '', since ? 'Desde ' + since : ''].filter(Boolean).join('  ·  ');
+                const sub = [u.username ? '@' + u.username : '', since ? CONFIG.translate('hm_x_since', 'Desde {{d}}').replace('{{d}}', since) : ''].filter(Boolean).join('  ·  ');
                 return '<a class="net-row" href="profile.html?id=' + encodeURIComponent(u.id) + '">' +
                     '<span class="tic-avatar">' + avatar + '</span>' +
                     '<span class="net-row-text"><span class="net-row-name">' + esc(name) + '</span>' + (sub ? '<span class="net-row-sub">' + esc(sub) + '</span>' : '') + '</span>' +
@@ -5923,15 +5958,15 @@
                 const card = document.createElement('div');
                 card.style.cssText = 'background:#fff;border-radius:20px;max-width:340px;width:100%;padding:26px 22px;box-shadow:0 20px 60px rgba(15,23,42,0.25);text-align:center;';
                 card.innerHTML = '<div style="font-size:36px;margin-bottom:10px;">📱</div>' +
-                    '<p style="font-size:18px;font-weight:800;color:#1B3A5C;margin:0 0 8px;">Añade tu teléfono</p>' +
-                    '<p style="font-size:14px;color:#49454F;line-height:1.45;margin:0 0 18px;">Tu cuenta no tiene un teléfono asociado. Añádelo para mantener tu cuenta segura y recuperable.</p>' +
+                    '<p style="font-size:18px;font-weight:800;color:#1B3A5C;margin:0 0 8px;">' + CONFIG.translate('hm_m_phone_t', 'Añade tu teléfono') + '</p>' +
+                    '<p style="font-size:14px;color:#49454F;line-height:1.45;margin:0 0 18px;">' + CONFIG.translate('hm_m_phone_x', 'Tu cuenta no tiene un teléfono asociado. Añádelo para mantener tu cuenta segura y recuperable.') + '</p>' +
                     '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">' +
-                    '<input type="tel" id="phone-prompt-input" placeholder="Tu teléfono (con prefijo, ej. +34...)" style="flex:1;border:1px solid #d7dbe8;border-radius:14px;padding:12px 14px;font-size:14px;outline:none;">' +
+                    '<input type="tel" id="phone-prompt-input" placeholder="' + CONFIG.translate('hm_m_phone_ph', 'Tu teléfono (con prefijo, ej. +34...)') + '" style="flex:1;border:1px solid #d7dbe8;border-radius:14px;padding:12px 14px;font-size:14px;outline:none;">' +
                     '</div>' +
                     '<p id="phone-prompt-error" style="font-size:12px;color:#ef4444;min-height:16px;margin:0 0 12px;"></p>' +
                     '<div style="display:flex;gap:10px;">' +
-                    '<button type="button" id="phone-prompt-later" style="flex:1;border:none;border-radius:999px;padding:12px 14px;font-size:14px;font-weight:700;cursor:pointer;background:#F1F3F8;color:#1B3A5C;">Más tarde</button>' +
-                    '<button type="button" id="phone-prompt-save" style="flex:1;border:none;border-radius:999px;padding:12px 14px;font-size:14px;font-weight:700;cursor:pointer;background:#1B3A5C;color:#fff;">Guardar</button>' +
+                    '<button type="button" id="phone-prompt-later" style="flex:1;border:none;border-radius:999px;padding:12px 14px;font-size:14px;font-weight:700;cursor:pointer;background:#F1F3F8;color:#1B3A5C;">' + CONFIG.translate('hm_m_later', 'Más tarde') + '</button>' +
+                    '<button type="button" id="phone-prompt-save" style="flex:1;border:none;border-radius:999px;padding:12px 14px;font-size:14px;font-weight:700;cursor:pointer;background:#1B3A5C;color:#fff;">' + CONFIG.translate('bm_save', 'Guardar') + '</button>' +
                     '</div>';
                 overlay.appendChild(card);
                 document.body.appendChild(overlay);
@@ -5945,7 +5980,7 @@
                     const errorEl = document.getElementById('phone-prompt-error');
                     const value = (document.getElementById('phone-prompt-input').value || '').trim();
                     if (!/^\+?\d{6,20}$/.test(value)) {
-                        errorEl.textContent = 'Introduce un teléfono válido (solo números, con prefijo si hace falta).';
+                        errorEl.textContent = CONFIG.translate('hm_j054', 'Introduce un teléfono válido (solo números, con prefijo si hace falta).');
                         return;
                     }
                     const token = localStorage.getItem('seeYou_auth_token');
@@ -5957,13 +5992,13 @@
                             body: JSON.stringify({ phone: value })
                         });
                         const data = await res.json();
-                        if (!res.ok) { errorEl.textContent = data.error || 'No se pudo guardar el teléfono.'; return; }
+                        if (!res.ok) { errorEl.textContent = data.error || CONFIG.translate('hm_j055', 'No se pudo guardar el teléfono.'); return; }
                         localStorage.setItem('current_user_phone', value);
                         localStorage.removeItem('seeYou_needs_phone');
-                        showToast('Teléfono guardado');
+                        showToast(CONFIG.translate('hm_j056', 'Teléfono guardado'));
                         close();
                     } catch (e) {
-                        errorEl.textContent = 'Error de conexión. Inténtalo de nuevo.';
+                        errorEl.textContent = CONFIG.translate('hm_j048', 'Error de conexión. Inténtalo de nuevo.');
                     }
                 };
             });
@@ -6074,7 +6109,7 @@
                     const bio = document.getElementById('edit-profile-bio').value.trim();
                     const visibility = document.querySelector('input[name="account-visibility"]:checked')?.value || 'public';
                     const userId = localStorage.getItem('current_user_id') || localStorage.getItem('current_user');
-                    if (!userId) { showToast('Usuario no identificado'); return; }
+                    if (!userId) { showToast(CONFIG.translate('hm_j057', 'Usuario no identificado')); return; }
                     try {
                         let data = {};
                         if (localStorage.getItem('offline_demo') === '1' && window.LocalDB) {
@@ -6088,7 +6123,7 @@
                         } else {
                             const token = localStorage.getItem('seeYou_auth_token');
                             if (!token) {
-                                showToast('Sesión caducada. Vuelve a iniciar sesión');
+                                showToast(CONFIG.translate('hm_j032', 'Sesión caducada. Vuelve a iniciar sesión'));
                                 return;
                             }
                             const res = await fetch(`${CONFIG.API_BASE_URL}/api/users/${encodeURIComponent(userId)}`, {
@@ -6100,7 +6135,7 @@
                                 body: JSON.stringify({ name: name, bio: bio, visibilidad: visibility })
                             });
                             data = await res.json();
-                            if (!res.ok) throw new Error(data.error || data.message || 'Error al guardar');
+                            if (!res.ok) throw new Error(data.error || data.message || CONFIG.translate('hm_j058', 'Error al guardar'));
                         }
                         localStorage.setItem('current_user_display_name', data.name || name);
                         localStorage.setItem('current_user_bio', data.bio || bio);
@@ -6111,7 +6146,7 @@
                         showProfileMain();
                     } catch (err) {
                         console.error(err);
-                        showToast('Error: ' + (err.message || 'no se pudo guardar'));
+                        showToast(CONFIG.translate('hm_j059', 'Error:') + " " + (err.message || 'no se pudo guardar'));
                     }
                 })();
             }
@@ -6121,29 +6156,29 @@
                     const currentPassword = document.getElementById('current-password').value || '';
                     const newPassword = document.getElementById('new-password').value || '';
                     const confirmNew = document.getElementById('confirm-new-password').value || '';
-                    if (!currentPassword || !newPassword) { showToast('Rellena todos los campos'); return; }
-                    if (newPassword !== confirmNew) { showToast('Las contraseñas no coinciden'); return; }
+                    if (!currentPassword || !newPassword) { showToast(CONFIG.translate('hm_j060', 'Rellena todos los campos')); return; }
+                    if (newPassword !== confirmNew) { showToast(CONFIG.translate('hm_j061', 'Las contraseñas no coinciden')); return; }
                     const userId = localStorage.getItem('current_user_id') || localStorage.getItem('current_user');
                     try {
                         const res = await fetch(`${CONFIG.API_BASE_URL}/api/users/${encodeURIComponent(userId)}/password`, {
                             method: 'PUT', headers: {'Content-Type':'application/json'},
                             body: JSON.stringify({ currentPassword, newPassword })
                         });
-                        if (res.status === 401) { showToast('Contraseña actual incorrecta'); return; }
+                        if (res.status === 401) { showToast(CONFIG.translate('hm_j062', 'Contraseña actual incorrecta')); return; }
                         const data = await res.json();
-                        if (!res.ok) throw new Error(data.error || data.message || 'Error al cambiar contraseña');
-                        showToast('Contraseña actualizada');
+                        if (!res.ok) throw new Error(data.error || data.message || CONFIG.translate('hm_j063', 'Error al cambiar contraseña'));
+                        showToast(CONFIG.translate('hm_j064', 'Contraseña actualizada'));
                         backToAccountSecurity();
                     } catch (err) {
                         console.error(err);
-                        showToast('Error: ' + (err.message || 'no se pudo cambiar contraseña'));
+                        showToast(CONFIG.translate('hm_j059', 'Error:') + " " + (err.message || CONFIG.translate('hm_j065', 'no se pudo cambiar contraseña')));
                     }
                 })();
             }
         });
 
         function showContacts() {
-            alert('Gestión de contactos en desarrollo.');
+            alert(CONFIG.translate('hm_j066', 'Gestión de contactos en desarrollo.'));
         }
 
         function syncContacts() {
@@ -6210,13 +6245,13 @@
             const list = Array.from(users.values()).sort((a, b) => (a.key === 'me' ? -1 : b.key === 'me' ? 1 : b.n - a.n));
             const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
             const allOn = !mapOnlyMe && mapHiddenUsers.size === 0;
-            let html = `<div class="mm-quick"><button type="button" class="mm-chip${allOn ? ' on' : ''}" data-mf="all">Todos</button><button type="button" class="mm-chip${mapOnlyMe ? ' on' : ''}" data-mf="me">Solo yo</button></div>`;
-            if (!list.length) html += '<div class="mm-empty">Aún no hay tics con ubicación para filtrar.</div>';
+            let html = `<div class="mm-quick"><button type="button" class="mm-chip${allOn ? ' on' : ''}" data-mf="all">${CONFIG.translate('hm_m_all', 'Todos')}</button><button type="button" class="mm-chip${mapOnlyMe ? ' on' : ''}" data-mf="me">${CONFIG.translate('vis_private', 'Solo yo')}</button></div>`;
+            if (!list.length) html += '<div class="mm-empty">' + CONFIG.translate('hm_m_no_tics_loc', 'Aún no hay tics con ubicación para filtrar.') + '</div>';
             else html += '<div class="mm-list">' + list.map((u) => {
                 const on = !mapOnlyMe ? !mapHiddenUsers.has(u.key) : u.key === 'me';
                 const src = mapAvatarSrc(u.avatar);
                 const initial = esc((u.name || '?').trim().charAt(0).toUpperCase() || '?');
-                return `<button type="button" class="mm-user${on ? ' on' : ''}" data-mu="${esc(u.key)}"><span class="av">${src ? `<img src="${esc(src)}" alt="" loading="lazy" onerror="this.remove()">` : initial}</span><span class="nm">${esc(u.name)}<small>${u.n} ${u.n === 1 ? 'tic' : 'tics'} en el mapa</small></span><span class="ck"><span class="material-icons-outlined" style="font-size:16px">check</span></span></button>`;
+                return `<button type="button" class="mm-user${on ? ' on' : ''}" data-mu="${esc(u.key)}"><span class="av">${src ? `<img src="${esc(src)}" alt="" loading="lazy" onerror="this.remove()">` : initial}</span><span class="nm">${esc(u.name)}<small>${(u.n === 1 ? CONFIG.translate('hm_m_tic_map_1', '{{n}} tic en el mapa') : CONFIG.translate('hm_m_tic_map_n', '{{n}} tics en el mapa')).replace('{{n}}', u.n)}</small></span><span class="ck"><span class="material-icons-outlined" style="font-size:16px">check</span></span></button>`;
             }).join('') + '</div>';
             panel.innerHTML = html;
         }
@@ -6709,7 +6744,8 @@
                 }, 0);
                 // Mismo criterio que el visor: el "dia" de los Tics es el del tema (cambia a las 10:00 de Madrid).
                 const ownDayKey = (value) => (typeof getThemeDayKey === 'function' ? getThemeDayKey(value) : getSpainDayKey(value));
-                const latestOwnDay = latestOwnTimestamp ? ownDayKey(new Date(latestOwnTimestamp)) : '';
+                // Solo los Tics del tema de HOY: uno de dias atras no debe parecer que ya has subido el de hoy.
+                const latestOwnDay = ownDayKey(new Date());
                 const latestOwnPhotoEntries = ownPhotoEntries.filter(({ photo }) =>
                     latestOwnDay && photo.date ? ownDayKey(photo.date) === latestOwnDay : false
                 );
@@ -6730,11 +6766,11 @@
                             }
                             return `
                                 <div class="feed-item" onclick="openStoryFromPhoto(${photoIndex})">
-                                    <img src="${window.ticThumb(photo.imgUrl, 360)}" data-full="${photo.imgUrl}" alt="Tic" loading="lazy" decoding="async" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.dataset.full}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#E9EEF5 url(${window.ticThumb(photo.imgUrl, 160)}) center / cover no-repeat;">
+                                    <img src="${String(window.ticThumb(photo.imgUrl, 360)).replace(/"/g, '&quot;').replace(/</g, '&lt;')}" data-full="${String(photo.imgUrl || '').replace(/"/g, '&quot;').replace(/</g, '&lt;')}" alt="Tic" loading="lazy" decoding="async" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.dataset.full}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#E9EEF5 url(${window.ticThumb(photo.imgUrl, 160)}) center / cover no-repeat;">
                                     <div class="feed-item-avatar-wrap">
                                         ${avatarHtml}
                                     </div>
-                                    <div class="feed-item-author">Tú</div>
+                                    <div class="feed-item-author">${CONFIG.translate('ch_you', 'Tú')}</div>
                                 </div>
                             `;
                         }).join('');
@@ -6791,7 +6827,7 @@
                 userId,
                 viewerId: userId,
                 title: 'Mis Tics',
-                emptyText: 'Todavía no has creado ningún Tic.',
+                emptyText: CONFIG.translate('hm_j067', 'Todavía no has creado ningún Tic.'),
                 openArchive: () => openTicsArchive(),
                 register(rawItems) {
                     const mapped = (rawItems || []).map((item) => ({
@@ -6901,7 +6937,7 @@
             closeAllPublicationMenus();
             const publication = window.publicationPhotos.find(p => p.id === pubId);
             if (!publication) return;
-            const newCaption = prompt('Editar descripción de tu publicación', publication.caption || '');
+            const newCaption = prompt(CONFIG.translate('hm_j068', 'Editar descripción de tu publicación'), publication.caption || '');
             if (newCaption === null) return;
             const currentUserId = localStorage.getItem('current_user_id');
             try {
@@ -6910,20 +6946,20 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: currentUserId, caption: newCaption })
                 });
-                if (!response.ok) throw new Error('No se pudo editar');
+                if (!response.ok) throw new Error(CONFIG.translate('hm_j069', 'No se pudo editar'));
                 publication.caption = newCaption;
                 renderHorizontalFeed();
-                showToast('Publicación actualizada');
+                showToast(CONFIG.translate('hm_j070', 'Publicación actualizada'));
             } catch (err) {
                 console.error(err);
-                showToast('Error al editar');
+                showToast(CONFIG.translate('hm_j071', 'Error al editar'));
             }
         }
 
         async function deletePublication(pubId, event) {
             event.stopPropagation();
             closeAllPublicationMenus();
-            if (!confirm('¿Borrar esta publicación?')) return;
+            if (!confirm(CONFIG.translate('hm_j072', '¿Borrar esta publicación?'))) return;
             const currentUserId = localStorage.getItem('current_user_id');
             try {
                 const response = await fetch(`${CONFIG.API_BASE_URL}/api/publicaciones/${encodeURIComponent(pubId)}`, {
@@ -6931,27 +6967,27 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: currentUserId })
                 });
-                if (!response.ok) throw new Error('No se pudo borrar');
+                if (!response.ok) throw new Error(CONFIG.translate('hm_j073', 'No se pudo borrar'));
                 window.publicationPhotos = window.publicationPhotos.filter(p => p.id !== pubId);
                 renderHorizontalFeed();
-                showToast('Publicación borrada');
+                showToast(CONFIG.translate('hm_j074', 'Publicación borrada'));
             } catch (err) {
                 console.error(err);
-                showToast('Error al borrar');
+                showToast(CONFIG.translate('hm_j075', 'Error al borrar'));
             }
         }
 
         async function toggleLikePublication(pubId, event) {
             if (event) event.stopPropagation();
             const currentUserId = getCurrentUserId();
-            if (!currentUserId) { showToast('Usuario no identificado'); return; }
+            if (!currentUserId) { showToast(CONFIG.translate('hm_j057', 'Usuario no identificado')); return; }
             try {
                 const response = await fetch(`${CONFIG.API_BASE_URL}/api/publicaciones/${encodeURIComponent(pubId)}/like`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: currentUserId })
                 });
-                if (!response.ok) throw new Error('No se pudo dar like');
+                if (!response.ok) throw new Error(CONFIG.translate('hm_j076', 'No se pudo dar like'));
                 const data = await response.json();
                 const publication = window.publicationPhotos.find(p => p.id === pubId);
                 if (publication) publication.likes = data.likes || [];
@@ -6959,7 +6995,7 @@
                 refreshProfileTics();
             } catch (err) {
                 console.error(err);
-                showToast('No se pudo dar like');
+                showToast(CONFIG.translate('hm_j076', 'No se pudo dar like'));
             }
         }
 
@@ -7008,7 +7044,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: currentUserId, text })
                 });
-                if (!response.ok) throw new Error('No se pudo enviar comentario');
+                if (!response.ok) throw new Error(CONFIG.translate('hm_j077', 'No se pudo enviar comentario'));
                 const data = await response.json();
                 const publication = window.publicationPhotos.find(p => p.id === pubId);
                 if (publication) publication.comments = data.comments || [];
@@ -7018,7 +7054,7 @@
                 openPublicationComments(pubId);
             } catch (err) {
                 console.error(err);
-                showToast('No se pudo enviar comentario');
+                showToast(CONFIG.translate('hm_j077', 'No se pudo enviar comentario'));
             }
         }
 
@@ -7041,7 +7077,7 @@
         function sharePublication(pubId, event) {
             event.stopPropagation();
             const publication = window.publicationPhotos.find(p => p.id === pubId);
-            showToast(`Enviar publicación${publication ? ' de ' + publication.author : ''} a tus amigos`);
+            showToast(publication ? CONFIG.translate('hm_m_send_pub_of', 'Enviar publicación de {{name}} a tus amigos').replace('{{name}}', publication.author) : CONFIG.translate('hm_m_send_pub', 'Enviar publicación a tus amigos'));
         }
 
         // ─── VISOR DE HISTORIAS ─────────────────────────────
@@ -7263,7 +7299,7 @@
 
         async function deleteCurrentTic() {
             closeStoryMenu();
-            if (!confirm('¿Borrar este Tic?')) return;
+            if (!confirm(CONFIG.translate('hm_j078', '¿Borrar este Tic?'))) return;
             const phot = getCurrentStoryPhoto();
             if (!phot || !phot.id) return;
             const userId = localStorage.getItem('current_user_id');
@@ -7273,7 +7309,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId })
                 });
-                if (!response.ok) throw new Error('No se pudo borrar');
+                if (!response.ok) throw new Error(CONFIG.translate('hm_j073', 'No se pudo borrar'));
                 // Eliminar localmente y re-renderizar
                 window.ticPhotos = window.ticPhotos.filter(p => p.id !== phot.id);
 
@@ -7305,7 +7341,7 @@
                 showToast('Tic borrado');
             } catch (err) {
                 console.error(err);
-                showToast('Error al borrar el Tic');
+                showToast(CONFIG.translate('hm_j079', 'Error al borrar el Tic'));
             }
         }
 
@@ -7325,12 +7361,12 @@
             sheet.style.cssText = 'background:#fff; width:100%; max-width:480px; max-height:70vh; border-radius:20px 20px 0 0; padding:16px; overflow-y:auto; box-sizing:border-box;';
             sheet.innerHTML = `
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                    <strong style="font-size:16px; color:#1D1B20;">Quién lo ha visto (${viewerIds.length})</strong>
+                    <strong style="font-size:16px; color:#1D1B20;">${CONFIG.translate('hm_x_viewers_n', 'Quién lo ha visto ({{n}})').replace('{{n}}', viewerIds.length)}</strong>
                     <button type="button" style="border:none; background:transparent; cursor:pointer;">
                         <span class="material-icons-outlined">close</span>
                     </button>
                 </div>
-                <div id="tic-viewers-list">${viewerIds.length ? '<div style="text-align:center; padding:20px;"><span class="material-icons-outlined" style="animation: spin 1s linear infinite; color:var(--primary);">sync</span></div>' : '<p style="color:#79747E; font-size:14px; text-align:center; padding:20px 0;">Todavía nadie lo ha visto.</p>'}</div>
+                <div id="tic-viewers-list">${viewerIds.length ? '<div style="text-align:center; padding:20px;"><span class="material-icons-outlined" style="animation: spin 1s linear infinite; color:var(--primary);">sync</span></div>' : '<p style="color:#79747E; font-size:14px; text-align:center; padding:20px 0;">' + CONFIG.translate('hm_m_nobody_saw', 'Todavía nadie lo ha visto.') + '</p>'}</div>
             `;
             overlay.appendChild(sheet);
             overlay.querySelector('button').onclick = () => overlay.remove();
@@ -7362,7 +7398,7 @@
             } catch (err) {
                 console.error('Error cargando quien vio el Tic', err);
                 const listEl = document.getElementById('tic-viewers-list');
-                if (listEl) listEl.innerHTML = '<p style="color:#ef4444; font-size:14px; text-align:center;">No se pudo cargar la lista.</p>';
+                if (listEl) listEl.innerHTML = '<p style="color:#ef4444; font-size:14px; text-align:center;">' + CONFIG.translate('hm_m_list_err', 'No se pudo cargar la lista.') + '</p>';
             }
         }
 
@@ -7397,7 +7433,7 @@
             const phot = currentGroup.photos[currentStoryIndex];
             setStoryViewerMedia(phot);
             const isOwnStory = currentGroup.userId && window.isOwnUserId(currentGroup.userId);
-            setStoryAuthorName(isOwnStory ? 'Tú' : currentGroup.author, isOwnStory, isOwnStory ? undefined : !!currentGroup.verified);
+            setStoryAuthorName(isOwnStory ? CONFIG.translate('ch_you', 'Tú') : currentGroup.author, isOwnStory, isOwnStory ? undefined : !!currentGroup.verified);
 
             const menuButton = document.querySelector('.story-menu-button');
             const menuPanel = document.getElementById('story-menu-panel');
@@ -7494,7 +7530,7 @@
                 return isSameCalendarDay(photo.date instanceof Date ? photo.date : (photo.date ? new Date(photo.date) : null), today);
             });
             if (!photos.length) {
-                showToast('No tienes Tics de hoy para mostrar en el recorrido');
+                showToast(CONFIG.translate('hm_j080', 'No tienes Tics de hoy para mostrar en el recorrido'));
                 return;
             }
             ticTourPhotos = [...photos].sort((a, b) => (a.date ? new Date(a.date).getTime() : 0) - (b.date ? new Date(b.date).getTime() : 0));
@@ -7563,9 +7599,9 @@
             const place = (p.location && (p.location.name || p.location.address || p.location.place)) || p.placeName || '';
             const title = place || p.caption || (p.date ? new Date(p.date).toLocaleDateString() : 'Tic');
             const tt = document.getElementById('mt-title'); if (tt) tt.innerText = title;
-            const more = stop.count > 1 ? ` · ${stop.count} Tics aquí` : '';
+            const more = stop.count > 1 ? ` · ${CONFIG.translate('hm_m_tics_here', '{{n}} Tics aquí').replace('{{n}}', stop.count)}` : '';
             const sub = document.getElementById('mt-sub');
-            if (sub) sub.innerText = status || `${i + 1} de ${mapTour.stops.length}${more}${p.date ? ' · ' + new Date(p.date).toLocaleDateString() : ''}`;
+            if (sub) sub.innerText = status || `${CONFIG.translate('hm_m_of', '{{i}} de {{n}}').replace('{{i}}', i + 1).replace('{{n}}', mapTour.stops.length)}${more}${p.date ? ' · ' + new Date(p.date).toLocaleDateString() : ''}`;
         }
 
         function mapTourProgress(run) {
@@ -7625,7 +7661,7 @@
             i = Math.max(0, Math.min(mapTour.stops.length - 1, i));
             mapTour.i = i;
             const stop = mapTour.stops[i];
-            mapTourSetPanel(stop, i, 'Preparando el viaje…');
+            mapTourSetPanel(stop, i, CONFIG.translate('hm_j081', 'Preparando el viaje…'));
             await mapTourWarm(stop);                       // 1) mosaicos del destino en caché
             if (!alive()) return;
             mapTourSetPanel(stop, i, 'Viajando…');
@@ -7652,7 +7688,7 @@
             }
             mapTourProgress(false);
             const sub = document.getElementById('mt-sub');
-            if (sub) sub.innerText = 'Cierra el Tic para seguir el recorrido';
+            if (sub) sub.innerText = CONFIG.translate('hm_j082', 'Cierra el Tic para seguir el recorrido');
             const uid = getCurrentUserId();
             window.TicsArchive.openOne(stop.photo.id, Object.assign(profileArchiveOptions(uid), {
                 onClose: () => {
@@ -7700,7 +7736,7 @@
             const token = ++mapTour.token;
             clearTimeout(mapTour.timer);
             mapTourProgress(false);
-            const sub = document.getElementById('mt-sub'); if (sub) sub.innerText = 'Fin del recorrido';
+            const sub = document.getElementById('mt-sub'); if (sub) sub.innerText = CONFIG.translate('hm_j083', 'Fin del recorrido');
             const lats = mapTour.stops.map(s => s.lat), lngs = mapTour.stops.map(s => s.lng);
             const pad = 6;
             try {
@@ -7726,7 +7762,7 @@
                 }
             } catch (e) { }
             const panel = document.getElementById('map-tour-panel'); if (panel) panel.hidden = true;
-            const btn = document.getElementById('map-tour-button'); if (btn) { btn.classList.remove('touring'); btn.title = 'Recorrer mis Tics por el mapa'; }
+            const btn = document.getElementById('map-tour-button'); if (btn) { btn.classList.remove('touring'); btn.title = CONFIG.translate('hm_j084', 'Recorrer mis Tics por el mapa'); }
             const icon = document.getElementById('map-tour-button-icon'); if (icon) icon.innerText = 'play_arrow';
         }
 
@@ -7735,7 +7771,7 @@
             if (!map) return;
             const stops = mapTourBuildStops();
             if (!stops.length) {
-                showToast('Tus Tics no tienen ubicación, así que no hay recorrido que hacer');
+                showToast(CONFIG.translate('hm_j085', 'Tus Tics no tienen ubicación, así que no hay recorrido que hacer'));
                 return;
             }
             try { closeMapPhotoDetails(); } catch (e) { }
@@ -7773,7 +7809,7 @@
             setStoryViewerMedia(photo);
             const isOwnTic = photo.userId ? window.isOwnUserId(photo.userId) : false;
             setStoryAuthorName(photo.author || 'Tic', isOwnTic, isOwnTic ? undefined : !!photo.verified);
-            document.getElementById('story-date-display').innerText = photo.date ? new Date(photo.date).toLocaleString() : 'Fecha no disponible';
+            document.getElementById('story-date-display').innerText = photo.date ? new Date(photo.date).toLocaleString() : CONFIG.translate('hm_j086', 'Fecha no disponible');
             document.getElementById('story-caption-display').innerText = (window.SocialUI && window.SocialUI.decode ? window.SocialUI.decode((photo.caption || '')) : (photo.caption || ''));
             document.getElementById('story-caption-display').style.display = photo.caption ? 'block' : 'none';
             const themeEl = document.getElementById('story-theme-display');
@@ -7936,13 +7972,13 @@
                 } catch (fallbackErr) {
                     console.error('Error total cámara:', fallbackErr);
                     
-                    let msg = 'No se pudo acceder a la cámara';
+                    let msg = CONFIG.translate('hm_j087', 'No se pudo acceder a la cámara');
                     if (!isSecure) {
-                        msg = 'Error: Se requiere HTTPS para usar la cámara';
+                        msg = CONFIG.translate('hm_j088', 'Error: Se requiere HTTPS para usar la cámara');
                     } else if (fallbackErr.name === 'NotAllowedError') {
-                        msg = 'Error: Permiso denegado';
+                        msg = CONFIG.translate('hm_j089', 'Error: Permiso denegado');
                     } else if (fallbackErr.name === 'NotFoundError' || fallbackErr.name === 'DevicesNotFoundError') {
-                        msg = 'Error: No se encontró ninguna cámara';
+                        msg = CONFIG.translate('hm_j090', 'Error: No se encontró ninguna cámara');
                     } else {
                         msg = `Error cámara: ${fallbackErr.name || 'Desconocido'}`;
                     }
@@ -8043,7 +8079,7 @@
             stopSelectedMusicPlayback();
             if (!currentPhotoData) return;
             if (!url) {
-                showToast('No hay música reproducible disponible');
+                showToast(CONFIG.translate('hm_j091', 'No hay música reproducible disponible'));
                 return;
             }
 
@@ -8061,7 +8097,7 @@
                 if (previewBtn) previewBtn.innerText = '⏸ Pausar';
             } catch (err) {
                 console.warn('No se pudo reproducir la preview de música', err);
-                showToast('No se pudo reproducir la preview de música');
+                showToast(CONFIG.translate('hm_j092', 'No se pudo reproducir la preview de música'));
             }
         }
 
@@ -8081,7 +8117,7 @@
                 updateStoryMusicButton();
             } catch (err) {
                 console.warn('Error reproduciendo música de historia:', err);
-                showToast('No se pudo reproducir la música');
+                showToast(CONFIG.translate('hm_j093', 'No se pudo reproducir la música'));
             }
         }
 
@@ -8152,7 +8188,7 @@
                 const badge = document.getElementById('selected-location-badge');
                 const text = document.getElementById('selected-location-text');
                 if (badge) badge.style.display = 'flex';
-                if (text) text.innerText = 'Buscando el lugar...';
+                if (text) text.innerText = CONFIG.translate('hm_j094', 'Buscando el lugar...');
                 found.push('el lugar');
                 window.PhotoMeta.place(meta.lat, meta.lng).then((p) => {
                     // Solo se actualiza si el usuario no ha cambiado ni quitado la ubicacion mientras tanto.
@@ -8162,7 +8198,7 @@
                 });
             }
 
-            if (found.length) showToast('Detectado en la foto: ' + found.join(' y '));
+            if (found.length) showToast(CONFIG.translate('hm_j095', 'Detectado en la foto:') + " " + found.join(' y '));
         }
 
         function onPhotoReady(dataUrl, fileName, sourceFile) {
@@ -8235,11 +8271,11 @@
                         results.appendChild(row);
                     });
                 } else {
-                    results.innerHTML = '<p style="text-align:center; color:#79747E; margin-top:20px; font-size:14px;">No se encontraron lugares</p>';
+                    results.innerHTML = '<p style="text-align:center; color:#79747E; margin-top:20px; font-size:14px;">' + CONFIG.translate('hm_m_no_places', 'No se encontraron lugares') + '</p>';
                 }
             } catch (err) {
                 console.error("Error buscando ubicación:", err);
-                results.innerHTML = '<p style="text-align:center; color:#ff4444; margin-top:20px; font-size:14px;">Error al buscar</p>';
+                results.innerHTML = '<p style="text-align:center; color:#ff4444; margin-top:20px; font-size:14px;">' + CONFIG.translate('hm_m_search_err', 'Error al buscar') + '</p>';
             }
         }
 
@@ -8249,7 +8285,7 @@
                 document.getElementById('selected-location-badge').style.display = 'flex';
                 document.getElementById('selected-location-text').innerText = name.split(',')[0]; // Mostrar solo el nombre corto
                 document.getElementById('location-modal').style.display = 'none';
-                showToast("Ubicación: " + name.split(',')[0]);
+                showToast(CONFIG.translate('hm_j096', 'Ubicación:') + " " + name.split(',')[0]);
             }
         }
 
@@ -8289,7 +8325,7 @@
 
                     // Intentar enclavar a carretera (RoadSnapper)
                     try {
-                        showToast("🛣️ Buscando carretera más cercana...");
+                        showToast(CONFIG.translate('hm_j097', '🛣️ Buscando carretera más cercana...'));
                         const snapper = initRoadSnapper();
                         const snapped = await snapper.snapToRoad(lat, lng);
                         
@@ -8307,7 +8343,7 @@
                     currentPhotoData.location = { 
                         lat, 
                         lng, 
-                        name: "Mi ubicación actual",
+                        name: CONFIG.translate('hm_j098', 'Mi ubicación actual'),
                         accuracy: accuracy,
                         method: snappedToRoad ? "GPS-Kalman + RoadSnap" : "GPS-Kalman",
                         snapped: snappedToRoad,
@@ -8316,25 +8352,25 @@
                     
                     document.getElementById('selected-location-badge').style.display = 'flex';
                     document.getElementById('selected-location-text').innerHTML = 
-                        `<span style="font-size:12px;">📍 ${snappedToRoad ? '🛣️ En carretera' : 'Ubicación precisa'}</span>` +
+                        `<span style="font-size:12px;">📍 ${snappedToRoad ? '🛣️ ' + CONFIG.translate('hm_m_on_road', 'En carretera') : CONFIG.translate('hm_m_precise_loc', 'Ubicación precisa')}</span>` +
                         (accuracy ? `<span style="font-size:10px; opacity:0.7;">±${Math.round(accuracy)}m</span>` : '');
                     document.getElementById('location-modal').style.display = 'none';
                     
-                    const accuracyLevel = accuracy <= 10 ? "⭐ Muy precisa" : 
-                                          accuracy <= 25 ? "✓ Precisa" : 
-                                          accuracy <= 50 ? "○ Normal" : "△ Aproximada";
+                    const accuracyLevel = accuracy <= 10 ? "⭐ " + CONFIG.translate('hm_m_acc_very', 'Muy precisa') : 
+                                          accuracy <= 25 ? "✓ " + CONFIG.translate('hm_m_acc_good', 'Precisa') : 
+                                          accuracy <= 50 ? "○ " + CONFIG.translate('hm_m_acc_normal', 'Normal') : "△ " + CONFIG.translate('hm_m_acc_approx', 'Aproximada');
                     
                     const message = snappedToRoad ? 
-                        `✓ Ubicación en carretera (±${Math.round(accuracy)}m)` : 
-                        `✓ Ubicación: ${accuracyLevel} (±${Math.round(accuracy)}m)`;
+                        `✓ ${CONFIG.translate('hm_m_loc_road', 'Ubicación en carretera (±{{m}}m)').replace('{{m}}', Math.round(accuracy))}` : 
+                        `✓ ${CONFIG.translate('hm_m_loc_level', 'Ubicación: {{lvl}} (±{{m}}m)').replace('{{lvl}}', accuracyLevel.replace(/^\S+\s/, '')).replace('{{m}}', Math.round(accuracy))}`;
                     showToast(message);
                 }
             }).catch((err) => {
                 console.error("Error GPS:", err);
-                let errorMsg = "Error de GPS";
-                if (err.code === 1) errorMsg = "Permiso de ubicación rechazado";
-                else if (err.code === 2) errorMsg = "GPS no disponible o deshabilitado";
-                else if (err.code === 3) errorMsg = "Timeout - verifica tu conexión GPS";
+                let errorMsg = CONFIG.translate('hm_m_gps_err', 'Error de GPS');
+                if (err.code === 1) errorMsg = CONFIG.translate('hm_m_gps_denied', 'Permiso de ubicación rechazado');
+                else if (err.code === 2) errorMsg = CONFIG.translate('hm_m_gps_off', 'GPS no disponible o deshabilitado');
+                else if (err.code === 3) errorMsg = CONFIG.translate('hm_m_gps_timeout', 'Tiempo agotado: verifica tu conexión GPS');
                 else if (err.message) errorMsg = err.message;
                 showToast(errorMsg + " - ajusta manualmente en el mapa");
             });
@@ -8343,7 +8379,7 @@
         function removeLocation() {
             if (currentPhotoData) currentPhotoData.location = null;
             document.getElementById('selected-location-badge').style.display = 'none';
-            showToast("Ubicación retirada");
+            showToast(CONFIG.translate('hm_j099', 'Ubicación retirada'));
         }
 
         // --- MAP PICKER LOGIC - MEJORADO ---
@@ -8490,7 +8526,7 @@
 
         async function confirmMapPicker() {
             if (!pickerMarker) {
-                showToast("Toca el mapa para marcar un sitio");
+                showToast(CONFIG.translate('hm_j100', 'Toca el mapa para marcar un sitio'));
                 return;
             }
 
@@ -8498,7 +8534,7 @@
             const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
             const lng = Cesium.Math.toDegrees(cartographic.longitude);
             const lat = Cesium.Math.toDegrees(cartographic.latitude);
-            showToast("Buscando ubicación exacta...");
+            showToast(CONFIG.translate('hm_j101', 'Buscando ubicación exacta...'));
 
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
@@ -8507,12 +8543,12 @@
 
                 selectLocation(lat, lng, name);
                 document.getElementById('map-picker-modal').style.display = 'none';
-                showToast("✓ Ubicación guardada: " + name.split(',')[0]);
+                showToast(CONFIG.translate('hm_j102', '✓ Ubicación guardada:') + " " + name.split(',')[0]);
             } catch (err) {
                 console.error("Error reverse geocoding:", err);
                 selectLocation(lat, lng, "Ubicación en mapa");
                 document.getElementById('map-picker-modal').style.display = 'none';
-                showToast("✓ Ubicación guardada (sin nombre)");
+                showToast(CONFIG.translate('hm_j103', '✓ Ubicación guardada (sin nombre)'));
             }
         }
 
@@ -8697,7 +8733,7 @@
             if (!preview) {
                 auditioningPreviewUrl = null;
                 setPlayingResultHighlight(null);
-                showToast('Esta canción no tiene avance para escuchar, pero puedes seleccionarla igualmente.');
+                showToast(CONFIG.translate('hm_j104', 'Esta canción no tiene avance para escuchar, pero puedes seleccionarla igualmente.'));
                 return;
             }
 
@@ -8736,7 +8772,7 @@
 
         // Fila compartida de una cancion (resultado de busqueda o reciente), con su caratula.
         function musicResultRowHtml(track) {
-            const title = track.title || track.trackName || 'Canción desconocida';
+            const title = track.title || track.trackName || CONFIG.translate('hm_j105', 'Canción desconocida');
             const artist = track.artist || track.artistName || 'Artista desconocido';
             const duration = track.duration || (track.trackTimeMillis ? `${Math.floor(track.trackTimeMillis / 60000)}:${String(Math.floor((track.trackTimeMillis % 60000) / 1000)).padStart(2, '0')}` : '');
             const preview = track.preview || track.previewUrl || '';
@@ -8779,14 +8815,14 @@
                 }
                 const data = await response.json();
                 if (!data.results || data.results.length === 0) {
-                    results.innerHTML = '<p style="text-align:center; color:#79747E; margin-top:20px; font-size:14px;">No se encontraron canciones.</p>';
+                    results.innerHTML = '<p style="text-align:center; color:#79747E; margin-top:20px; font-size:14px;">' + CONFIG.translate('hm_m_no_songs', 'No se encontraron canciones.') + '</p>';
                     return;
                 }
 
                 results.innerHTML = data.results.map(track => musicResultRowHtml(track)).join('');
             } catch (err) {
                 console.error('Error buscando música:', err);
-                results.innerHTML = '<p style="text-align:center; color:#ff4444; margin-top:20px; font-size:14px;">Error buscando música.</p>';
+                results.innerHTML = '<p style="text-align:center; color:#ff4444; margin-top:20px; font-size:14px;">' + CONFIG.translate('hm_m_music_err', 'Error buscando música.') + '</p>';
             }
         }
 
@@ -8803,7 +8839,7 @@
 
         function selectMusic(title, artist, previewUrl, artwork) {
             if (!currentPhotoData) {
-                showToast('Abre una foto antes de seleccionar música.');
+                showToast(CONFIG.translate('hm_j106', 'Abre una foto antes de seleccionar música.'));
                 return;
             }
             resetMusicAuditionState();
@@ -8878,7 +8914,7 @@
         // ── Fondo del Tic: por defecto la propia foto difuminada; se puede cambiar por un color o un degradado ──
         const EDIT_BACKGROUNDS = [
             { id: 'blur', label: 'Difuminado' },
-            { id: 'img', label: 'Tu imagen' },
+            { id: 'img', label: CONFIG.translate('hm_j107', 'Tu imagen') },
             { id: 'c-white', color: '#FFFFFF' }, { id: 'c-ink', color: '#111827' }, { id: 'c-blue', color: '#1D73FF' },
             { id: 'c-orange', color: '#F97316' }, { id: 'c-green', color: '#16A34A' },
             { id: 'g-sunset', stops: ['#FF9A9E', '#FAD0C4'] }, { id: 'g-sky', stops: ['#4FACFE', '#00F2FE'] },
@@ -8940,7 +8976,7 @@
                         };
                         img.src = url;
                     };
-                    probe.onerror = () => showToast('No se pudo leer esa imagen');
+                    probe.onerror = () => showToast(CONFIG.translate('hm_j108', 'No se pudo leer esa imagen'));
                     probe.src = reader.result;
                 };
                 reader.readAsDataURL(file);
@@ -9399,7 +9435,7 @@
             const loupe = document.getElementById('eyedrop-loupe');
             const hint = document.getElementById('eyedrop-hint');
             try { eyedropCanvas = await renderCompositeCanvas(480, { includeText: false, fullFrame: true }); } catch (e) { eyedropCanvas = null; }
-            if (!eyedropCanvas) { showToast('No se pudo leer la foto'); return; }
+            if (!eyedropCanvas) { showToast(CONFIG.translate('hm_j109', 'No se pudo leer la foto')); return; }
             layerEl.style.display = 'block';
             hint.style.display = 'block';
             const ctx = eyedropCanvas.getContext('2d', { willReadFrequently: true });
@@ -9524,7 +9560,7 @@
                     if (fw > 0.985 && fh > 0.985) { layer.src = layer.origSrc; layer.wPct = layer.wFull || layer.wPct; }
                 } catch (err) {
                     console.warn('No se pudo recortar la foto', err);
-                    showToast('No se pudo recortar la foto');
+                    showToast(CONFIG.translate('hm_j110', 'No se pudo recortar la foto'));
                 }
                 closeCropModal();
                 renderEditLayers();
@@ -9911,7 +9947,7 @@
                     paint('Subiendo' + label + '…');
                 },
                 onUploadDone: () => { fileFraction = Math.max(fileFraction, 0.9); paint('Guardando' + label + '…'); startCreep(); }
-            }).catch((err) => ({ status: 0, data: { message: err && err.message === 'timeout' ? 'La subida tardó demasiado' : 'Error de conexión' } }));
+            }).catch((err) => ({ status: 0, data: { message: err && err.message === 'timeout' ? CONFIG.translate('hm_j111', 'La subida tardó demasiado') : CONFIG.translate('hm_j112', 'Error de conexión') } }));
             clearInterval(creep);
             if (outboxSaved) {
                 if (ticResultOk(result)) { TicOutbox.remove(outboxId); }
@@ -9924,7 +9960,7 @@
                         paint('Reintentando' + label + '…');
                         await new Promise((r) => setTimeout(r, retryDelaysMs[i]));
                         result = await TicUpload.post(`${CONFIG.API_BASE_URL}/api/publicaciones`, formData, {})
-                            .catch((err) => ({ status: 0, data: { message: err && err.message === 'timeout' ? 'La subida tardó demasiado' : 'Error de conexión' } }));
+                            .catch((err) => ({ status: 0, data: { message: err && err.message === 'timeout' ? CONFIG.translate('hm_j111', 'La subida tardó demasiado') : CONFIG.translate('hm_j112', 'Error de conexión') } }));
                     }
                     if (ticResultOk(result)) {
                         TicOutbox.remove(outboxId);
@@ -9964,7 +10000,7 @@
 
         // Al terminar de subir: racha, insignias y refresco del feed (el círculo se quita cuando el Tic ya está en su sitio).
         async function afterTicPublished(job, currentUserId, count, streakInfo) {
-            updateTicJob(job, 1, '¡Publicado!');
+            updateTicJob(job, 1, CONFIG.translate('hm_j113', '¡Publicado!'));
             try { localStorage.removeItem(`seeyou-profile-streak:${currentUserId}`); } catch (e) { }
             if (window.TicsArchive) { try { window.TicsArchive.invalidate(); } catch (e) { } }
             if (streakInfo && streakInfo.increased) {
@@ -9973,7 +10009,7 @@
             } else if (window.loadProfileStreak) {
                 try { window.loadProfileStreak(currentUserId); } catch (e) { }
             }
-            showToast(count > 1 ? `¡${count} fotos publicadas!` : '¡Foto publicada con éxito!');
+            showToast(count > 1 ? CONFIG.translate('hm_m_pub_n', '¡{{n}} fotos publicadas!').replace('{{n}}', count) : CONFIG.translate('hm_m_pub_1', '¡Foto publicada con éxito!'));
             try { window.SeeYouBadges && setTimeout(function () { SeeYouBadges.checkPending(currentUserId); }, streakInfo && streakInfo.increased ? 6500 : 2500); } catch (e) { }
             // Espera a que no haya otro refresco en curso para no perder el Tic nuevo.
             for (let i = 0; i < 20 && typeof feedLoading !== 'undefined' && feedLoading; i++) await new Promise((r) => setTimeout(r, 250));
@@ -10014,12 +10050,12 @@
                         type: 'tic'
                     });
                     cancelEdit();
-                    showToast("¡Foto publicada localmente!");
+                    showToast(CONFIG.translate('hm_j114', '¡Foto publicada localmente!'));
                     renderHorizontalFeed();
                     navigate('inicio');
                 } catch (e) {
                     console.error('Error guardando publicación local', e);
-                    showToast('Error al publicar la foto localmente');
+                    showToast(CONFIG.translate('hm_j115', 'Error al publicar la foto localmente'));
                 }
                 return;
             }
@@ -10063,7 +10099,7 @@
                     const msg = (result.data && (result.data.message || result.data.error)) || `Error ${result.status || ''}`.trim();
                     console.error('Error publicando:', msg);
                     failTicJob(job, msg);
-                    showToast(`No se pudo publicar la foto: ${msg}. Toca el Tic para reintentar.`);
+                    showToast(CONFIG.translate('hm_m_pubfail_photo', 'No se pudo publicar la foto: {{msg}}. Toca el Tic para reintentar.').replace('{{msg}}', msg));
                 }
             };
             job.retry = run;
@@ -10978,14 +11014,14 @@
             const location = photo.location || {};
             const metadata = photo.metadata || {};
             const date = photo.date || metadata.dateTimeOriginal || metadata.modifyDate;
-            const dateText = date ? new Date(date).toLocaleString() : 'Sin fecha disponible';
-            const locationText = location.name || metadata.locationName || 'Ubicación marcada en el mapa';
+            const dateText = date ? new Date(date).toLocaleString() : CONFIG.translate('hm_j116', 'Sin fecha disponible');
+            const locationText = location.name || metadata.locationName || CONFIG.translate('hm_j117', 'Ubicación marcada en el mapa');
             const gpsText = Number.isFinite(location.lat) && Number.isFinite(location.lng)
                 ? `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}`
-                : 'Sin coordenadas';
+                : CONFIG.translate('hm_j118', 'Sin coordenadas');
 
-            title.textContent = photo.author ? `Tic de ${photo.author}` : 'Tic';
-            const cameraText = metadata.camera ? ` · Cámara: ${metadata.camera}` : '';
+            title.textContent = photo.author ? CONFIG.translate('hm_m_tic_of', 'Tic de {{name}}').replace('{{name}}', photo.author) : 'Tic';
+            const cameraText = metadata.camera ? ` · ${CONFIG.translate('hm_m_camera', 'Cámara')}: ${metadata.camera}` : '';
             content.textContent = `${dateText} · ${locationText} · ${gpsText}${cameraText}`;
             details.style.display = 'block';
         }
@@ -11044,7 +11080,7 @@
                     });
                     const data = await res.json();
                     if (!res.ok) {
-                        throw new Error(data.error || "Error desconocido");
+                        throw new Error(data.error || CONFIG.translate('hm_m_unknown_err', 'Error desconocido'));
                     }
                     localStorage.setItem('current_user_foto', data.foto || base64);
                 }
@@ -11064,11 +11100,11 @@
                 updateTopRightAvatar();
                 updateProfileSection();
 
-                showToast("¡Perfil actualizado!");
+                showToast(CONFIG.translate('hm_j119', '¡Perfil actualizado!'));
                 console.log("Avatar guardado: ", base64);
             } catch (e) {
                 console.error("Error subida avatar:", e);
-                showToast("Error: " + e.message);
+                showToast(CONFIG.translate('hm_j059', 'Error:') + " " + e.message);
             }
             window.closeProfileCropper();
         };
@@ -11113,7 +11149,7 @@
 
     <div id="cropper-modal-profile" style="display:none; position:fixed; inset:0; background:black; z-index:11000; flex-direction:column;">
         <div class="cropper-header-profile">
-            <span style="font-weight:700;">Recortar Foto de Perfil</span>
+            <span style="font-weight:700;" data-i18n="hm_crop_profile">Recortar Foto de Perfil</span>
             <button onclick="closeProfileCropper()" style="background:none; border:none; color:white; cursor:pointer;">
                 <span class="material-icons-outlined">close</span>
             </button>
@@ -11122,8 +11158,8 @@
             <img id="cropper-img-profile" style="max-width: 100%;">
         </div>
         <div class="cropper-footer-profile">
-            <button class="btn-cropper-profile" onclick="closeProfileCropper()">CANCELAR</button>
-            <button class="btn-cropper-profile confirm" onclick="confirmProfileCrop()">ACEPTAR</button>
+            <button class="btn-cropper-profile" onclick="closeProfileCropper()" data-i18n="hm_cancel_caps">CANCELAR</button>
+            <button class="btn-cropper-profile confirm" onclick="confirmProfileCrop()" data-i18n="hm_accept_caps">ACEPTAR</button>
         </div>
     </div>
 
@@ -11131,8 +11167,8 @@
         <div class="thanks-modal-backdrop" onclick="closeThanksModal()"></div>
         <div class="thanks-modal-content">
             <div class="thanks-modal-header">
-                <h2 class="thanks-modal-title">Agradecimientos</h2>
-                <button class="thanks-modal-close" type="button" onclick="closeThanksModal()" aria-label="Cerrar agradecimientos">×</button>
+                <h2 class="thanks-modal-title" data-i18n="hm_thanks_title">Agradecimientos</h2>
+                <button class="thanks-modal-close" type="button" onclick="closeThanksModal()" aria-label="Cerrar agradecimientos" data-i18n-aria-label="hm_close_thanks">×</button>
             </div>
             <div class="thanks-modal-body">Lo primero, dar las gracias a mi familia. A mis padres por darme la vida, por apoyarme, por estar siempre encima a pesar de las dificultades. Mis hermanos por escucharme, por los juegos juntos y por interesarse mucho. A mis abuelos por estar tan pendientes de mí, por sus mensajes y por sus comidas. A todos mis primos y tíos que han estado aquí siempre también para ayudarme.
 
@@ -11153,14 +11189,14 @@ Un último agradecimiento, no por ello menos importante, para Lu. Porque a pesar
         <div class="net-modal-content">
             <div class="thanks-modal-header">
                 <h2 class="thanks-modal-title" id="network-modal-title">Seguidores<span class="net-count" id="network-modal-count"></span></h2>
-                <button class="thanks-modal-close" type="button" onclick="closeNetworkModal()" aria-label="Cerrar">×</button>
+                <button class="thanks-modal-close" type="button" onclick="closeNetworkModal()" aria-label="Cerrar" data-i18n-aria-label="tic_close">×</button>
             </div>
             <div class="net-tools">
                 <label class="net-search">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
-                    <input type="search" id="network-search" placeholder="Buscar por nombre" autocomplete="off" oninput="setNetworkQuery(this.value)">
+                    <input type="search" id="network-search" placeholder="Buscar por nombre" data-i18n-placeholder="hm_search_name" autocomplete="off" oninput="setNetworkQuery(this.value)">
                 </label>
-                <button type="button" class="net-order" id="network-order" onclick="toggleNetworkOrder()">Más recientes</button>
+                <button type="button" class="net-order" id="network-order" onclick="toggleNetworkOrder()" data-i18n="hm_j049">Más recientes</button>
             </div>
             <div class="net-list" id="network-list"></div>
         </div>
@@ -11170,7 +11206,7 @@ Un último agradecimiento, no por ello menos importante, para Lu. Porque a pesar
     <div id="daily-theme-modal" class="daily-theme-modal">
         <div class="daily-theme-modal-overlay" onclick="closeDailyThemeModal()"></div>
         <div class="daily-theme-modal-content">
-            <button class="daily-theme-modal-close" onclick="closeDailyThemeModal()" title="Cerrar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            <button class="daily-theme-modal-close" onclick="closeDailyThemeModal()" title="Cerrar" data-i18n-title="tic_close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
             <div class="daily-theme-modal-inner">
                 <div class="daily-theme-modal-header">
                     <h1 class="daily-theme-modal-title" data-i18n="daily_theme_label">Tema del Día</h1>

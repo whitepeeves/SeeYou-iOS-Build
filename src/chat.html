@@ -1133,15 +1133,17 @@
     <script src="js/session_guard.js?v=3"></script>
     <script src="js/auth_fetch.js?v=3"></script>
     <script src="js/html_safe.js?v=2"></script>
-    <script src="config.js?v=16"></script>
+    <script src="config.js?v=19"></script>
+    <script>window.CT = function (k, d, v) { var s = (typeof CONFIG !== "undefined" && CONFIG.translate) ? CONFIG.translate(k, d) : d; if (v) for (var x in v) s = String(s).split('{{' + x + '}}').join(v[x]); return s; };</script>
     <script src="js/back_button.js?v=3"></script>
     <script src="js/notifications_system.js?v=10"></script>
-    <script src="js/notif_inbox.js?v=1" defer></script>
+    <script src="js/notif_inbox.js?v=2" defer></script>
     <script src="js/messages_inbox.js?v=1" defer></script>
     <script src="js/badges_ui.js?v=7"></script>
     <script src="js/qr_mini.js?v=1"></script>
-    <script src="js/coins_ui.js?v=32"></script>
-    <script src="js/coin_shop_ui.js?v=2"></script>
+    <script src="js/nomoney.js?v=1"></script>
+    <script src="js/coins_ui.js?v=33"></script>
+    <script src="js/coin_shop_ui.js?v=3"></script>
     <script src="js/admob_ui.js?v=4"></script>
     <script src="js/mentions_ui.js?v=2"></script>
     <!-- Iconos SVG en línea: sustituyen a la fuente Material Icons (que puede no cargar) -->
@@ -1328,8 +1330,8 @@
         <section class="gallery-section">
             <div id="chat-list-view">
                 <div class="cl-head">
-                    <h1 class="cl-title">Chats</h1>
-                    <button type="button" class="cl-new" id="btn-new-chat" onclick="abrirModalGrupo()" aria-label="Nuevo chat o grupo">
+                    <h1 class="cl-title" data-i18n="ch_chats">Chats</h1>
+                    <button type="button" class="cl-new" id="btn-new-chat" onclick="abrirModalGrupo()" aria-label="Nuevo chat o grupo" data-i18n-aria-label="ch_new_aria">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         <span data-i18n="new_chat_button">Nuevo</span>
                     </button>
@@ -1337,7 +1339,7 @@
                 <div class="cl-search">
                     <svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="search-chat-input" placeholder="Nombre de amigo o grupo..." data-i18n-placeholder="search_chat_placeholder" autocomplete="off" aria-label="Buscar chats" oninput="filterChatList()">
-                    <button type="button" class="icon-btn clear" id="search-chat-clear" hidden onclick="clearChatSearch()" aria-label="Borrar búsqueda">
+                    <button type="button" class="icon-btn clear" id="search-chat-clear" hidden onclick="clearChatSearch()" aria-label="Borrar búsqueda" data-i18n-aria-label="ch_clear_search">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 </div>
@@ -1349,7 +1351,7 @@
             <!-- CHAT CONVERSATION VIEW -->
             <div id="conversation-view">
                 <header id="chat-header" class="cv-header">
-                    <button type="button" id="chat-back-btn" class="icon-btn" onclick="closeConversation()" aria-label="Volver a chats" title="Volver">
+                    <button type="button" id="chat-back-btn" class="icon-btn" onclick="closeConversation()" aria-label="Volver a chats" title="Volver" data-i18n-aria-label="ch_back_aria" data-i18n-title="ch_back">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                     </button>
                     <div class="cv-peer" id="chat-peer" role="button" tabindex="0" onclick="openChatPeer()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openChatPeer();}">
@@ -1359,11 +1361,11 @@
                             <div id="chat-header-subtitle"></div>
                             <div id="chat-streak-badge">
                                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg>
-                                <span><span id="chat-streak-days">0</span> <span id="chat-streak-unit">días</span> de racha</span>
+                                <span><span id="chat-streak-days">0</span> <span id="chat-streak-unit">días</span> <span data-i18n="ch_streak_suffix">de racha</span></span>
                             </div>
                         </div>
                     </div>
-                    <button type="button" id="group-settings-btn" class="icon-btn" onclick="openChatConfigModal()" title="Personalizar chat" aria-label="Personalizar chat">
+                    <button type="button" id="group-settings-btn" class="icon-btn" onclick="openChatConfigModal()" title="Personalizar chat" aria-label="Personalizar chat" data-i18n-title="ch_customize" data-i18n-aria-label="ch_customize">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
                     </button>
                 </header>
@@ -1376,28 +1378,28 @@
 
                 <div id="chat-reply-bar" role="status">
                     <div class="rb-body"><div class="rb-name" id="rb-name"></div><div class="rb-text" id="rb-text"></div></div>
-                    <button type="button" id="rb-close" aria-label="Cancelar respuesta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                    <button type="button" id="rb-close" aria-label="Cancelar respuesta" data-i18n-aria-label="ch_cancel_reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                 </div>
 
                 <form id="chat-composer" class="cv-composer" autocomplete="off" onsubmit="event.preventDefault(); sendMessage();">
                     <!-- Inputs de archivo ocultos: cámara (captura) y galería -->
                     <input type="file" id="chat-photo-input" accept="image/*" capture="environment" style="display:none;" onchange="onChatPhotoSelected(event)">
                     <input type="file" id="chat-attach-input" accept="image/*" style="display:none;" onchange="onChatPhotoSelected(event)">
-                    <button type="button" id="chat-attach-btn" class="icon-btn" onclick="document.getElementById('chat-attach-input').click()" title="Adjuntar imagen" aria-label="Adjuntar imagen">
+                    <button type="button" id="chat-attach-btn" class="icon-btn" onclick="document.getElementById('chat-attach-input').click()" title="Adjuntar imagen" aria-label="Adjuntar imagen" data-i18n-title="ch_attach" data-i18n-aria-label="ch_attach">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><polyline points="21 15 16 10 5 21"/></svg>
                     </button>
-                    <button type="button" id="chat-camera-btn" class="icon-btn" onclick="openLiveCamera()" title="Hacer o enviar foto" aria-label="Hacer una foto">
+                    <button type="button" id="chat-camera-btn" class="icon-btn" onclick="openLiveCamera()" title="Hacer o enviar foto" aria-label="Hacer una foto" data-i18n-title="ch_camera_t" data-i18n-aria-label="ch_camera_a">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                         <!-- Punto rojo cuando hay foto pendiente de la otra persona -->
                         <span id="chat-camera-badge"></span>
                     </button>
-                    <button type="button" id="chat-stk-btn" class="icon-btn" onclick="toggleChatStickers()" title="Stickers" aria-label="Stickers">
+                    <button type="button" id="chat-stk-btn" class="icon-btn" onclick="toggleChatStickers()" title="Stickers" aria-label="Stickers" data-i18n-title="ch_stickers" data-i18n-aria-label="ch_stickers">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12a2 2 0 0 1 2 2v7l-7 7H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M20 13h-5a2 2 0 0 0-2 2v5"/><path d="M8.6 9.6h.01M13.4 9.6h.01" stroke-width="2.4"/><path d="M8.4 13a3.2 3.2 0 0 0 3.4 1.6"/></svg>
                     </button>
                     <div class="cv-field">
                         <input type="text" id="chat-message-input" placeholder="Escribe un mensaje..." data-i18n-placeholder="send_message_placeholder" autocomplete="off" enterkeyhint="send" aria-label="Mensaje">
                     </div>
-                    <button type="submit" id="chat-send-btn" class="cv-send" disabled aria-label="Enviar mensaje" title="Enviar">
+                    <button type="submit" id="chat-send-btn" class="cv-send" disabled aria-label="Enviar mensaje" title="Enviar" data-i18n-aria-label="ch_send_msg" data-i18n-title="ch_send">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
                 </form>
@@ -1406,17 +1408,17 @@
 
         <!-- MODAL NUEVO CHAT / CREACIÓN GRUPOS -->
         <div id="crear-grupo-modal" onclick="if(event.target===this) cerrarModalNuevo()">
-            <div class="sheet" role="dialog" aria-modal="true" aria-label="Nuevo chat">
+            <div class="sheet" role="dialog" aria-modal="true" aria-label="Nuevo chat" data-i18n-aria-label="ch_new_chat">
                 <div class="sheet-handle"></div>
                 <div class="sheet-head">
-                    <h3 id="nuevo-modal-title">Nuevo chat</h3>
-                    <button type="button" class="icon-btn" onclick="cerrarModalNuevo()" aria-label="Cerrar">
+                    <h3 id="nuevo-modal-title" data-i18n="ch_new_chat">Nuevo chat</h3>
+                    <button type="button" class="icon-btn" onclick="cerrarModalNuevo()" aria-label="Cerrar" data-i18n-aria-label="ch_close">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 </div>
                 <div class="seg" role="tablist">
-                    <button type="button" id="nuevo-tab-chat" class="on" role="tab" onclick="setNuevoTab('chat')">Chat</button>
-                    <button type="button" id="nuevo-tab-group" role="tab" onclick="setNuevoTab('group')">Grupo</button>
+                    <button type="button" id="nuevo-tab-chat" class="on" role="tab" onclick="setNuevoTab('chat')" data-i18n="ch_tab_chat">Chat</button>
+                    <button type="button" id="nuevo-tab-group" role="tab" onclick="setNuevoTab('group')" data-i18n="ch_tab_group">Grupo</button>
                 </div>
                 <div id="nuevo-pane-chat">
                     <div id="amigos-para-chat-list" class="pick-list"></div>
@@ -1464,7 +1466,7 @@
                             <div id="group-wallpaper-preview" onclick="document.getElementById('group-wallpaper-input').click()" style="width:50px; height:50px; border-radius:10px; background:#f0f0f0; border:1.5px solid #ddd; overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer;">
                                 <span class="material-icons-outlined" style="color:#ccc; font-size:22px;">wallpaper</span>
                             </div>
-                            <button onclick="document.getElementById('group-wallpaper-input').click()" style="flex:1; padding:10px; border-radius:10px; border:1.5px dashed #ddd; background:#f9f9f9; cursor:pointer; font-size:13px; color:#555; font-weight:600;">Elegir imagen de fondo</button>
+                            <button onclick="document.getElementById('group-wallpaper-input').click()" style="flex:1; padding:10px; border-radius:10px; border:1.5px dashed #ddd; background:#f9f9f9; cursor:pointer; font-size:13px; color:#555; font-weight:600;" data-i18n="ch_pick_bg">Elegir imagen de fondo</button>
                             <button id="group-wallpaper-clear-btn" onclick="clearGroupWallpaper()" style="display:none; padding:8px; border-radius:8px; border:none; background:#ffe5e5; cursor:pointer;">
                                 <span class="material-icons-outlined" style="font-size:18px; color:#dc3545; display:block;">delete</span>
                             </button>
@@ -1472,26 +1474,26 @@
                         <input type="file" id="group-wallpaper-input" accept="image/*" style="display:none;" onchange="onGroupWallpaperSelected(event)">
                     </div>
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:#49454F; display:block; margin-bottom:8px; letter-spacing:0.5px;">COLOR DEL CHAT</label>
+                        <label style="font-size:11px; font-weight:700; color:#49454F; display:block; margin-bottom:8px; letter-spacing:0.5px;" data-i18n="ch_color_label">COLOR DEL CHAT</label>
                         <div style="display:flex; gap:10px; align-items:center;">
                             <input id="group-chat-color-input" type="color" value="#1B3A5C" style="width:58px; height:42px; padding:3px; border:1.5px solid #ddd; border-radius:10px; cursor:pointer; background:white;">
-                            <button type="button" onclick="resetChatColor()" style="flex:1; padding:10px; border-radius:10px; border:1.5px dashed #ddd; background:#f9f9f9; cursor:pointer; font-size:13px; color:#555; font-weight:600;">Color original</button>
+                            <button type="button" onclick="resetChatColor()" style="flex:1; padding:10px; border-radius:10px; border:1.5px dashed #ddd; background:#f9f9f9; cursor:pointer; font-size:13px; color:#555; font-weight:600;" data-i18n="ch_color_reset">Color original</button>
                         </div>
                     </div>
-                    <button class="grp-admin-only" onclick="saveGroupConfig()" style="width:100%; padding:14px; border-radius:14px; border:none; background:var(--primary); color:white; font-size:15px; font-weight:700; cursor:pointer;">Guardar cambios</button>
+                    <button class="grp-admin-only" onclick="saveGroupConfig()" style="width:100%; padding:14px; border-radius:14px; border:none; background:var(--primary); color:white; font-size:15px; font-weight:700; cursor:pointer;" data-i18n="ch_save_changes">Guardar cambios</button>
                     <hr style="border:none; border-top:1px solid #eee; margin:0;">
                     <!-- Integrantes -->
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:#49454F; display:block; margin-bottom:8px; letter-spacing:0.5px;">INTEGRANTES</label>
-                        <p id="group-role-note" style="display:none; font-size:12px; color:#79747E; margin:0 0 8px;">Solo los administradores pueden cambiar el grupo y sus integrantes.</p>
+                        <label style="font-size:11px; font-weight:700; color:#49454F; display:block; margin-bottom:8px; letter-spacing:0.5px;" data-i18n="ch_members_label">INTEGRANTES</label>
+                        <p id="group-role-note" style="display:none; font-size:12px; color:#79747E; margin:0 0 8px;" data-i18n="ch_admin_note">Solo los administradores pueden cambiar el grupo y sus integrantes.</p>
                         <div id="group-members-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;"></div>
                         <button class="grp-admin-only" onclick="openAddMemberModal()" style="width:100%; padding:12px; border-radius:12px; border:1.5px dashed var(--primary); background:rgba(27,58,92,0.05); color:var(--primary); font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                            <span class="material-icons-outlined">person_add</span> A&#241;adir integrante
+                            <span class="material-icons-outlined">person_add</span> <span data-i18n="ch_add_member">Añadir integrante</span>
                         </button>
                     </div>
                     <hr style="border:none; border-top:1px solid #eee; margin:0;">
                     <button onclick="leaveGroup()" style="width:100%; padding:14px; border-radius:14px; border:1.5px solid #dc3545; background:white; color:#dc3545; font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                        <span class="material-icons-outlined">exit_to_app</span> Abandonar grupo
+                        <span class="material-icons-outlined">exit_to_app</span> <span data-i18n="ch_leave_group">Abandonar grupo</span>
                     </button>
                 </div>
             </div>
@@ -1502,7 +1504,7 @@
             <div style="background:white; width:100%; max-width:400px; border-radius:24px; display:flex; flex-direction:column; max-height:90vh; overflow:hidden;">
                 <div id="direct-config-header" style="background:var(--primary); padding:20px 24px; display:flex; align-items:center; gap:16px; color:white; flex-shrink:0;">
                     <button onclick="document.getElementById('direct-chat-config-modal').style.display='none'" style="background:none; border:none; color:white; cursor:pointer; display:flex;"><span class="material-icons-outlined">arrow_back</span></button>
-                    <span style="font-size:18px; font-weight:700; flex:1;">Personalización del Chat</span>
+                    <span style="font-size:18px; font-weight:700; flex:1;" data-i18n="ch_personalize_title">Personalización del Chat</span>
                 </div>
                 <div style="overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:20px;">
                     <!-- Partner Info -->
@@ -1514,12 +1516,12 @@
                     </div>
                     <!-- Fondo -->
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:#49454F; display:block; margin-bottom:8px; letter-spacing:0.5px;">ELIGE EL FONDO PARA ESTE CHAT</label>
+                        <label style="font-size:11px; font-weight:700; color:#49454F; display:block; margin-bottom:8px; letter-spacing:0.5px;" data-i18n="ch_pick_bg_label">ELIGE EL FONDO PARA ESTE CHAT</label>
                         <div style="display:flex; gap:10px; align-items:center;">
                             <div id="direct-wallpaper-preview" onclick="document.getElementById('direct-wallpaper-input').click()" style="width:60px; height:60px; border-radius:12px; background:#f0f0f0; border:1.5px solid #ddd; overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer;">
                                 <span class="material-icons-outlined" style="color:#ccc; font-size:26px;">wallpaper</span>
                             </div>
-                            <button onclick="document.getElementById('direct-wallpaper-input').click()" style="flex:1; padding:12px; border-radius:12px; border:1.5px dashed var(--primary); background:rgba(27,58,92,0.05); color:var(--primary); cursor:pointer; font-size:13px; font-weight:700;">Cambiar fondo de pantalla</button>
+                            <button onclick="document.getElementById('direct-wallpaper-input').click()" style="flex:1; padding:12px; border-radius:12px; border:1.5px dashed var(--primary); background:rgba(27,58,92,0.05); color:var(--primary); cursor:pointer; font-size:13px; font-weight:700;" data-i18n="ch_change_bg">Cambiar fondo de pantalla</button>
                             <button id="direct-wallpaper-clear-btn" onclick="clearDirectWallpaper()" style="display:none; padding:10px; border-radius:10px; border:none; background:#ffe5e5; cursor:pointer;">
                                 <span class="material-icons-outlined" style="font-size:20px; color:#dc3545; display:block;">delete</span>
                             </button>
@@ -1527,14 +1529,14 @@
                         <input type="file" id="direct-wallpaper-input" accept="image/*" style="display:none;" onchange="onDirectWallpaperSelected(event)">
                     </div>
                     <div>
-                        <label style="font-size:11px; font-weight:700; color:#49454F; display:block; margin-bottom:8px; letter-spacing:0.5px;">COLOR DEL CHAT</label>
+                        <label style="font-size:11px; font-weight:700; color:#49454F; display:block; margin-bottom:8px; letter-spacing:0.5px;" data-i18n="ch_color_label">COLOR DEL CHAT</label>
                         <div style="display:flex; gap:10px; align-items:center;">
                             <input id="direct-chat-color-input" type="color" value="#1B3A5C" style="width:58px; height:42px; padding:3px; border:1.5px solid #ddd; border-radius:10px; cursor:pointer; background:white;">
-                            <button type="button" onclick="resetChatColor()" style="flex:1; padding:10px; border-radius:10px; border:1.5px dashed #ddd; background:#f9f9f9; cursor:pointer; font-size:13px; color:#555; font-weight:600;">Color original</button>
+                            <button type="button" onclick="resetChatColor()" style="flex:1; padding:10px; border-radius:10px; border:1.5px dashed #ddd; background:#f9f9f9; cursor:pointer; font-size:13px; color:#555; font-weight:600;" data-i18n="ch_color_reset">Color original</button>
                         </div>
                     </div>
-                    <button type="button" id="direct-report-btn" onclick="openChatReport()" style="width:100%; padding:12px; border-radius:14px; border:1.5px solid #f3c1bd; background:#fff5f4; color:#b3261e; font-size:14px; font-weight:700; cursor:pointer;">Reportar a este usuario</button>
-                    <button onclick="document.getElementById('direct-chat-config-modal').style.display='none'" style="width:100%; padding:14px; border-radius:14px; border:none; background:var(--primary); color:white; font-size:15px; font-weight:700; cursor:pointer;">Listo</button>
+                    <button type="button" id="direct-report-btn" onclick="openChatReport()" style="width:100%; padding:12px; border-radius:14px; border:1.5px solid #f3c1bd; background:#fff5f4; color:#b3261e; font-size:14px; font-weight:700; cursor:pointer;" data-i18n="ch_report_user">Reportar a este usuario</button>
+                    <button onclick="document.getElementById('direct-chat-config-modal').style.display='none'" style="width:100%; padding:14px; border-radius:14px; border:none; background:var(--primary); color:white; font-size:15px; font-weight:700; cursor:pointer;" data-i18n="ch_done">Listo</button>
                 </div>
             </div>
         </div>
@@ -1546,15 +1548,15 @@
                 <button onclick="closeLiveCamera()" style="background:rgba(0,0,0,0.5); border:none; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
                     <span class="material-icons-outlined" style="font-size:28px;">close</span>
                 </button>
-                <span id="camera-title-badge" style="background:rgba(0,0,0,0.5); color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700;">Cámara en vivo</span>
-                <button onclick="toggleCameraFacingMode()" style="background:rgba(0,0,0,0.5); border:none; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Cambiar cámara (frontal/trasera)">
+                <span id="camera-title-badge" style="background:rgba(0,0,0,0.5); color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700;" data-i18n="ch_live_camera">Cámara en vivo</span>
+                <button onclick="toggleCameraFacingMode()" style="background:rgba(0,0,0,0.5); border:none; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Cambiar cámara (frontal/trasera)" data-i18n-title="ch_switch_cam">
                     <span class="material-icons-outlined" style="font-size:26px;">cameraswitch</span>
                 </button>
             </div>
 
             <!-- Previsualización de foto a la que se responde (esquina superior derecha) -->
             <div id="camera-reply-thumbnail-container" style="display:none; position:absolute; left:0; top:0; z-index:10; flex-direction:column; align-items:flex-end; touch-action:none; cursor:grab; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;">
-                <span style="font-size:10px; color:white; background:rgba(0,0,0,0.6); padding:2px 6px; border-radius:4px; margin-bottom:4px; font-weight:700;">Respondiendo a:</span>
+                <span style="font-size:10px; color:white; background:rgba(0,0,0,0.6); padding:2px 6px; border-radius:4px; margin-bottom:4px; font-weight:700;" data-i18n="ch_replying_to">Respondiendo a:</span>
                 <img id="camera-reply-thumbnail-img" src="" draggable="false" style="pointer-events:none; width:84px; height:112px; border-radius:14px; border:2.5px solid white; object-fit:cover; box-shadow:0 4px 16px rgba(0,0,0,0.5);">
             </div>
 
@@ -1568,9 +1570,7 @@
             <!-- Footer / Disparador -->
             <div style="position:absolute; bottom:30px; left:0; right:0; display:flex; justify-content:center; align-items:center; gap:24px; z-index:10;">
                 <!-- Botón repetir -->
-                <button id="camera-retake-btn" onclick="retakeLiveCameraPhoto()" style="display:none; background:rgba(255,255,255,0.25); color:white; border:none; padding:12px 22px; border-radius:30px; font-weight:700; cursor:pointer; backdrop-filter:blur(10px);">
-                    Repetir
-                </button>
+                <button id="camera-retake-btn" onclick="retakeLiveCameraPhoto()" style="display:none; background:rgba(255,255,255,0.25); color:white; border:none; padding:12px 22px; border-radius:30px; font-weight:700; cursor:pointer; backdrop-filter:blur(10px);"><span data-i18n="ch_retake">Repetir</span></button>
                 
                 <!-- Botón disparador -->
                 <button id="camera-shutter-btn" onclick="takeLiveCameraPhoto()" style="background:white; border:6px solid rgba(255,255,255,0.4); width:76px; height:76px; border-radius:50%; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform 0.1s;" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform='scale(1)'">
@@ -1578,7 +1578,7 @@
 
                 <!-- Botón enviar -->
                 <button id="camera-send-btn" onclick="sendLiveCameraPhoto()" style="display:none; background:var(--primary); color:white; border:none; padding:12px 26px; border-radius:30px; font-weight:700; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.3); display:flex; align-items:center; gap:8px;">
-                    <span class="material-icons-outlined">send</span> Enviar
+                    <span class="material-icons-outlined">send</span> <span data-i18n="ch_send">Enviar</span>
                 </button>
             </div>
         </div>
@@ -1592,25 +1592,25 @@
                 <img id="chat-image-preview-img" src="" style="max-width:90vw; max-height:70vh; object-fit:contain; border-radius:16px;">
                 <!-- Thumbnail foto a la que responde (esquina superior derecha) -->
                 <div id="modal-reply-parent-container" style="display:none; position:absolute; top:12px; right:12px; flex-direction:column; align-items:flex-end;">
-                    <span style="font-size:10px; color:white; background:rgba(0,0,0,0.7); padding:2px 6px; border-radius:4px; margin-bottom:4px; font-weight:700;">Responde a:</span>
+                    <span style="font-size:10px; color:white; background:rgba(0,0,0,0.7); padding:2px 6px; border-radius:4px; margin-bottom:4px; font-weight:700;" data-i18n="ch_reply_to">Responde a:</span>
                     <img id="modal-reply-parent-img" src="" style="width:72px; height:96px; border-radius:12px; border:2px solid white; object-fit:cover; box-shadow:0 4px 16px rgba(0,0,0,0.6); cursor:pointer;" onclick="openImagePreview(this.src)">
                 </div>
             </div>
             <!-- Botón responder con foto -->
             <button id="modal-reply-photo-btn" onclick="replyWithCameraFromPreview()" style="margin-top:20px; background:white; color:#1D1B20; border:none; padding:12px 24px; border-radius:30px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-                <span class="material-icons-outlined" style="color:var(--primary);">photo_camera</span> Responder con foto
+                <span class="material-icons-outlined" style="color:var(--primary);">photo_camera</span> <span data-i18n="ch_reply_photo">Responder con foto</span>
             </button>
         </div>
 
         <!-- MODAL AÑADIR INTEGRANTES -->
         <div id="add-member-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center; padding:20px;">
             <div style="background:white; width:100%; max-width:380px; border-radius:24px; padding:24px; display:flex; flex-direction:column; max-height:80vh;">
-                <h3 style="margin-top:0; color:#1D1B20; font-size:18px;">A&#241;adir integrantes</h3>
-                <p style="margin:0 0 12px 0; font-size:13px; color:#79747E;">Amigos que a&#250;n no est&#225;n en el grupo:</p>
+                <h3 style="margin-top:0; color:#1D1B20; font-size:18px;" data-i18n="ch_add_members_t">A&#241;adir integrantes</h3>
+                <p style="margin:0 0 12px 0; font-size:13px; color:#79747E;" data-i18n="ch_add_members_x">Amigos que a&#250;n no est&#225;n en el grupo:</p>
                 <div id="add-member-friends-list" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; border:1px solid #eee; border-radius:12px; padding:8px; margin-bottom:16px; min-height:60px; max-height:260px;"></div>
                 <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button onclick="document.getElementById('add-member-modal').style.display='none'" style="padding:10px 16px; border-radius:12px; border:none; background:#eee; font-weight:600; cursor:pointer;">Cancelar</button>
-                    <button onclick="confirmAddMembers()" style="padding:10px 16px; border-radius:12px; border:none; background:var(--primary); color:white; font-weight:600; cursor:pointer;">A&#241;adir</button>
+                    <button onclick="document.getElementById('add-member-modal').style.display='none'" style="padding:10px 16px; border-radius:12px; border:none; background:#eee; font-weight:600; cursor:pointer;" data-i18n="cancel">Cancelar</button>
+                    <button onclick="confirmAddMembers()" style="padding:10px 16px; border-radius:12px; border:none; background:var(--primary); color:white; font-weight:600; cursor:pointer;" data-i18n="ch_add">Añadir</button>
                 </div>
             </div>
         </div>
@@ -1774,7 +1774,7 @@
                 const peerText = document.getElementById('chat-peer-text');
                 const safeDays = Math.max(0, Number(days) || 0);
                 if (label) label.textContent = String(safeDays);
-                if (unit) unit.textContent = safeDays === 1 ? 'día' : 'días';
+                if (unit) unit.textContent = safeDays === 1 ? CT('ch_day_one', 'día') : CT('ch_day_many', 'días');
                 if (badge) badge.style.display = safeDays > 0 ? 'flex' : 'none';
                 if (peerText) peerText.classList.toggle('has-streak', safeDays > 0);
             }
@@ -1799,10 +1799,10 @@
             }
             function streakLineText(ev) {
                 const d = ev.days;
-                const dias = d === 1 ? 'día' : 'días';
-                if (ev.type === 'lost') return `🔥 Habéis perdido vuestra racha de ${d} ${dias}`;
-                if (ev.type === 'restored') return `🔥 Racha restablecida: ${d} ${dias}`;
-                return `🔥 ¡Racha de ${d} ${dias} conseguida!`;
+                const dias = d === 1 ? CT('ch_day_one', 'día') : CT('ch_day_many', 'días');
+                if (ev.type === 'lost') return CT('ch_streak_lost', '🔥 Habéis perdido vuestra racha de {{n}} {{u}}', { n: d, u: dias });
+                if (ev.type === 'restored') return CT('ch_streak_restored', '🔥 Racha restablecida: {{n}} {{u}}', { n: d, u: dias });
+                return CT('ch_streak_achieved', '🔥 ¡Racha de {{n}} {{u}} conseguida!', { n: d, u: dias });
             }
             function buildStreakLine(ev) {
                 const el = document.createElement('div');
@@ -1834,7 +1834,7 @@
                 localStorage.setItem(seenKey, '1');
                 const overlay = document.createElement('div');
                 overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(18,12,8,.5);display:flex;align-items:center;justify-content:center;overflow:hidden;';
-                overlay.innerHTML = `<div style="position:relative;z-index:2;background:#fffaf3;border-radius:24px;padding:20px 28px 28px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.3);"><div id="chat-streak-fire" style="width:150px;height:150px;margin:auto;"></div><strong style="display:block;color:#e46713;font-size:30px;">${milestone} ${milestone === 1 ? 'día' : 'días'}</strong><p style="margin:8px 0 18px;color:#654b3a;">Los dos habéis mantenido la cadena.</p><button type="button" style="border:0;border-radius:999px;padding:11px 22px;background:#e46713;color:#fff;font-weight:700;cursor:pointer;">Continuar</button></div>`;
+                overlay.innerHTML = `<div style="position:relative;z-index:2;background:#fffaf3;border-radius:24px;padding:20px 28px 28px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.3);"><div id="chat-streak-fire" style="width:150px;height:150px;margin:auto;"></div><strong style="display:block;color:#e46713;font-size:30px;">${milestone} ${milestone === 1 ? CT('ch_day_one', 'día') : CT('ch_day_many', 'días')}</strong><p style="margin:8px 0 18px;color:#654b3a;">${CT('ch_chain_kept', 'Los dos habéis mantenido la cadena.')}</p><button type="button" style="border:0;border-radius:999px;padding:11px 22px;background:#e46713;color:#fff;font-weight:700;cursor:pointer;">${CT('ch_continue', 'Continuar')}</button></div>`;
                 for (let index = 0; index < 140; index += 1) {
                     const piece = document.createElement('i');
                     piece.textContent = index % 3 === 0 ? '●' : '◆';
@@ -1958,10 +1958,10 @@
             function fmtDayLabel(ms) {
                 const date = new Date(ms);
                 const now = new Date();
-                if (date.toDateString() === now.toDateString()) return 'Hoy';
+                if (date.toDateString() === now.toDateString()) return CT('ch_today', 'Hoy');
                 const yesterday = new Date(now);
                 yesterday.setDate(now.getDate() - 1);
-                if (date.toDateString() === yesterday.toDateString()) return 'Ayer';
+                if (date.toDateString() === yesterday.toDateString()) return CT('ch_yesterday', 'Ayer');
                 const opts = { day: 'numeric', month: 'long' };
                 if (date.getFullYear() !== now.getFullYear()) opts.year = 'numeric';
                 return date.toLocaleDateString('es-ES', opts);
@@ -2104,13 +2104,13 @@
                 const photoOnly = hasImage && (!text.trim() || /^\s*(\u{1F4F7}\s*)?Foto\s*$/iu.test(text));
                 const placeholder = !item.isGroup && !from && !hasImage;
                 let prefix = '';
-                if (mine) prefix = 'Tú: ';
+                if (mine) prefix = CT('ch_you', CT('ch_you', 'Tú')) + ': ';
                 else if (item.isGroup && from) {
                     const friend = (window.allFriends || []).find((f) => String(f.id) === from);
                     if (friend) prefix = `${(friend.name || friend.username || '').split(' ')[0]}: `;
                 }
-                if (placeholder) return { html: '<span class="pv-text">Aún sin mensajes. Toca para saludar</span>', soft: true, placeholder: true };
-                if (photoOnly) return { html: `${prefix ? `<span>${safeText(prefix)}</span>` : ''}${icon('image')}<span class="pv-text">Foto</span>`, soft: false };
+                if (placeholder) return { html: '<span class="pv-text">' + CT('ch_no_msgs_tap', 'Aún sin mensajes. Toca para saludar') + '</span>', soft: true, placeholder: true };
+                if (photoOnly) return { html: `${prefix ? `<span>${safeText(prefix)}</span>` : ''}${icon('image')}<span class="pv-text">${CT('ch_photo', CT('ch_photo', 'Foto'))}</span>`, soft: false };
                 return { html: `<span class="pv-text">${safeText(prefix + text.replace(/\s+/g, ' '))}</span>`, soft: false };
             }
 
@@ -2140,8 +2140,8 @@
                 nameEl.textContent = SeeYouHTML.dec(name);
                 top.appendChild(nameEl);
                 if (!item.isGroup && item.verificado) top.insertAdjacentHTML('beforeend', CONFIG.getVerifiedBadge(15));
-                if (item.isGroup) top.insertAdjacentHTML('beforeend', `<span class="chip group">Grupo</span>`);
-                if (streak > 0) top.insertAdjacentHTML('beforeend', `<span class="chip streak" title="Racha de ${streak} ${streak === 1 ? 'día' : 'días'}">${icon('flame')}${streak}</span>`);
+                if (item.isGroup) top.insertAdjacentHTML('beforeend', `<span class="chip group">${CT('ch_tab_group', 'Grupo')}</span>`);
+                if (streak > 0) top.insertAdjacentHTML('beforeend', `<span class="chip streak" title="${CT('ch_streak_title', 'Racha de {{n}} {{u}}', { n: streak, u: streak === 1 ? CT('ch_day_one', 'día') : CT('ch_day_many', 'días') })}">${icon('flame')}${streak}</span>`);
                 if (!pv.placeholder && item.lastTimestamp) {
                     const time = document.createElement('span');
                     time.className = 'time';
@@ -2160,7 +2160,7 @@
                     const cam = document.createElement('span');
                     cam.className = `cl-chain ${chain}`;
                     cam.setAttribute('role', 'button');
-                    cam.title = chain === 'pending' ? 'Te han enviado una foto: responde con otra' : 'Cadena de fotos: ya has respondido';
+                    cam.title = chain === 'pending' ? CT('ch_chain_pending', 'Te han enviado una foto: responde con otra') : CT('ch_chain_done', 'Cadena de fotos: ya has respondido');
                     cam.innerHTML = '<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
                     cam.addEventListener('click', (ev) => {
                         ev.stopPropagation();
@@ -2205,7 +2205,7 @@
                 }
                 if (listState === 'error' && !(window.allConversations || []).length) {
                     container.className = 'cl-plain';
-                    container.innerHTML = `<div class="cl-empty"><div class="ill">${icon('chat_bubble_outline')}</div><h2>No se pudieron cargar los chats</h2><p>Comprueba tu conexión e inténtalo de nuevo.</p><button type="button" class="btn-primary" id="chats-retry">Reintentar</button></div>`;
+                    container.innerHTML = `<div class="cl-empty"><div class="ill">${icon('chat_bubble_outline')}</div><h2>${CT('ch_load_err_t', 'No se pudieron cargar los chats')}</h2><p>${CT('ch_load_err_x', 'Comprueba tu conexión e inténtalo de nuevo.')}</p><button type="button" class="btn-primary" id="chats-retry">${CT('ch_retry', 'Reintentar')}</button></div>`;
                     const retry = $('chats-retry');
                     if (retry) retry.onclick = () => { listState = 'loading'; filterChatList(); loadChatList(); };
                     return;
@@ -2220,10 +2220,10 @@
                 container.innerHTML = '';
                 if (!list.length) {
                     container.className = 'cl-plain';
-                    container.innerHTML = `<div class="cl-empty"><div class="ill">${icon('chat_bubble_outline')}</div><h2>Tu bandeja está vacía</h2><p>Aún no tienes conversaciones — empieza una desde Amigos.</p><a class="btn-primary" href="friends.html">${icon('group')}Ir a Amigos</a></div>`;
+                    container.innerHTML = `<div class="cl-empty"><div class="ill">${icon('chat_bubble_outline')}</div><h2>${CT('ch_empty_t', 'Tu bandeja está vacía')}</h2><p>${CT('ch_empty_x', 'Aún no tienes conversaciones — empieza una desde Amigos.')}</p><a class="btn-primary" href="friends.html">${icon('group')}${CT('ch_go_friends', 'Ir a Amigos')}</a></div>`;
                 } else if (!filtered.length) {
                     container.className = 'cl-plain';
-                    container.innerHTML = `<div class="cl-empty"><div class="ill">${icon('search')}</div><h2>Sin resultados</h2><p>No hay chats que coincidan con «${safeText(rawQuery)}».</p></div>`;
+                    container.innerHTML = `<div class="cl-empty"><div class="ill">${icon('search')}</div><h2>${CT('ch_noresults_t', 'Sin resultados')}</h2><p>${CT('ch_noresults_x', 'No hay chats que coincidan con «{{q}}».', { q: safeText(rawQuery) })}</p></div>`;
                 } else {
                     container.className = 'cl-card';
                     filtered.forEach((item) => container.appendChild(buildRow(item)));
@@ -2339,7 +2339,7 @@
                 $('nuevo-tab-group').classList.toggle('on', !isChat);
                 $('nuevo-pane-chat').hidden = !isChat;
                 $('nuevo-pane-group').hidden = isChat;
-                $('nuevo-modal-title').textContent = isChat ? 'Nuevo chat' : 'Nuevo grupo';
+                $('nuevo-modal-title').textContent = isChat ? CT('ch_new_chat', 'Nuevo chat') : CT('ch_new_group', 'Nuevo grupo');
             };
 
             window.cerrarModalNuevo = function () {
@@ -2357,7 +2357,7 @@
 
                 const friends = window.allFriends || await loadFriends();
                 if (!friends.length) {
-                    const empty = '<div class="pick-empty">Aún no tienes amigos agregados.<br><a href="friends.html">Buscar amigos</a></div>';
+                    const empty = '<div class="pick-empty">' + CT('ch_no_friends_added', 'Aún no tienes amigos agregados.') + '<br><a href="friends.html">' + CT('ch_find_friends', 'Buscar amigos') + '</a></div>';
                     chatList.innerHTML = empty;
                     groupList.innerHTML = empty;
                     return;
@@ -2401,10 +2401,10 @@
 
             window.crearGrupo = async function () {
                 const nameInput = $('nuevo-grupo-nombre').value.trim();
-                if (!nameInput) { showToast('Ponle un nombre al grupo'); return; }
+                if (!nameInput) { showToast(CT('ch_t_group_name', 'Ponle un nombre al grupo')); return; }
 
                 const cbs = document.querySelectorAll('.grupo-amigo-cb:checked');
-                if (cbs.length === 0) { showToast('Selecciona al menos 1 amigo'); return; }
+                if (cbs.length === 0) { showToast(CT('ch_t_pick_1', 'Selecciona al menos 1 amigo')); return; }
 
                 const members = Array.from(cbs).map((cb) => cb.value);
                 try {
@@ -2414,15 +2414,15 @@
                         body: JSON.stringify({ ownerId: userPhoneId, adminId: userPhoneId, name: nameInput, members })
                     });
                     if (res.ok) {
-                        showToast('Grupo creado con éxito');
+                        showToast(CT('ch_t_group_created', 'Grupo creado con éxito'));
                         cerrarModalNuevo();
                         loadChatList();
                     } else {
                         const err = await res.json().catch(() => ({}));
-                        showToast(err.message || 'Error al crear grupo');
+                        showToast(err.message || CT('ch_t_group_err', 'Error al crear grupo'));
                     }
                 } catch (e) {
-                    showToast('Error al crear grupo');
+                    showToast(CT('ch_t_group_err', 'Error al crear grupo'));
                 }
             };
 
@@ -2489,7 +2489,7 @@
                         subtitle.textContent = count ? `${count} ${count === 1 ? 'miembro' : 'miembros'}` : 'Grupo';
                     } else {
                         const handle = item.username || item.usuario || '';
-                        subtitle.textContent = handle && handle !== name ? `@${handle}` : 'Toca para ver el perfil';
+                        subtitle.textContent = handle && handle !== name ? `@${handle}` : CT('ch_tap_profile', 'Toca para ver el perfil');
                     }
                 }
                 chatStreakEvents = []; chatStreakEventsFor = ''; chatStreakLastDays = null;
@@ -2584,7 +2584,7 @@
                 const colorInput = document.getElementById(currentChatIsGroup ? 'group-chat-color-input' : 'direct-chat-color-input');
                 if (colorInput) colorInput.value = defaultChatColor;
                 applyChatColor(defaultChatColor);
-                showToast('Color original restaurado');
+                showToast(CT('ch_t_color_reset', 'Color original restaurado'));
             };
 
             window.openChatConfigModal = function() {
@@ -2642,7 +2642,7 @@
                     msgContainer.style.backgroundImage = `url('${wpData}')`;
                     msgContainer.style.backgroundSize = 'cover';
                     msgContainer.style.backgroundPosition = 'center';
-                    showToast('Fondo de pantalla actualizado');
+                    showToast(CT('ch_t_bg_updated', 'Fondo de pantalla actualizado'));
                 };
                 reader.readAsDataURL(file);
                 event.target.value = '';
@@ -2655,7 +2655,7 @@
                 
                 const msgContainer = document.getElementById('messages-container');
                 setWallpaperImage('');
-                showToast('Fondo de pantalla eliminado');
+                showToast(CT('ch_t_bg_removed', 'Fondo de pantalla eliminado'));
             };
 
             // onChatPhotoSelected and openImagePreview are defined later with camera/reply support
@@ -2736,8 +2736,8 @@
                     }
                     rows.push(`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f9f9f9;border-radius:10px;flex-wrap:wrap;">
                         <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">${mName.charAt(0).toUpperCase()}</div>
-                        <span style="flex:1;font-weight:600;font-size:14px;min-width:80px;">${mName}${isMe ? ' (tú)' : ''}</span>
-                        ${mIsAdmin ? '<span style="font-size:10px;background:#fff3cd;color:#856404;padding:2px 8px;border-radius:20px;font-weight:700;">Admin</span>' : '<span style="font-size:10px;background:#eef1f5;color:#49454F;padding:2px 8px;border-radius:20px;font-weight:700;">Miembro</span>'}
+                        <span style="flex:1;font-weight:600;font-size:14px;min-width:80px;">${mName}${isMe ? ' (' + CT('ch_you_lower', 'tú') + ')' : ''}</span>
+                        ${mIsAdmin ? '<span style="font-size:10px;background:#fff3cd;color:#856404;padding:2px 8px;border-radius:20px;font-weight:700;">' + CT('ch_admin', 'Admin') + '</span>' : '<span style="font-size:10px;background:#eef1f5;color:#49454F;padding:2px 8px;border-radius:20px;font-weight:700;">' + CT('ch_member', 'Miembro') + '</span>'}
                         ${actions}
                     </div>`);
                 });
@@ -2797,7 +2797,7 @@
 
             window.saveGroupConfig = async function() {
                 const newName = document.getElementById('group-config-name').value.trim();
-                if (!newName) { showToast('El nombre no puede estar vacío'); return; }
+                if (!newName) { showToast(CT('ch_t_name_empty', 'El nombre no puede estar vacío')); return; }
 
                 const body = { requesterId: userPhoneId, name: newName };
                 if (groupConfigPhotoData) body.photo = groupConfigPhotoData;
@@ -2827,13 +2827,13 @@
                         } else {
                             setWallpaperImage('');
                         }
-                        showToast('Cambios guardados');
+                        showToast(CT('ch_t_saved', 'Cambios guardados'));
                         document.getElementById('group-config-modal').style.display = 'none';
                         loadChatList();
                     } else {
-                        showToast('Error al guardar');
+                        showToast(CT('ch_t_save_err', 'Error al guardar'));
                     }
-                } catch(e) { showToast('Error de conexión'); }
+                } catch(e) { showToast(CT('ch_t_conn', 'Error de conexión')); }
             };
 
             window.openAddMemberModal = async function() {
@@ -2846,7 +2846,7 @@
                 const list = document.getElementById('add-member-friends-list');
                 list.innerHTML = '';
                 if (nonMembers.length === 0) {
-                    list.innerHTML = '<p style="font-size:13px;color:#79747E;margin:0;padding:8px;">Todos tus amigos ya son miembros.</p>';
+                    list.innerHTML = '<p style="font-size:13px;color:#79747E;margin:0;padding:8px;">' + CT('ch_all_members', 'Todos tus amigos ya son miembros.') + '</p>';
                 } else {
                     nonMembers.forEach(f => {
                         const avatarSrc = assetUrl(f.avatar || f.foto);
@@ -2870,28 +2870,28 @@
                         method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role })
                     });
                     const data = await res.json().catch(() => ({}));
-                    if (!res.ok) { showToast(data.message || 'No se pudo cambiar el rol'); return; }
+                    if (!res.ok) { showToast(data.message || CT('ch_t_role_err', 'No se pudo cambiar el rol')); return; }
                     window.currentGroupData = { ...data.group, isGroup: true };
-                    showToast(role === 'admin' ? 'Ahora es administrador' : 'Ya no es administrador');
+                    showToast(role === 'admin' ? CT('ch_t_now_admin', 'Ahora es administrador') : CT('ch_t_not_admin', 'Ya no es administrador'));
                     openGroupConfig();
-                } catch (e) { showToast('Error de conexión'); }
+                } catch (e) { showToast(CT('ch_t_conn', 'Error de conexión')); }
             };
 
             window.removeGroupMember = async function(memberId) {
-                if (!confirm('¿Sacar a este integrante del grupo?')) return;
+                if (!confirm(CT('ch_c_remove_member', '¿Sacar a este integrante del grupo?'))) return;
                 try {
                     const res = await fetch(`${CONFIG.API_BASE_URL}/api/groups/${currentChatUserId}/members/${encodeURIComponent(memberId)}`, { method: 'DELETE' });
                     const data = await res.json().catch(() => ({}));
-                    if (!res.ok) { showToast(data.message || 'No se pudo quitar'); return; }
+                    if (!res.ok) { showToast(data.message || CT('ch_t_remove_err', 'No se pudo quitar')); return; }
                     window.currentGroupData = { ...data.group, isGroup: true };
-                    showToast('Integrante quitado');
+                    showToast(CT('ch_t_member_removed', 'Integrante quitado'));
                     openGroupConfig();
-                } catch (e) { showToast('Error de conexión'); }
+                } catch (e) { showToast(CT('ch_t_conn', 'Error de conexión')); }
             };
 
             window.confirmAddMembers = async function() {
                 const cbs = document.querySelectorAll('.add-member-cb:checked');
-                if (cbs.length === 0) { showToast('Selecciona al menos un amigo'); return; }
+                if (cbs.length === 0) { showToast(CT('ch_t_pick_one', 'Selecciona al menos un amigo')); return; }
                 const newMembers = Array.from(cbs).map(cb => cb.value);
                 try {
                     const res = await fetch(`${CONFIG.API_BASE_URL}/api/groups/${currentChatUserId}/members`, {
@@ -2902,16 +2902,16 @@
                     if (res.ok) {
                         const data = await res.json();
                         window.currentGroupData = { ...data.group, isGroup: true };
-                        showToast(`${newMembers.length} integrante(s) añadido(s)`);
+                        showToast(CT('ch_t_members_added', '{{n}} integrante(s) añadido(s)', { n: newMembers.length }));
                         document.getElementById('add-member-modal').style.display = 'none';
                         openGroupConfig(); // Refresh config modal
-                    } else { showToast('Error al añadir'); }
-                } catch(e) { showToast('Error de conexión'); }
+                    } else { showToast(CT('ch_t_add_err', 'Error al añadir')); }
+                } catch(e) { showToast(CT('ch_t_conn', 'Error de conexión')); }
             };
 
             window.leaveGroup = async function() {
                 const onlyAdmin = window.groupIAmAdmin && (window.currentGroupData && (window.currentGroupData.admins || []).length <= 1) && ((window.currentGroupData.members || []).length > 1);
-                if (!confirm(onlyAdmin ? 'Eres el único administrador: al salir pasará a serlo el integrante más antiguo. ¿Abandonar el grupo?' : '¿Seguro que quieres abandonar el grupo?')) return;
+                if (!confirm(onlyAdmin ? CT('ch_c_leave_admin', 'Eres el único administrador: al salir pasará a serlo el integrante más antiguo. ¿Abandonar el grupo?') : CT('ch_c_leave', '¿Seguro que quieres abandonar el grupo?'))) return;
                 try {
                     const res = await fetch(`${CONFIG.API_BASE_URL}/api/groups/${currentChatUserId}/leave`, {
                         method: 'DELETE',
@@ -2919,12 +2919,12 @@
                         body: JSON.stringify({ userId: userPhoneId })
                     });
                     if (res.ok) {
-                        showToast('Abandonaste el grupo');
+                        showToast(CT('ch_t_left', 'Abandonaste el grupo'));
                         document.getElementById('group-config-modal').style.display = 'none';
                         closeConversation();
                         loadChatList();
-                    } else { showToast('Error al abandonar'); }
-                } catch(e) { showToast('Error de conexión'); }
+                    } else { showToast(CT('ch_t_leave_err', 'Error al abandonar')); }
+                } catch(e) { showToast(CT('ch_t_conn', 'Error de conexión')); }
             };
 
             window.fetchMessages = async function () {
@@ -3118,10 +3118,10 @@
                         // Limpiar badge de foto pendiente
                         updateCameraBadge(null);
                     } else {
-                        showToast('Error al enviar foto');
+                        showToast(CT('ch_t_photo_err', 'Error al enviar foto'));
                     }
                 } catch(e) {
-                    showToast('Error al enviar foto');
+                    showToast(CT('ch_t_photo_err', 'Error al enviar foto'));
                 }
             };
 
@@ -3322,8 +3322,8 @@
                             await fetchMessages();
                             const container = document.getElementById('messages-container');
                             container.scrollTop = container.scrollHeight;
-                        } else { showToast('Error al enviar foto'); }
-                } catch(e) { showToast('Error al enviar foto'); }
+                        } else { showToast(CT('ch_t_photo_err', 'Error al enviar foto')); }
+                } catch(e) { showToast(CT('ch_t_photo_err', 'Error al enviar foto')); }
                 event.target.value = '';
             };
 
@@ -3369,7 +3369,7 @@
                 const box = document.createElement('span');
                 box.className = 'msg-img';
                 const img = new Image();
-                img.alt = 'Foto';
+                img.alt = CT('ch_photo', 'Foto');
                 img.decoding = 'async';
                 img.onload = () => {
                     box.classList.add('loaded');
@@ -3377,7 +3377,7 @@
                 };
                 img.onerror = () => {
                     box.classList.add('broken');
-                    box.textContent = 'Foto no disponible';
+                    box.textContent = CT('ch_photo_na', 'Foto no disponible');
                     box.onclick = null;
                 };
                 img.src = imgUrl;
@@ -3427,7 +3427,7 @@
                 img.decoding = 'async';
                 img.onerror = () => {
                     box.classList.add('broken');
-                    box.textContent = 'Este Tic ya no está disponible';
+                    box.textContent = CT('ch_tic_na', 'Este Tic ya no está disponible');
                 };
                 if (imgUrl) img.src = imgUrl;
                 box.appendChild(img);
@@ -3452,15 +3452,15 @@
                 box.className = 'cv-empty';
                 box.appendChild(makeAvatar(peer, 84));
                 const title = document.createElement('h2');
-                title.textContent = currentChatIsGroup ? 'Empieza la conversación' : `Saluda a ${name}`;
+                title.textContent = currentChatIsGroup ? CT('ch_start_conv', 'Empieza la conversación') : CT('ch_say_hi_to', 'Saluda a {{name}}', { name: name });
                 const text = document.createElement('p');
                 text.textContent = currentChatIsGroup
-                    ? 'Aún no hay mensajes en este grupo. Escribe el primero.'
-                    : 'Aún no hay mensajes. Rompe el hielo con un saludo.';
+                    ? CT('ch_no_msgs_group', 'Aún no hay mensajes en este grupo. Escribe el primero.')
+                    : CT('ch_no_msgs_dm', 'Aún no hay mensajes. Rompe el hielo con un saludo.');
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'btn-primary';
-                btn.textContent = 'Saludar';
+                btn.textContent = CT('ch_say_hi', 'Saludar');
                 btn.addEventListener('click', () => sendText('Hola'));
                 box.appendChild(title);
                 box.appendChild(text);
@@ -3575,7 +3575,7 @@
                     if (isSticker) {
                         const stkImg = new Image();
                         stkImg.className = 'msg-sticker';
-                        stkImg.alt = 'Sticker';
+                        stkImg.alt = CT('ch_sticker', 'Sticker');
                         stkImg.decoding = 'async';
                         const stkUrl = String(m.image || m.photo);
                         stkImg.src = /^(https?:|data:)/.test(stkUrl) ? stkUrl : `${API()}/${stkUrl.replace(/^\/?/, '')}`;
@@ -3592,10 +3592,10 @@
                         const q = document.createElement('div');
                         q.className = 'msg-quote';
                         const rMine = myUserAliases.has(String(m.replyTo.fromUserId || ''));
-                        const rName = rMine ? 'Tú' : (document.getElementById('chat-header-name') ? (currentChatIsGroup ? senderNameOf(String(m.replyTo.fromUserId || '')) : $('chat-header-name').textContent) : 'Mensaje');
+                        const rName = rMine ? CT('ch_you', 'Tú') : (document.getElementById('chat-header-name') ? (currentChatIsGroup ? senderNameOf(String(m.replyTo.fromUserId || '')) : $('chat-header-name').textContent) : CT('ch_message', 'Mensaje'));
                         const rIsSticker = /-sticker\.webp(\?|$)/i.test(String(m.replyTo.image || ''));
-                        const rText = m.replyTo.text ? safeText(String(m.replyTo.text).replace(/\s+/g, ' ')) : (m.replyTo.tic ? 'Tic compartido' : (rIsSticker ? 'Sticker' : (m.replyTo.image ? 'Foto' : '')));
-                        q.innerHTML = `${(m.replyTo.image && !rIsSticker) ? `<img src="${/^(https?:|data:)/.test(m.replyTo.image) ? m.replyTo.image : API() + '/' + String(m.replyTo.image).replace(/^\/?/, '')}" alt="">` : ''}<b>${safeText(rName)}</b><span>${rText}</span>`;
+                        const rText = m.replyTo.text ? safeText(String(m.replyTo.text).replace(/\s+/g, ' ')) : (m.replyTo.tic ? CT('ch_shared_tic', 'Tic compartido') : (rIsSticker ? CT('ch_sticker', 'Sticker') : (m.replyTo.image ? CT('ch_photo', 'Foto') : '')));
+                        q.innerHTML = `${(m.replyTo.image && !rIsSticker) ? `<img src="${String(/^(https?:|data:)/.test(m.replyTo.image) ? m.replyTo.image : API() + '/' + String(m.replyTo.image).replace(/^\/?/, '')).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}" alt="">` : ''}<b>${safeText(rName)}</b><span>${rText}</span>`;
                         q.addEventListener('click', (event) => { event.stopPropagation(); jumpToMessage(m.replyTo.id); });
                         wrap.appendChild(q);
                     }
@@ -3709,7 +3709,7 @@
                     renderMessages(chatMessages);
                 } catch (error) {
                     console.error('Error guardando reacción:', error);
-                    showToast('No se pudo guardar la reacción');
+                    showToast(CT('ch_t_react_err', 'No se pudo guardar la reacción'));
                 }
             }
 
@@ -3747,12 +3747,12 @@
                         const errData = await res.json().catch(() => ({}));
                         if (!input.value) { input.value = text; updateSendState(); }
                         if (replySnap) setReply(replySnap);
-                        showToast(errData.message || 'Error al enviar');
+                        showToast(errData.message || CT('ch_t_send_err', 'Error al enviar'));
                     }
                 } catch (e) {
                     console.error('Error sending message:', e);
                     if (!input.value) { input.value = text; updateSendState(); }
-                    showToast('Error al enviar');
+                    showToast(CT('ch_t_send_err', 'Error al enviar'));
                 } finally {
                     sendingNow = false;
                 }
@@ -3761,19 +3761,19 @@
             /* ---------- Reportar la conversación ---------- */
             window.openChatReport = function () {
                 const reportedId = currentChatUserId;
-                if (!reportedId || currentChatIsGroup) { showToast('Solo se puede reportar desde un chat con una persona.'); return; }
+                if (!reportedId || currentChatIsGroup) { showToast(CT('ch_t_report_only', 'Solo se puede reportar desde un chat con una persona.')); return; }
                 const nameEl = document.getElementById('direct-config-user-name');
                 const label = (nameEl && nameEl.textContent.trim()) || 'este usuario';
-                const reasons = [['spam', 'Spam o publicidad'], ['acoso', 'Acoso o bullying'], ['contenido_inapropiado', 'Contenido inapropiado'], ['suplantacion', 'Suplanta la identidad de otra persona'], ['menor_de_edad', 'Persona menor de edad'], ['otro', 'Otro motivo']];
+                const reasons = [['spam', CT('ch_r_spam', 'Spam o publicidad')], ['acoso', CT('ch_r_bully', 'Acoso o bullying')], ['contenido_inapropiado', CT('ch_r_inapp', 'Contenido inapropiado')], ['suplantacion', CT('ch_r_impers', 'Suplanta la identidad de otra persona')], ['menor_de_edad', CT('ch_r_minor', 'Persona menor de edad')], ['otro', CT('ch_r_other', 'Otro motivo')]];
                 let reason = reasons[0][0];
                 const ov = document.createElement('div');
                 ov.style.cssText = 'position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center';
                 const card = document.createElement('div');
                 card.style.cssText = 'width:100%;max-width:480px;max-height:88vh;overflow:auto;background:#fff;color:#1D1B20;border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));font-family:system-ui,sans-serif';
-                card.innerHTML = `<b style="font-size:17px">Reportar a ${stkEsc(label)}</b><p style="font-size:13px;color:#6b7280;margin:6px 0 12px">Revisaremos el reporte y no se le avisará a la persona. Se adjuntarán los últimos mensajes de esta conversación para poder revisarlos.</p>` +
+                card.innerHTML = `<b style="font-size:17px">${CT('ch_report_to', 'Reportar a {{name}}', { name: stkEsc(label) })}</b><p style="font-size:13px;color:#6b7280;margin:6px 0 12px">${CT('ch_report_info', 'Revisaremos el reporte y no se le avisará a la persona. Se adjuntarán los últimos mensajes de esta conversación para poder revisarlos.')}</p>` +
                     reasons.map((r, i) => `<button type="button" data-r="${r[0]}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1.5px solid ${i === 0 ? '#2563eb' : '#e5e7eb'};background:${i === 0 ? '#eff6ff' : '#fff'};border-radius:12px;padding:11px 12px;margin-bottom:8px;font:600 14px system-ui;cursor:pointer">${r[1]}</button>`).join('') +
-                    '<textarea id="chat-report-details" maxlength="500" placeholder="Añade más detalles (opcional)" style="width:100%;min-height:64px;border:1.5px solid #e5e7eb;border-radius:12px;padding:10px;font:14px system-ui;margin:4px 0 12px;box-sizing:border-box"></textarea>' +
-                    '<div style="display:flex;gap:10px"><button type="button" data-x style="flex:1;padding:13px;border-radius:12px;border:0;background:#f3f4f6;font:700 14px system-ui;cursor:pointer">Cancelar</button><button type="button" data-send style="flex:1;padding:13px;border-radius:12px;border:0;background:#2563eb;color:#fff;font:700 14px system-ui;cursor:pointer">Enviar reporte</button></div>';
+                    '<textarea id="chat-report-details" maxlength="500" placeholder="' + CT('ch_report_details', 'Añade más detalles (opcional)') + '" style="width:100%;min-height:64px;border:1.5px solid #e5e7eb;border-radius:12px;padding:10px;font:14px system-ui;margin:4px 0 12px;box-sizing:border-box"></textarea>' +
+                    '<div style="display:flex;gap:10px"><button type="button" data-x style="flex:1;padding:13px;border-radius:12px;border:0;background:#f3f4f6;font:700 14px system-ui;cursor:pointer">' + CT('ch_cancel', 'Cancelar') + '</button><button type="button" data-send style="flex:1;padding:13px;border-radius:12px;border:0;background:#2563eb;color:#fff;font:700 14px system-ui;cursor:pointer">Enviar reporte</button></div>';
                 ov.appendChild(card); document.body.appendChild(ov);
                 ov.addEventListener('click', async (e) => {
                     if (e.target === ov || e.target.hasAttribute('data-x')) { ov.remove(); return; }
@@ -3785,17 +3785,17 @@
                     }
                     const send = e.target.closest('[data-send]');
                     if (!send) return;
-                    send.disabled = true; send.textContent = 'Enviando…';
+                    send.disabled = true; send.textContent = CT('ch_sending', 'Enviando…');
                     try {
                         const res = await fetch(`${API()}/api/reports`, {
                             method: 'POST', headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ reporterId: userPhoneId, reportedUserId: reportedId, type: 'chat', reason, details: (card.querySelector('#chat-report-details').value || '').trim() })
                         });
                         const out = await res.json().catch(() => ({}));
-                        if (!res.ok) { send.disabled = false; send.textContent = 'Enviar reporte'; showToast(out.message || 'No se pudo enviar el reporte'); return; }
+                        if (!res.ok) { send.disabled = false; send.textContent = CT('ch_send_report', 'Enviar reporte'); showToast(out.message || CT('ch_t_report_err', 'No se pudo enviar el reporte')); return; }
                         ov.remove();
-                        showToast('Gracias, hemos recibido tu reporte');
-                    } catch (err) { send.disabled = false; send.textContent = 'Enviar reporte'; showToast('No se pudo enviar el reporte'); }
+                        showToast(CT('ch_t_report_ok', 'Gracias, hemos recibido tu reporte'));
+                    } catch (err) { send.disabled = false; send.textContent = CT('ch_send_report', 'Enviar reporte'); showToast(CT('ch_t_report_err', 'No se pudo enviar el reporte')); }
                 });
             };
 
@@ -3810,7 +3810,7 @@
                 recent: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
                 trend: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5c3.2 3.6 5.2 6.2 5.2 9.4a5.2 5.2 0 0 1-10.4 0c0-3.2 2-5.8 5.2-9.4z"/><path d="M12 13c1.6 1.6 2.2 2.6 2.2 3.6a2.2 2.2 0 0 1-4.4 0c0-1 .6-2 2.2-3.6z"/></svg>'
             };
-            const STK_LABEL = { fav: 'Favoritos', recent: 'Recientes', trend: 'De moda hoy' };
+            const STK_LABEL = { get fav() { return CT('ch_stk_fav', 'Favoritos'); }, get recent() { return CT('ch_stk_recent', 'Recientes'); }, get trend() { return CT('ch_stk_trend', 'De moda hoy'); } };
             async function loadChatStickers() {
                 const res = await fetch(`${API()}/api/stickers`);
                 if (!res.ok) throw new Error('stickers');
@@ -3823,10 +3823,10 @@
                 if (!tray || !chatStickers) return;
                 const list = chatStickers[chatStkTab] || [];
                 const tabs = ['fav', 'recent', 'trend'].map((k) => `<button type="button" class="cv-stk-tab${chatStkTab === k ? ' on' : ''}" data-tab="${k}" aria-label="${STK_LABEL[k]}">${STK_ICONS[k]}</button>`).join('');
-                const msg = list.length ? 'Toca uno para enviarlo. Mantén pulsado para más opciones.'
-                    : (chatStkTab === 'fav' ? 'Aquí salen tus favoritos y los stickers que creas. Toca + para crear uno (mejor un PNG con fondo transparente).'
-                        : chatStkTab === 'recent' ? 'Aún no has usado ningún sticker.' : 'Hoy todavía no hay stickers de moda. ¡Sé el primero!');
-                tray.innerHTML = `<div class="cv-stk-tabs">${tabs}<button type="button" class="cv-stk-tab" data-add="1" aria-label="Crear sticker">${STK_PLUS}</button></div><div class="cv-stk-grid">${list.map((s) => `<button type="button" class="cv-stk" data-id="${stkEsc(s.id)}"><img src="${stkEsc(stkUrl(s.url))}" alt="" loading="lazy" decoding="async"></button>`).join('')}</div><p class="cv-stk-hint">${msg}</p>`;
+                const msg = list.length ? CT('ch_stk_hint', 'Toca uno para enviarlo. Mantén pulsado para más opciones.')
+                    : (chatStkTab === 'fav' ? CT('ch_stk_empty_fav', 'Aquí salen tus favoritos y los stickers que creas. Toca + para crear uno (mejor un PNG con fondo transparente).')
+                        : chatStkTab === 'recent' ? CT('ch_stk_empty_recent', 'Aún no has usado ningún sticker.') : CT('ch_stk_empty_trend', 'Hoy todavía no hay stickers de moda. ¡Sé el primero!'));
+                tray.innerHTML = `<div class="cv-stk-tabs">${tabs}<button type="button" class="cv-stk-tab" data-add="1" aria-label="${CT('ch_stk_create', 'Crear sticker')}">${STK_PLUS}</button></div><div class="cv-stk-grid">${list.map((s) => `<button type="button" class="cv-stk" data-id="${stkEsc(s.id)}"><img src="${stkEsc(stkUrl(s.url))}" alt="" loading="lazy" decoding="async"></button>`).join('')}</div><p class="cv-stk-hint">${msg}</p>`;
             }
             window.toggleChatStickers = async function () {
                 const tray = $('chat-stk-tray');
@@ -3837,7 +3837,7 @@
                 if (input && document.activeElement === input) input.blur();
                 tray.hidden = false;
                 if (btn) btn.classList.add('is-on');
-                tray.innerHTML = '<p class="cv-stk-hint">Cargando…</p>';
+                tray.innerHTML = '<p class="cv-stk-hint">' + CT('ch_loading', 'Cargando…') + '</p>';
                 try { await loadChatStickers(); renderChatStickers(); }
                 catch (e) { tray.innerHTML = '<p class="cv-stk-hint">No se pudieron cargar los stickers.</p>'; }
             };
@@ -3875,9 +3875,9 @@
                         const data = await stickerFileToData(f);
                         const res = await fetch(`${API()}/api/stickers`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: data }) });
                         const out = await res.json().catch(() => ({}));
-                        if (!res.ok) { showToast(out.message || 'No se pudo subir el sticker'); return; }
+                        if (!res.ok) { showToast(out.message || CT('ch_t_stk_up_err', 'No se pudo subir el sticker')); return; }
                         chatStkTab = 'fav'; await loadChatStickers(); renderChatStickers();
-                    } catch (e) { showToast('No se pudo subir el sticker'); }
+                    } catch (e) { showToast(CT('ch_t_stk_up_err', 'No se pudo subir el sticker')); }
                 });
                 fi.click();
             }
@@ -3902,9 +3902,9 @@
                         await fetchMessages();
                     } else {
                         const errData = await res.json().catch(() => ({}));
-                        showToast(errData.message || 'Error al enviar');
+                        showToast(errData.message || CT('ch_t_send_err', 'Error al enviar'));
                     }
-                } catch (e) { showToast('Error al enviar'); }
+                } catch (e) { showToast(CT('ch_t_send_err', 'Error al enviar')); }
                 finally { sendingNow = false; }
             }
             {
@@ -3917,7 +3917,7 @@
                     closePop();
                     const ov = document.createElement('div');
                     ov.className = 'stk-pop-ov'; ov.id = 'stk-pop';
-                    ov.innerHTML = `<div class="stk-pop" role="dialog" aria-label="Opciones del sticker"><div class="stk-pop-img"><img src="${stkEsc(stkUrl(st.url))}" alt=""></div><button type="button" class="primary" data-m="send">Enviar</button><button type="button" data-m="fav">${st.fav ? 'Quitar de favoritos' : 'Añadir a favoritos'}</button>${st.own ? '<button type="button" class="danger" data-m="del">Borrar sticker</button>' : ''}<button type="button" class="cancel" data-m="x">Cancelar</button></div>`;
+                    ov.innerHTML = `<div class="stk-pop" role="dialog" aria-label="${CT('ch_stk_options', 'Opciones del sticker')}"><div class="stk-pop-img"><img src="${stkEsc(stkUrl(st.url))}" alt=""></div><button type="button" class="primary" data-m="send">${CT('ch_send', 'Enviar')}</button><button type="button" data-m="fav">${st.fav ? CT('ch_stk_unfav', 'Quitar de favoritos') : CT('ch_stk_fav_add', 'Añadir a favoritos')}</button>${st.own ? '<button type="button" class="danger" data-m="del">' + CT('ch_stk_delete', 'Borrar sticker') + '</button>' : ''}<button type="button" class="cancel" data-m="x">${CT('ch_cancel', 'Cancelar')}</button></div>`;
                     document.body.appendChild(ov);
                     ov.addEventListener('click', async (ev) => {
                         if (ev.target === ov) { closePop(); return; }
@@ -3927,7 +3927,7 @@
                             if (b.dataset.m === 'send') { closePop(); sendChatSticker(id); return; }
                             if (b.dataset.m === 'fav') await fetch(`${API()}/api/stickers/${encodeURIComponent(id)}/favorite`, { method: st.fav ? 'DELETE' : 'POST' });
                             else if (b.dataset.m === 'del') {
-                                if (!window.confirm('¿Borrar este sticker?')) return;
+                                if (!window.confirm(CT('ch_c_del_sticker', '¿Borrar este sticker?'))) return;
                                 await fetch(`${API()}/api/stickers/${encodeURIComponent(id)}`, { method: 'DELETE' });
                             } else { closePop(); return; }
                             closePop();
@@ -3965,7 +3965,7 @@
             // Al deslizar hacia el otro lado se ve la hora.
             let replyingTo = null;
             function senderNameOf(id) {
-                if (myUserAliases.has(String(id))) return 'Tú';
+                if (myUserAliases.has(String(id))) return CT('ch_you', 'Tú');
                 const fr = (window.allFriends || []).find((f) => String(f.id) === String(id));
                 if (fr) return fr.name || fr.username || fr.usuario || 'Amigo';
                 const h = $('chat-header-name');
@@ -3987,7 +3987,7 @@
                 const sid = String(m.fromUserId || m.senderId || '');
                 const img = String(m.image || m.photo || '');
                 const preview = m.text ? String(m.text).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, ' ')
-                    : (m.sharedTic ? 'Tic compartido' : (/-sticker\.webp(\?|$)/i.test(img) ? 'Sticker' : (img ? 'Foto' : '')));
+                    : (m.sharedTic ? CT('ch_shared_tic', 'Tic compartido') : (/-sticker\.webp(\?|$)/i.test(img) ? CT('ch_sticker', 'Sticker') : (img ? CT('ch_photo', 'Foto') : '')));
                 setReply({ id: m.id, name: senderNameOf(sid), preview });
                 const input = $('chat-message-input');
                 if (input) input.focus();
@@ -3995,7 +3995,7 @@
             function jumpToMessage(id) {
                 const container = $('messages-container');
                 const row = container && id ? container.querySelector('.msg-row[data-id="' + String(id).replace(/"/g, '') + '"]') : null;
-                if (!row) { showToast('Ese mensaje ya no está en pantalla'); return; }
+                if (!row) { showToast(CT('ch_t_msg_gone', 'Ese mensaje ya no está en pantalla')); return; }
                 const top = row.offsetTop - container.clientHeight / 2 + row.offsetHeight / 2;
                 container.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
                 row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
@@ -4124,7 +4124,7 @@
             window.copyProfileId = () => {
                 const id = userPhoneId;
                 navigator.clipboard.writeText(id).then(() => {
-                    showToast('¡ID copiado! Envíalo a un amigo.');
+                    showToast(CT('ch_t_id_copied', '¡ID copiado! Envíalo a un amigo.'));
                 });
             };
 

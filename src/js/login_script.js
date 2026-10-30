@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.error || 'No se pudo iniciar sesión automáticamente.');
+            throw new Error(data.error || CONFIG.translate('lg_auto_fail', 'No se pudo iniciar sesión automáticamente.'));
         }
 
         if (data.token) {
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data.error || 'No se pudo enviar el correo.');
+                throw new Error(data.error || CONFIG.translate('lg_mail_fail', 'No se pudo enviar el correo.'));
             }
 
             currentRecovery.email = email;
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast(CONFIG.translate('reset_sent'));
             showRecoveryStep('code');
         } catch (error) {
-            showToast(error.message || 'No se pudo enviar el código.');
+            showToast(error.message || CONFIG.translate('rg_send_fail', 'No se pudo enviar el código.'));
         }
     }
 
@@ -206,14 +206,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data.error || 'Código incorrecto.');
+                throw new Error(data.error || CONFIG.translate('rg_code_bad', 'Código incorrecto.'));
             }
 
             currentRecovery.resetToken = data.resetToken || '';
             showToast(CONFIG.translate('reset_verified'));
             showRecoveryStep('new-password');
         } catch (error) {
-            showToast(error.message || 'Error al verificar el código.');
+            showToast(error.message || CONFIG.translate('rg_verify_err', 'Error al verificar el código.'));
         }
     }
 
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data.error || 'No se pudo cambiar la contraseña.');
+                throw new Error(data.error || CONFIG.translate('lg_pw_fail', 'No se pudo cambiar la contraseña.'));
             }
 
             if (data.user && (data.user.phone || data.user.telefono)) currentRecovery.phone = data.user.phone || data.user.telefono;
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resetRecoveryForm();
             setLoginView(false);
         } catch (error) {
-            showToast(error.message || 'Error al guardar la contraseña.');
+            showToast(error.message || CONFIG.translate('lg_pw_save_err', 'Error al guardar la contraseña.'));
         }
     }
 
@@ -344,8 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Servidor saturado o en mantenimiento: no es un problema de conexión del usuario
             if (response.status === 429 || response.status === 502 || response.status === 503 || response.status === 504) {
                 showToast(response.status === 429
-                    ? 'El servidor está recibiendo demasiadas peticiones. Espera un minuto e inténtalo de nuevo.'
-                    : 'El servidor no está disponible ahora mismo. Inténtalo de nuevo en unos minutos.');
+                    ? CONFIG.translate('lg_rate', 'El servidor está recibiendo demasiadas peticiones. Espera un minuto e inténtalo de nuevo.')
+                    : CONFIG.translate('lg_down', 'El servidor no está disponible ahora mismo. Inténtalo de nuevo en unos minutos.'));
                 return;
             }
 

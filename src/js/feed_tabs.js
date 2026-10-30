@@ -47,6 +47,7 @@
         };
     }
 
+    function tr(k, d) { try { return (typeof CONFIG !== 'undefined' && CONFIG.translate) ? CONFIG.translate(k, d) : d; } catch (e) { return d; } }
     var followingCursor = null;
     var followingLoading = false;
     var activeTab = 'feed';   // pestaña visible (para ignorar respuestas tardias de la otra)
@@ -83,7 +84,7 @@
                 if (!photos.length && !opts.append) {
                     container.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#999;">' +
                         '<span class="material-icons-outlined" style="font-size:48px; display:block; margin-bottom:12px; opacity:0.3;">group</span>' +
-                        '<p>Sigue a algunos amigos para ver sus Tics aquí.</p></div>';
+                        '<p>' + tr('ft_empty', 'Sigue a algunos amigos para ver sus Tics aquí.') + '</p></div>';
                     window.publicationPhotos = [];
                     return;
                 }
@@ -92,7 +93,7 @@
                 if (followingCursor) {
                     var more = document.createElement('button');
                     more.type = 'button';
-                    more.textContent = 'Cargar más';
+                    more.textContent = tr('ft_more', 'Cargar más');
                     more.style.cssText = 'display:block;margin:14px auto;padding:10px 22px;border-radius:999px;border:none;background:#F0F2F5;color:#1B3A5C;font-weight:700;';
                     more.addEventListener('click', function () { more.remove(); loadFollowingFeed({ append: true }); });
                     container.appendChild(more);

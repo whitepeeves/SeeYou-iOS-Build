@@ -59,19 +59,20 @@
         media.appendChild(video);
         section._tvVideo = video;
         // Si el vídeo no carga o no arranca, se avisa en pantalla con el motivo (antes quedaba la foto quieta sin explicación).
+        function tr(k, d) { try { return (typeof CONFIG !== 'undefined' && CONFIG.translate) ? CONFIG.translate(k, d) : d; } catch (e) { return d; } }
         function showVideoProblem(why) {
             try { console.warn('[SeeYou] Vídeo del Tic no se reproduce:', why, pub.videoUrl); } catch (e) { }
             var badge = media.querySelector('.tv-vid-err');
             if (!badge) { badge = document.createElement('div'); badge.className = 'tv-vid-err'; media.appendChild(badge); }
-            badge.textContent = 'Vídeo no disponible (' + why + ')';
+            badge.textContent = tr('tv_video_na', 'Vídeo no disponible ({{why}})').replace('{{why}}', why);
             // Diagnostico: se pregunta al servidor por el archivo para saber si falta (404), esta bloqueado (403) o es otro problema.
             if (!badge.dataset.probed) {
                 badge.dataset.probed = '1';
                 try {
                     fetch(vsrc, { method: 'GET', headers: { Range: 'bytes=0-1' }, cache: 'no-store' }).then(function (r) {
                         try { console.warn('[SeeYou] Vídeo del Tic: HTTP ' + r.status + ' · ' + (r.headers.get('content-type') || 'sin tipo') + ' · ' + vsrc); } catch (e) { }
-                        if (!r.ok && r.status !== 206) badge.textContent = 'Vídeo no disponible (HTTP ' + r.status + ')';
-                    }).catch(function (e) { badge.textContent = 'Vídeo no disponible (sin conexión con el archivo)'; });
+                        if (!r.ok && r.status !== 206) badge.textContent = tr('tv_video_na', 'Vídeo no disponible ({{why}})').replace('{{why}}', 'HTTP ' + r.status);
+                    }).catch(function (e) { badge.textContent = tr('tv_video_na', 'Vídeo no disponible ({{why}})').replace('{{why}}', tr('tv_no_conn', 'sin conexión con el archivo')); });
                 } catch (e) { }
             }
         }

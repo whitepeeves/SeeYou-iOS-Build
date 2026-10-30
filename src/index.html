@@ -84,7 +84,7 @@
                     <span class="material-icons-outlined">person</span>
                     <div class="field-container">
                         <input type="text" id="login-identifier" name="username" placeholder=" " autocomplete="username" autocapitalize="none" spellcheck="false">
-                        <label for="login-identifier">Correo electrónico o usuario</label>
+                        <label for="login-identifier" data-i18n="lg_identifier">Correo electrónico o usuario</label>
                         <span class="error-message" id="login-identifier-error"></span>
                     </div>
                 </div>
@@ -153,7 +153,7 @@
                             <div class="password-input-wrap">
                                 <input type="password" id="new-password" placeholder=" " required>
                                 <label for="new-password" data-i18n="new_password">Nueva contraseña</label>
-                                <button type="button" class="toggle-password" data-target="new-password" aria-label="Mostrar nueva contraseña">
+                                <button type="button" class="toggle-password" data-target="new-password" aria-label="Mostrar nueva contraseña" data-i18n-aria-label="lg_show_new">
                                     <span class="material-icons-outlined">visibility_off</span>
                                 </button>
                             </div>
@@ -196,7 +196,7 @@
                     <span class="material-icons-outlined dropdown-arrow">expand_more</span>
                 </button>
                 <div class="download-dropdown-menu" id="download-menu">
-                    <a href="javascript:void(0)" class="download-dropdown-item" id="download-ios-link" onclick="alert('La app de iOS estará disponible pronto en el App Store')">
+                    <a href="javascript:void(0)" class="download-dropdown-item" id="download-ios-link" onclick="alert(CONFIG.translate('rg_ios_alert', 'La app de iOS estará disponible pronto en el App Store'))">
                         <span class="material-icons-outlined">apple</span>
                         <span data-i18n="download_ios">iOS (próximamente)</span>
                     </a>
@@ -228,11 +228,11 @@
     </div>
     <script src="js/splash_ui.js?v=2"></script>
 
-    <script src="config.js?v=16"></script>
+    <script src="config.js?v=19"></script>
     <script src="js/geo_lang.js?v=2"></script>
-    <script src="js/countries.js?v=5"></script>
+    <script src="js/countries.js?v=6"></script>
     <script src="js/local_db.js?v=1"></script>
-    <script src="js/login_script.js?v=13"></script>
+    <script src="js/login_script.js?v=14"></script>
     <script>
         (async function initializeLoginLanguage() {
             if (typeof CONFIG !== 'undefined' && typeof CONFIG.initLanguage === 'function') {
@@ -307,7 +307,7 @@
             const resetBtn = document.getElementById('btn-hard-reset');
             resetBtn.onclick = async (e) => {
                 e.stopPropagation();
-                if (confirm("Esto borrará la caché del navegador y cerrará tu sesión para arreglar la conexión. ¿Continuar?")) {
+                if (confirm(CONFIG.translate('lg_clear_confirm', 'Esto borrará la caché del navegador y cerrará tu sesión para arreglar la conexión. ¿Continuar?'))) {
                     if ('serviceWorker' in navigator) {
                         const regs = await navigator.serviceWorker.getRegistrations();
                         for (let reg of regs) await reg.unregister();
@@ -317,7 +317,7 @@
                         for (let key of keys) await caches.delete(key);
                     }
                     localStorage.clear();
-                    alert("Limpieza completada. La página se recargará ahora.");
+                    alert(CONFIG.translate('lg_clear_done', 'Limpieza completada. La página se recargará ahora.'));
                     window.location.reload();
                 }
             };

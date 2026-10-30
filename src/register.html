@@ -74,7 +74,7 @@
                         <span class="material-icons-outlined">mail</span>
                         <div class="field-container">
                             <input type="email" id="email" name="email" autocomplete="email" inputmode="email" placeholder=" " required>
-                            <label for="email">Correo electrónico</label>
+                            <label for="email" data-i18n="rg_email">Correo electrónico</label>
                             <span class="error-message" id="email-error"></span>
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                         <span class="material-icons-outlined">card_giftcard</span>
                         <div class="field-container">
                             <input type="text" id="invite-code" name="invite-code" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder=" ">
-                            <label for="invite-code">Código de invitación (opcional)</label>
+                            <label for="invite-code" data-i18n="rg_invite">Código de invitación (opcional)</label>
                         </div>
                     </div>
 
@@ -93,7 +93,7 @@
                             <div class="password-input-wrap">
                                 <input type="password" id="password" placeholder=" " autocomplete="new-password" required>
                                 <label for="password" data-i18n="label_password">Contraseña</label>
-                                <button type="button" class="toggle-password" data-target="password" aria-label="Mostrar contraseña">
+                                <button type="button" class="toggle-password" data-target="password" aria-label="Mostrar contraseña" data-i18n-aria-label="rg_show_pw">
                                     <span class="material-icons-outlined">visibility_off</span>
                                 </button>
                             </div>
@@ -135,9 +135,9 @@
                                 <span class="material-icons-outlined dropdown-arrow">expand_more</span>
                             </button>
                             <div class="download-dropdown-menu" id="download-menu">
-                                <a href="javascript:void(0)" class="download-dropdown-item" id="download-ios-link" onclick="alert('La app de iOS estará disponible pronto en el App Store')">
+                                <a href="javascript:void(0)" class="download-dropdown-item" id="download-ios-link" onclick="alert(CONFIG.translate('rg_ios_alert', 'La app de iOS estará disponible pronto en el App Store'))">
                                     <span class="material-icons-outlined">apple</span>
-                                    iOS (próximamente)
+                                    <span data-i18n="rg_ios_soon">iOS (próximamente)</span>
                                 </a>
                             </div>
                         </div>
@@ -149,19 +149,19 @@
             <section class="auth-step" data-step="verify" aria-labelledby="title-verify">
                 <div class="auth-step-head">
                     <div class="auth-step-icon"><span class="material-icons-outlined">mark_email_read</span></div>
-                    <h1 class="auth-title" id="title-verify">Verifica tu correo</h1>
-                    <p class="auth-subtitle">Hemos enviado un código de 6 dígitos a<br><b id="verify-email"></b></p>
+                    <h1 class="auth-title" id="title-verify" data-i18n="rg_verify_t">Verifica tu correo</h1>
+                    <p class="auth-subtitle"><span data-i18n="rg_verify_sub">Hemos enviado un código de 6 dígitos a</span><br><b id="verify-email"></b></p>
                 </div>
                 <div class="auth-step-body">
-                    <input type="text" id="modal-verify-code" class="code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" placeholder="······" aria-label="Código de 6 dígitos">
+                    <input type="text" id="modal-verify-code" class="code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" placeholder="······" aria-label="Código de 6 dígitos" data-i18n-aria-label="rg_code_aria">
                     <span class="error-message" id="verify-error" role="alert"></span>
                     <div class="auth-step-actions">
                         <button type="button" id="btn-modal-verify" class="btn-register">
-                            <span>Verificar</span>
+                            <span data-i18n="rg_verify_btn">Verificar</span>
                         </button>
                         <div class="auth-step-links">
-                            <button type="button" id="btn-resend-code" class="auth-link-btn">Reenviar código</button>
-                            <button type="button" id="btn-modal-cancel" class="auth-link-btn">Cambiar datos</button>
+                            <button type="button" id="btn-resend-code" class="auth-link-btn" data-i18n="rg_resend">Reenviar código</button>
+                            <button type="button" id="btn-modal-cancel" class="auth-link-btn" data-i18n="rg_change">Cambiar datos</button>
                         </div>
                     </div>
                 </div>
@@ -170,19 +170,19 @@
             <!-- PASO 3 · Foto de perfil -->
             <section class="auth-step" data-step="photo" aria-labelledby="title-photo">
                 <div class="auth-step-head" style="margin-bottom:8px;">
-                    <h1 class="auth-title" id="title-photo">¡Bienvenido a SeeYou!</h1>
-                    <p class="auth-subtitle">Elige tu foto de perfil para que tus amigos te reconozcan.</p>
+                    <h1 class="auth-title" id="title-photo" data-i18n="rg_welcome">¡Bienvenido a SeeYou!</h1>
+                    <p class="auth-subtitle" data-i18n="rg_photo_sub">Elige tu foto de perfil para que tus amigos te reconozcan.</p>
                 </div>
                 <div class="auth-step-body">
                     <div class="avatar-stage">
-                        <div class="avatar-frame" id="avatar-frame" aria-label="Vista previa de tu foto de perfil">
+                        <div class="avatar-frame" id="avatar-frame" aria-label="Vista previa de tu foto de perfil" data-i18n-aria-label="rg_avatar_aria">
                             <span class="material-icons-outlined avatar-placeholder" id="avatar-placeholder-icon">person</span>
                             <canvas id="avatar-canvas" width="352" height="352"></canvas>
                         </div>
                     </div>
                     <div class="avatar-adjust" id="avatar-adjust">
                         <span class="material-icons-outlined">zoom_out</span>
-                        <input type="range" id="avatar-zoom" min="1" max="3" step="0.01" value="1" aria-label="Zoom de la foto">
+                        <input type="range" id="avatar-zoom" min="1" max="3" step="0.01" value="1" aria-label="Zoom de la foto" data-i18n-aria-label="rg_zoom_aria">
                         <span class="material-icons-outlined">zoom_in</span>
                     </div>
                     <p class="avatar-hint" id="avatar-hint"></p>
@@ -190,13 +190,13 @@
                     <div class="auth-step-actions" style="margin-top:4px;">
                         <button type="button" id="btn-pick-photo" class="auth-btn-secondary">
                             <span class="material-icons-outlined" style="font-size:20px">photo_camera</span>
-                            <span id="btn-pick-photo-label">Elegir foto</span>
+                            <span id="btn-pick-photo-label" data-i18n="rg_pick">Elegir foto</span>
                         </button>
                         <button type="button" id="btn-photo-continue" class="btn-register" disabled>
-                            <span>Continuar</span>
+                            <span data-i18n="rg_continue">Continuar</span>
                         </button>
                         <div class="auth-step-links">
-                            <button type="button" id="btn-photo-skip" class="auth-link-btn">Omitir por ahora</button>
+                            <button type="button" id="btn-photo-skip" class="auth-link-btn" data-i18n="rg_skip">Omitir por ahora</button>
                         </div>
                     </div>
                 </div>
@@ -224,7 +224,7 @@
     </div>
     <script src="js/splash_ui.js?v=2"></script>
 
-    <script src="config.js?v=16"></script>
+    <script src="config.js?v=19"></script>
     <script src="js/geo_lang.js?v=2"></script>
     <script>
         if (typeof CONFIG !== 'undefined' && typeof CONFIG.initLanguage === 'function') {
@@ -243,7 +243,7 @@
 
             const configTimer = setTimeout(() => {
                 configBtn.style.display = 'block';
-                statusText.innerText = 'Buscando servidor en la red local...';
+                statusText.innerText = CONFIG.translate('rg_splash_search', 'Buscando servidor en la red local...');
             }, 5000);
 
             configBtn.onclick = (e) => {
@@ -261,8 +261,8 @@
             setTimeout(() => splash.remove(), 600);
         })();
     </script>
-    <script src="js/countries.js?v=7"></script>
-    <script src="js/script.js?v=12"></script>
+    <script src="js/countries.js?v=8"></script>
+    <script src="js/script.js?v=13"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

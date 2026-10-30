@@ -302,13 +302,13 @@
         var pct = Math.min(100, Math.round((a.progress / a.unitsPerCoin) * 100));
         var invite = r.invite;
         var last = invite.milestones[invite.milestones.length - 1];
-        return '<div id="cn-rewarded"></div><div id="cn-shop"></div><div class="cn-card"><h4>📺 ' + esc(T('coin_summary_ads_title', 'Tus anuncios de hoy')) + '</h4>' +
+        return '<div id="cn-rewarded"></div><div id="cn-shop"></div><div class="cn-card cn-ads-card"><h4>📺 ' + esc(T('coin_summary_ads_title', 'Tus anuncios de hoy')) + '</h4>' +
             '<div class="cn-bar2"><i style="width:' + pct + '%"></i></div>' +
             '<p>' + esc(T('coin_summary_ads_progress', '{{progress}} / {{units}} anuncios para la siguiente moneda · hoy llevas {{today}} de {{cap}} monedas.').replace('{{progress}}', a.progress).replace('{{units}}', a.unitsPerCoin).replace('{{today}}', a.todayCoins).replace('{{cap}}', a.dailyCap)) + '</p>' +
             '<p style="margin-top:6px">' + esc(T('coin_summary_ads_hint', 'Cada anuncio patrocinado que ves con calma ({{s}} s o más) suma un punto. Si pasas de largo, no cuenta.').replace('{{s}}', a.minSeconds)) + '</p></div>' +
             '<div class="cn-card"><h4>✨ ' + esc(T('coin_summary_how_title', 'Cómo conseguir monedas')) + '</h4>' +
             '<div class="cn-row"><div class="cn-ic gold">🏅</div><div><b>' + esc(T('bdg_title', 'Insignias')) + '</b><span>' + r.badgeCoins.map(function (x, i) { return TIER_NAMES_LIST()[i] + ' +' + x; }).join(' · ') + '</span></div></div>' +
-            '<div class="cn-row"><div class="cn-ic blue">👀</div><div><b>' + esc(T('coin_summary_watch_ads', 'Ver anuncios')) + '</b><span>' + esc(T('coin_summary_watch_ads_desc', '1 moneda cada {{n}} anuncios vistos (máx. {{max}} al día)').replace('{{n}}', a.unitsPerCoin).replace('{{max}}', a.dailyCap)) + '</span></div></div>' +
+            '<div class="cn-row cn-ads-row"><div class="cn-ic blue">👀</div><div><b>' + esc(T('coin_summary_watch_ads', 'Ver anuncios')) + '</b><span>' + esc(T('coin_summary_watch_ads_desc', '1 moneda cada {{n}} anuncios vistos (máx. {{max}} al día)').replace('{{n}}', a.unitsPerCoin).replace('{{max}}', a.dailyCap)) + '</span></div></div>' +
             '<div class="cn-row"><div class="cn-ic pink">🎁</div><div><b>' + esc(T('bdg_invite_friends_short', 'Invitar amigos')) + '</b><span>' + esc(T('coin_summary_invite_desc', '+{{n}} cuando suban su primer Tic y hasta +{{m}} por cada hito de días activos').replace('{{n}}', invite.firstTic).replace('{{m}}', last.coins)) + '</span></div></div>' +
             '<div class="cn-row"><div class="cn-ic green">🎨</div><div><b>' + esc(T('coin_summary_personalize', 'Personaliza tu perfil')) + '</b><span>' + esc(T('coin_summary_personalize_desc', 'Desbloquea banners de color o sube tu propia foto de banner desde Configuración')) + '</span></div></div></div>';
     }

@@ -93,6 +93,7 @@
         ensureStyle();
         call('GET', '/api/shop/config').then(function (r) {
             if (!r.ok || !el.isConnected) return;
+            if (r.data && r.data.disabled) { el.innerHTML = ''; return; }   // monetizacion apagada: no hay compra de monedas
             var cfg = r.data, native = isNative();
             if (native) return mountNativeShop(el, cfg);
             var html = '<div class="cn-card"><h4>' + esc(T('shop_title', 'Consigue más monedas')) + '</h4>';

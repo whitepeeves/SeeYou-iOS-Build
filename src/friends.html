@@ -364,6 +364,14 @@
         .fr-who a:focus-visible::after { box-shadow: inset 0 0 0 3px var(--fr-ring); border-radius: 18px; }
         .fr-name { display: flex; align-items: center; font-size: 16px; font-weight: 700; color: var(--fr-text); }
         .fr-name span.t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .fr-why { color: var(--fr-muted); font-weight: 500; }
+        .fr-dt-sub { margin: -6px 2px 12px; font-size: 13px; color: var(--fr-muted); }
+        .fr-dt-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 24px; }
+        @media (min-width: 600px) { .fr-dt-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; } }
+        .fr-dt { position: relative; display: block; aspect-ratio: 3 / 4; border-radius: 14px; overflow: hidden; background: #E9EEF5; text-decoration: none; }
+        .fr-dt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .fr-dt-why { position: absolute; top: 6px; left: 6px; max-width: calc(100% - 12px); padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.92); color: #1B3A5C; font-size: 10.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fr-dt-who { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 8px 7px; background: linear-gradient(transparent, rgba(0,0,0,.65)); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .fr-mutual { margin-top: 3px; font-size: 12.5px; font-weight: 600; color: #2f6fed; }
         .fr-sub { margin-top: 2px; font-size: 13px; color: var(--fr-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .fr-actions { position: relative; z-index: 1; display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
@@ -464,12 +472,13 @@
 
     <script src="js/session_guard.js?v=3"></script>
     <script src="js/auth_fetch.js?v=3"></script>
-    <script src="config.js?v=16"></script>
+    <script src="config.js?v=19"></script>
     <script src="js/back_button.js?v=3"></script>
     <script src="js/notifications_system.js?v=10"></script>
     <script src="js/badges_ui.js?v=7"></script>
     <script src="js/qr_mini.js?v=1"></script>
-    <script src="js/coins_ui.js?v=32"></script>
+    <script src="js/nomoney.js?v=1"></script>
+    <script src="js/coins_ui.js?v=33"></script>
     <script src="js/admob_ui.js?v=4"></script>
     <script>
         (async function() {
@@ -609,16 +618,16 @@
 
         <div class="fr-page" id="friends-view">
             <header class="fr-head">
-                <h1 id="friends-page-title">Amigos</h1>
-                <p id="friends-page-subtitle">Tus amigos, tus solicitudes y gente que quizá conoces.</p>
+                <h1 id="friends-page-title" data-i18n="fr_page_title">Amigos</h1>
+                <p id="friends-page-subtitle" data-i18n="fr_page_subtitle">Tus amigos, tus solicitudes y gente que quizá conoces.</p>
             </header>
 
             <!-- BUSCADOR (siempre visible) -->
             <div class="fr-search" id="fr-search" role="search">
-                <input type="search" id="search-phone-input" placeholder="Buscar por usuario o teléfono" aria-label="Buscar personas por usuario o teléfono"
+                <input type="search" id="search-phone-input" placeholder="Buscar por usuario o teléfono" data-i18n-placeholder="fr_search_ph" aria-label="Buscar personas por usuario o teléfono" data-i18n-aria-label="fr_search_aria"
                     autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
                 <svg class="fr-search-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-                <button type="button" class="fr-clear" id="fr-clear" aria-label="Borrar búsqueda">
+                <button type="button" class="fr-clear" id="fr-clear" aria-label="Borrar búsqueda" data-i18n-aria-label="fr_clear_aria">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -627,10 +636,10 @@
             <section class="fr-results" id="search-result-container" aria-live="polite" hidden></section>
 
             <!-- PESTAÑAS -->
-            <div class="fr-tabs" id="fr-tabs" role="tablist" aria-label="Secciones de amigos">
-                <button type="button" class="fr-tab" role="tab" id="tab-friends" data-tab="friends" aria-controls="panel-friends" aria-selected="true">Amigos <span class="fr-badge" id="badge-friends"></span></button>
-                <button type="button" class="fr-tab" role="tab" id="tab-requests" data-tab="requests" aria-controls="panel-requests" aria-selected="false" tabindex="-1">Solicitudes <span class="fr-badge" id="badge-requests"></span></button>
-                <button type="button" class="fr-tab" role="tab" id="tab-discover" data-tab="discover" aria-controls="panel-discover" aria-selected="false" tabindex="-1">Descubrir <span class="fr-badge" id="badge-discover"></span></button>
+            <div class="fr-tabs" id="fr-tabs" role="tablist" aria-label="Secciones de amigos" data-i18n-aria-label="fr_tabs_aria">
+                <button type="button" class="fr-tab" role="tab" id="tab-friends" data-tab="friends" aria-controls="panel-friends" aria-selected="true"><span data-i18n="fr_tab_friends">Amigos</span> <span class="fr-badge" id="badge-friends"></span></button>
+                <button type="button" class="fr-tab" role="tab" id="tab-requests" data-tab="requests" aria-controls="panel-requests" aria-selected="false" tabindex="-1"><span data-i18n="fr_tab_requests">Solicitudes</span> <span class="fr-badge" id="badge-requests"></span></button>
+                <button type="button" class="fr-tab" role="tab" id="tab-discover" data-tab="discover" aria-controls="panel-discover" aria-selected="false" tabindex="-1"><span data-i18n="fr_tab_discover">Descubrir</span> <span class="fr-badge" id="badge-discover"></span></button>
             </div>
 
             <section class="fr-panel" id="panel-friends" role="tabpanel" aria-labelledby="tab-friends">
@@ -712,6 +721,7 @@
 
             CONFIG.initLanguage();
             CONFIG.translatePage();
+            const FT = (k, d, v) => { let s = CONFIG.translate(k, d); if (v) for (const x in v) s = s.split('{{' + x + '}}').join(v[x]); return s; };
 
             let userPhoneId = null;
             let isUserVerified = false;
@@ -759,7 +769,7 @@
 
             window.copyProfileId = () => {
                 if (!navigator.clipboard) return;
-                navigator.clipboard.writeText(userPhoneId).then(() => showToast('ID copiado. Envíaselo a un amigo.'));
+                navigator.clipboard.writeText(userPhoneId).then(() => showToast(FT('fr_id_copied', 'ID copiado. Envíaselo a un amigo.')));
             };
 
             // ---------- Utilidades ----------
@@ -803,12 +813,13 @@
                 const distinct = !!rawName && !!username;
                 return {
                     id: String(u.id),
-                    title: rawName || username || 'Usuario',
+                    title: rawName || username || FT('fr_user_default', 'Usuario'),
                     handle: username && rawName ? '@' + username : '',
                     username,
                     avatar: String(u.foto || u.avatar || ''),
                     verified: !!u.verificado,
-                    mutual: Number(u.mutualFriends) || 0
+                    mutual: Number(u.mutualFriends) || 0,
+                    reason: u.reason || null
                 };
             }
             function avatarUrl(a) {
@@ -829,12 +840,12 @@
                 const t = Date.parse(iso);
                 if (!t) return '';
                 const m = Math.max(0, Math.round((Date.now() - t) / 60000));
-                if (m < 1) return 'ahora mismo';
-                if (m < 60) return `hace ${m} min`;
+                if (m < 1) return FT('fr_now', 'ahora mismo');
+                if (m < 60) return FT('fr_min', 'hace {{n}} min', { n: m });
                 const h = Math.round(m / 60);
-                if (h < 24) return `hace ${h} h`;
+                if (h < 24) return FT('fr_hour', 'hace {{n}} h', { n: h });
                 const d = Math.round(h / 24);
-                if (d < 30) return d === 1 ? 'hace 1 día' : `hace ${d} días`;
+                if (d < 30) return d === 1 ? FT('fr_day1', 'hace 1 día') : FT('fr_days', 'hace {{n}} días', { n: d });
                 return new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
             }
 
@@ -863,6 +874,7 @@
                 incoming: [],     // [{requestId, user, createdAt}]
                 sent: [],         // [{requestId, user, createdAt}]
                 suggestions: [],  // [user]
+                discoverTics: [], // Tics de gente nueva para descubrir
                 errors: { friends: false, requests: false, suggestions: false },
                 loaded: { core: false, suggestions: false },
                 tab: 'friends'
@@ -886,13 +898,13 @@
                 const rel = relation(u.id);
                 switch (rel.type) {
                     case 'friend':
-                        return `<span class="fr-btn friend" aria-label="Ya sois amigos">${icon('check', 16)} Amigos</span>`;
+                        return `<span class="fr-btn friend" aria-label="${FT('fr_already_aria', 'Ya sois amigos')}">${icon('check', 16)} ${FT('fr_tab_friends', 'Amigos')}</span>`;
                     case 'sent':
-                        return `<span class="fr-btn sent" aria-label="Solicitud enviada">${icon('clock', 16)} Solicitud enviada</span>`;
+                        return `<span class="fr-btn sent" aria-label="${FT('fr_request_sent', 'Solicitud enviada')}">${icon('clock', 16)} ${FT('fr_request_sent', 'Solicitud enviada')}</span>`;
                     case 'incoming':
-                        return `<button type="button" class="fr-btn primary" data-act="accept" data-req="${esc(rel.requestId)}" data-id="${esc(u.id)}">${icon('check', 16)} Aceptar</button>`;
+                        return `<button type="button" class="fr-btn primary" data-act="accept" data-req="${esc(rel.requestId)}" data-id="${esc(u.id)}">${icon('check', 16)} ${FT('fr_accept', 'Aceptar')}</button>`;
                     default:
-                        return `<button type="button" class="fr-btn primary" data-act="add" data-id="${esc(u.id)}">${icon('userPlus', 16)} Añadir</button>`;
+                        return `<button type="button" class="fr-btn primary" data-act="add" data-id="${esc(u.id)}">${icon('userPlus', 16)} ${FT('fr_add', 'Añadir')}</button>`;
                 }
             }
 
@@ -921,9 +933,12 @@
             async function loadSuggestions() {
                 state.loaded.suggestions = false;
                 try {
+                    const ticsReq = getJSON(`${CONFIG.API_BASE_URL}/api/discover/tics/${uid()}?limit=12`).catch(() => []);
                     const list = await getJSON(`${CONFIG.API_BASE_URL}/api/users/suggestions/${uid()}`);
                     state.suggestions = list.map(u => cacheUser(normUser(u))).filter(u => u.id !== userPhoneId);
                     state.errors.suggestions = false;
+                    const tics = await ticsReq;
+                    state.discoverTics = Array.isArray(tics) ? tics : [];
                 } catch (e) {
                     state.errors.suggestions = true;
                 }
@@ -936,7 +951,7 @@
             function emptyState({ iconName, title, text, buttons = '' }) {
                 return `<div class="fr-empty"><div class="fr-empty-ic">${icon(iconName, 42)}</div><h3>${esc(title)}</h3><p>${esc(text)}</p>${buttons}</div>`;
             }
-            const retryBtn = (what) => `<button type="button" class="fr-btn soft" data-act="retry" data-what="${what}">${icon('refresh', 16)} Reintentar</button>`;
+            const retryBtn = (what) => `<button type="button" class="fr-btn soft" data-act="retry" data-what="${what}">${icon('refresh', 16)} ${FT('fr_retry', 'Reintentar')}</button>`;
 
             function renderBadges() {
                 const set = (id, n, hot) => {
@@ -954,8 +969,8 @@
             function friendRow(u, i, anim) {
                 return `<article class="fr-row${anim ? ' fr-in' : ''}" style="--i:${i}" data-friend="${esc(u.id)}">
                     ${avatarHtml(u)}
-                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u)}${u.handle ? `<div class="fr-sub">${esc(u.handle)}</div>` : ''}</a></div>
-                    <div class="fr-actions"><a class="fr-btn soft" href="${chatHref(u)}">${icon('message', 17)} Mensaje</a></div>
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="${esc(FT('fr_view_profile', 'Ver perfil de {{name}}', { name: u.title }))}">${nameHtml(u)}${u.handle ? `<div class="fr-sub">${esc(u.handle)}</div>` : ''}</a></div>
+                    <div class="fr-actions"><a class="fr-btn soft" href="${chatHref(u)}">${icon('message', 17)} ${FT('fr_message', 'Mensaje')}</a></div>
                 </article>`;
             }
 
@@ -963,14 +978,14 @@
                 const box = $('friends-list');
                 if (!state.loaded.core) { box.innerHTML = skelRows(4); return; }
                 if (state.errors.friends) {
-                    box.innerHTML = emptyState({ iconName: 'alert', title: 'No pudimos cargar tus amigos', text: 'Revisa tu conexión e inténtalo de nuevo.', buttons: retryBtn('core') });
+                    box.innerHTML = emptyState({ iconName: 'alert', title: FT('fr_load_friends_t', 'No pudimos cargar tus amigos'), text: FT('fr_conn_err_x', 'Revisa tu conexión e inténtalo de nuevo.'), buttons: retryBtn('core') });
                     return;
                 }
                 if (!state.friends.length) {
                     box.innerHTML = emptyState({
-                        iconName: 'users', title: 'Todavía no tienes amigos',
-                        text: 'Busca a alguien por su usuario o teléfono, o mira a quién podrías conocer.',
-                        buttons: `<button type="button" class="fr-btn primary" data-act="focus-search">${icon('search', 16)} Busca a alguien por su usuario</button><button type="button" class="fr-btn soft" data-act="tab" data-tab="discover">${icon('compass', 16)} Descubrir gente</button>`
+                        iconName: 'users', title: FT('fr_no_friends_t', 'Todavía no tienes amigos'),
+                        text: FT('fr_no_friends_x', 'Busca a alguien por su usuario o teléfono, o mira a quién podrías conocer.'),
+                        buttons: `<button type="button" class="fr-btn primary" data-act="focus-search">${icon('search', 16)} ${FT('fr_search_by_user', 'Busca a alguien por su usuario')}</button><button type="button" class="fr-btn soft" data-act="tab" data-tab="discover">${icon('compass', 16)} ${FT('fr_discover_people', 'Descubrir gente')}</button>`
                     });
                     animated.friends = true;
                     return;
@@ -985,10 +1000,10 @@
                 const when = ago(r.createdAt);
                 return `<article class="fr-row fr-req${anim ? ' fr-in' : ''}" style="--i:${i}" data-req-card="${esc(r.requestId)}">
                     ${avatarHtml(u, 52)}
-                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u)}<div class="fr-sub">${u.handle ? esc(u.handle) + ' · ' : ''}quiere ser tu amigo${when ? ' · ' + esc(when) : ''}</div></a></div>
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="${esc(FT('fr_view_profile', 'Ver perfil de {{name}}', { name: u.title }))}">${nameHtml(u)}<div class="fr-sub">${u.handle ? esc(u.handle) + ' · ' : ''}${FT('fr_wants_friend', 'quiere ser tu amigo')}${when ? ' · ' + esc(when) : ''}</div></a></div>
                     <div class="fr-actions">
-                        <button type="button" class="fr-btn primary" data-act="accept" data-req="${esc(r.requestId)}" data-id="${esc(u.id)}">${icon('check', 17)} Aceptar</button>
-                        <button type="button" class="fr-btn ghost" data-act="reject" data-req="${esc(r.requestId)}" data-id="${esc(u.id)}">${icon('x', 17)} Rechazar</button>
+                        <button type="button" class="fr-btn primary" data-act="accept" data-req="${esc(r.requestId)}" data-id="${esc(u.id)}">${icon('check', 17)} ${FT('fr_accept', 'Aceptar')}</button>
+                        <button type="button" class="fr-btn ghost" data-act="reject" data-req="${esc(r.requestId)}" data-id="${esc(u.id)}">${icon('x', 17)} ${FT('fr_reject', 'Rechazar')}</button>
                     </div>
                 </article>`;
             }
@@ -997,8 +1012,8 @@
                 const when = ago(r.createdAt);
                 return `<article class="fr-row${anim ? ' fr-in' : ''}" style="--i:${i}" data-sent="${esc(u.id)}">
                     ${avatarHtml(u)}
-                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u)}<div class="fr-sub">${u.handle ? esc(u.handle) : (when ? 'Enviada ' + esc(when) : '')}</div></a></div>
-                    <div class="fr-actions"><span class="fr-chip pending">${icon('clock', 14)} Pendiente</span></div>
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="${esc(FT('fr_view_profile', 'Ver perfil de {{name}}', { name: u.title }))}">${nameHtml(u)}<div class="fr-sub">${u.handle ? esc(u.handle) : (when ? esc(FT('fr_sent_ago', 'Enviada {{when}}', { when: when })) : '')}</div></a></div>
+                    <div class="fr-actions"><span class="fr-chip pending">${icon('clock', 14)} ${FT('fr_pending', 'Pendiente')}</span></div>
                 </article>`;
             }
 
@@ -1006,33 +1021,60 @@
                 const box = $('requests-section');
                 if (!state.loaded.core) { box.innerHTML = `<div class="fr-list">${skelRows(2)}</div>`; return; }
                 if (state.errors.requests) {
-                    box.innerHTML = emptyState({ iconName: 'alert', title: 'No pudimos cargar tus solicitudes', text: 'Revisa tu conexión e inténtalo de nuevo.', buttons: retryBtn('core') });
+                    box.innerHTML = emptyState({ iconName: 'alert', title: FT('fr_load_req_t', 'No pudimos cargar tus solicitudes'), text: FT('fr_conn_err_x', 'Revisa tu conexión e inténtalo de nuevo.'), buttons: retryBtn('core') });
                     return;
                 }
                 const anim = !animated.requests;
                 let html = '';
                 if (state.incoming.length) {
-                    html += `<div class="fr-sec-head"><h2 class="fr-sec-title">Te han enviado una solicitud</h2></div><div class="fr-list" id="pending-requests-list">${state.incoming.map((r, i) => requestCard(r, i, anim)).join('')}</div>`;
+                    html += `<div class="fr-sec-head"><h2 class="fr-sec-title">${FT('fr_sec_incoming', 'Te han enviado una solicitud')}</h2></div><div class="fr-list" id="pending-requests-list">${state.incoming.map((r, i) => requestCard(r, i, anim)).join('')}</div>`;
                 }
                 if (state.sent.length) {
                     if (!state.incoming.length) html += `<p class="fr-note">No tienes solicitudes nuevas.</p>`;
-                    html += `<div class="fr-sec-head"><h2 class="fr-sec-title">Enviadas por ti</h2></div><div class="fr-list" id="sent-requests-list">${state.sent.map((r, i) => sentRow(r, i, anim)).join('')}</div>`;
+                    html += `<div class="fr-sec-head"><h2 class="fr-sec-title">${FT('fr_sec_sent', 'Enviadas por ti')}</h2></div><div class="fr-list" id="sent-requests-list">${state.sent.map((r, i) => sentRow(r, i, anim)).join('')}</div>`;
                 }
                 if (!state.incoming.length && !state.sent.length) {
                     html = emptyState({
-                        iconName: 'inbox', title: 'No tienes solicitudes pendientes',
-                        text: 'Cuando alguien quiera ser tu amigo, lo verás aquí. También puedes buscar a alguien tú.',
-                        buttons: `<button type="button" class="fr-btn primary" data-act="focus-search">${icon('search', 16)} Busca a alguien por su usuario</button>`
+                        iconName: 'inbox', title: FT('fr_no_req_t', 'No tienes solicitudes pendientes'),
+                        text: FT('fr_no_req_x', 'Cuando alguien quiera ser tu amigo, lo verás aquí. También puedes buscar a alguien tú.'),
+                        buttons: `<button type="button" class="fr-btn primary" data-act="focus-search">${icon('search', 16)} ${FT('fr_search_by_user', 'Busca a alguien por su usuario')}</button>`
                     });
                 }
                 box.innerHTML = html;
                 animated.requests = true;
             }
 
+            // Por que te la sugerimos (los amigos en comun ya tienen su propia linea)
+            function reasonLine(u) {
+                const r = u && u.reason;
+                if (!r) return '';
+                if (r.type === 'tag' && r.tag) return `<div class="fr-mutual fr-why">${esc(FT('fr_reason_tag', 'Sube Tics de #{{tag}}, como los que te gustan', { tag: r.tag }))}</div>`;
+                if (r.type === 'active') return `<div class="fr-mutual fr-why">${esc(FT('fr_reason_active', 'Activo hoy'))}</div>`;
+                return '';
+            }
+            function reasonChip(r) {
+                if (!r) return '';
+                if (r.type === 'tag' && r.tag) return FT('fr_dt_tag', 'Tu tema: #{{tag}}', { tag: r.tag });
+                if (r.type === 'popular') return FT('fr_dt_popular', 'Popular');
+                return FT('fr_dt_new', 'Nuevo hoy');
+            }
+            function discoverTicsHtml() {
+                const list = state.discoverTics || [];
+                if (!list.length) return '';
+                const cards = list.map((t) => {
+                    const img = avatarUrl(String(t.imageUrl || ''));
+                    if (!img) return '';
+                    const who = String(t.author || t.username || FT('fr_user_default', 'Usuario'));
+                    return `<a class="fr-dt" href="home.html?tic=${encodeURIComponent(t.id)}"><img src="${esc(img)}" alt="" loading="lazy" decoding="async"><span class="fr-dt-why">${esc(reasonChip(t.reason))}</span><span class="fr-dt-who">${esc(who)}</span></a>`;
+                }).join('');
+                if (!cards) return '';
+                return `<div class="fr-sec-head"><h2 class="fr-sec-title">${FT('fr_discover_tics_t', 'Tics para descubrir')}</h2></div><p class="fr-dt-sub">${FT('fr_discover_tics_x', 'Gente nueva que ha publicado hace poco.')}</p><div class="fr-dt-grid">${cards}</div>`;
+            }
+
             function suggestionCard(u, i, anim) {
                 return `<article class="fr-row fr-card${anim ? ' fr-in' : ''}" style="--i:${i}" data-sug="${esc(u.id)}">
                     ${avatarHtml(u, 68)}
-                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u, 15)}<div class="fr-sub">${esc(u.handle || ' ')}</div>${u.mutual ? `<div class="fr-mutual">${u.mutual === 1 ? '1 amigo en común' : u.mutual + ' amigos en común'}</div>` : ''}</a></div>
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="${esc(FT('fr_view_profile', 'Ver perfil de {{name}}', { name: u.title }))}">${nameHtml(u, 15)}<div class="fr-sub">${esc(u.handle || ' ')}</div>${u.mutual ? `<div class="fr-mutual">${u.mutual === 1 ? FT('fr_mutual1', '1 amigo en común') : FT('fr_mutualn', '{{n}} amigos en común', { n: u.mutual })}</div>` : reasonLine(u)}</a></div>
                     <div class="fr-actions" data-rel="${esc(u.id)}">${relationButtons(u)}</div>
                 </article>`;
             }
@@ -1041,20 +1083,20 @@
                 const box = $('suggestions-wrap');
                 if (!state.loaded.suggestions) { box.innerHTML = `<div class="fr-grid">${skelRows(6, true)}</div>`; return; }
                 if (state.errors.suggestions) {
-                    box.innerHTML = emptyState({ iconName: 'alert', title: 'No pudimos cargar sugerencias', text: 'Inténtalo de nuevo en un momento.', buttons: retryBtn('suggestions') });
+                    box.innerHTML = emptyState({ iconName: 'alert', title: FT('fr_load_sug_t', 'No pudimos cargar sugerencias'), text: FT('fr_try_moment_x', 'Inténtalo de nuevo en un momento.'), buttons: retryBtn('suggestions') });
                     return;
                 }
                 if (!state.suggestions.length) {
                     box.innerHTML = emptyState({
-                        iconName: 'compass', title: 'No hay sugerencias por ahora',
-                        text: 'Ya has visto a todo el mundo. Prueba a buscar a alguien por su usuario o teléfono.',
-                        buttons: `<button type="button" class="fr-btn primary" data-act="focus-search">${icon('search', 16)} Busca a alguien por su usuario</button>`
-                    });
+                        iconName: 'compass', title: FT('fr_no_sug_t', 'No hay sugerencias por ahora'),
+                        text: FT('fr_no_sug_x', 'Ya has visto a todo el mundo. Prueba a buscar a alguien por su usuario o teléfono.'),
+                        buttons: `<button type="button" class="fr-btn primary" data-act="focus-search">${icon('search', 16)} ${FT('fr_search_by_user', 'Busca a alguien por su usuario')}</button>`
+                    }) + discoverTicsHtml();
                     return;
                 }
                 const anim = !animated.discover;
-                box.innerHTML = `<div class="fr-sec-head"><h2 class="fr-sec-title">Personas que quizá conoces</h2><button type="button" class="fr-btn ghost" style="height:34px;padding:0 12px;font-size:13px" data-act="retry" data-what="suggestions">${icon('refresh', 15)} Ver otras</button></div>
-                    <div class="fr-grid" id="friend-suggestions-list">${state.suggestions.map((u, i) => suggestionCard(u, i, anim)).join('')}</div>`;
+                box.innerHTML = `<div class="fr-sec-head"><h2 class="fr-sec-title">${FT('fr_people_you_know', 'Personas que quizá conoces')}</h2><button type="button" class="fr-btn ghost" style="height:34px;padding:0 12px;font-size:13px" data-act="retry" data-what="suggestions">${icon('refresh', 15)} ${FT('fr_see_others', 'Ver otras')}</button></div>
+                    <div class="fr-grid" id="friend-suggestions-list">${state.suggestions.map((u, i) => suggestionCard(u, i, anim)).join('')}</div>${discoverTicsHtml()}`;
                 animated.discover = true;
             }
 
@@ -1127,13 +1169,13 @@
                 refreshRelationUI(userId);           // optimista: el botón pasa a "Solicitud enviada"
                 try {
                     await post('/api/friends/add', { fromUserId: userPhoneId, toUserId: userId });
-                    showToast(`Solicitud enviada a ${u.title}`);
+                    showToast(FT('fr_sent_to', 'Solicitud enviada a {{name}}', { name: u.title }));
                     animated.requests = false;
                     syncQuietly();
                 } catch (err) {
                     state.sent = state.sent.filter(x => x !== entry);
                     refreshRelationUI(userId);
-                    showToast(err.server ? err.message : 'Error de conexión. Inténtalo de nuevo.', { error: true });
+                    showToast(err.server ? err.message : FT('fr_conn_err_toast', 'Error de conexión. Inténtalo de nuevo.'), { error: true });
                     if (err.server) syncQuietly();
                 }
             }
@@ -1157,8 +1199,8 @@
 
                 try {
                     await post('/api/friends/respond', { requestId, accept, userId: userPhoneId });
-                    if (accept) showToast('Ahora sois amigos', { href: chatHref(u), label: 'Enviar mensaje' });
-                    else showToast('Solicitud rechazada');
+                    if (accept) showToast(FT('fr_now_friends', 'Ahora sois amigos'), { href: chatHref(u), label: FT('fr_send_message', 'Enviar mensaje') });
+                    else showToast(FT('fr_req_rejected', 'Solicitud rechazada'));
                 } catch (err) {
                     // Revertir
                     if (accept) state.friends = state.friends.filter(f => f.id !== u.id);
@@ -1166,7 +1208,7 @@
                     animated.requests = true;
                     renderAll();
                     if (searchState.query) refreshSearchRow(u.id);
-                    showToast(err.server ? err.message : 'Error de conexión. Inténtalo de nuevo.', { error: true });
+                    showToast(err.server ? err.message : FT('fr_conn_err_toast', 'Error de conexión. Inténtalo de nuevo.'), { error: true });
                 }
             }
 
@@ -1210,10 +1252,10 @@
 
             function searchRow(u, i) {
                 const rel = relation(u.id);
-                const hint = rel.type === 'incoming' ? 'Quiere ser tu amigo' : (u.handle || (u.username ? '@' + u.username : ''));
+                const hint = rel.type === 'incoming' ? FT('fr_incoming_hint', 'Quiere ser tu amigo') : (u.handle || (u.username ? '@' + u.username : ''));
                 return `<article class="fr-row fr-in" style="--i:${i}" data-search-row="${esc(u.id)}">
                     ${avatarHtml(u)}
-                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="Ver perfil de ${esc(u.title)}">${nameHtml(u)}${hint ? `<div class="fr-sub">${esc(hint)}</div>` : ''}</a></div>
+                    <div class="fr-who"><a href="${profileHref(u)}" aria-label="${esc(FT('fr_view_profile', 'Ver perfil de {{name}}', { name: u.title }))}">${nameHtml(u)}${hint ? `<div class="fr-sub">${esc(hint)}</div>` : ''}</a></div>
                     <div class="fr-actions" data-rel="${esc(u.id)}">${relationButtons(u)}</div>
                 </article>`;
             }
@@ -1222,17 +1264,17 @@
                 const list = searchState.results;
                 const q = searchState.query;
                 if (!list.length && searchState.onlySelf) {
-                    resultsBox.innerHTML = emptyState({ iconName: 'users', title: 'Ese eres tú', text: 'Busca a otra persona para enviarle una solicitud de amistad.' });
+                    resultsBox.innerHTML = emptyState({ iconName: 'users', title: FT('fr_its_you_t', 'Ese eres tú'), text: FT('fr_its_you_x', 'Busca a otra persona para enviarle una solicitud de amistad.') });
                     return;
                 }
                 if (!list.length) {
                     resultsBox.innerHTML = emptyState({
-                        iconName: 'noresult', title: 'No encontramos a nadie',
-                        text: `No hay resultados para «${q}». Revisa el usuario o escribe el teléfono completo.`
+                        iconName: 'noresult', title: FT('fr_none_found_t', 'No encontramos a nadie'),
+                        text: FT('fr_none_found_x', 'No hay resultados para «{{q}}». Revisa el usuario o escribe el teléfono completo.', { q: q })
                     });
                     return;
                 }
-                resultsBox.innerHTML = `<div class="fr-sec-head"><h2 class="fr-sec-title">${list.length === 1 ? '1 resultado' : list.length + ' resultados'}</h2></div><div class="fr-list">${list.map(searchRow).join('')}</div>`;
+                resultsBox.innerHTML = `<div class="fr-sec-head"><h2 class="fr-sec-title">${list.length === 1 ? FT('fr_result1', '1 resultado') : FT('fr_resultsn', '{{n}} resultados', { n: list.length })}</h2></div><div class="fr-list">${list.map(searchRow).join('')}</div>`;
             }
 
             function refreshSearchRow(userId) {
@@ -1264,7 +1306,7 @@
                     renderSearchResults();
                 } catch (err) {
                     if (seq !== searchState.seq) return;
-                    resultsBox.innerHTML = emptyState({ iconName: 'alert', title: 'Error en la búsqueda', text: 'No pudimos buscar ahora mismo. Inténtalo de nuevo.', buttons: `<button type="button" class="fr-btn soft" data-act="research">${icon('refresh', 16)} Reintentar</button>` });
+                    resultsBox.innerHTML = emptyState({ iconName: 'alert', title: FT('fr_search_err_t', 'Error en la búsqueda'), text: FT('fr_search_err_x', 'No pudimos buscar ahora mismo. Inténtalo de nuevo.'), buttons: `<button type="button" class="fr-btn soft" data-act="research">${icon('refresh', 16)} ${FT('fr_retry', 'Reintentar')}</button>` });
                 }
             }
             resultsBox.addEventListener('click', (e) => { if (e.target.closest('[data-act="research"]')) runSearch(); });
