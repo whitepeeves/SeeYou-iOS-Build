@@ -9,6 +9,8 @@
         '#initial-splash.splash-screen::before{content:"";position:absolute;width:420px;height:420px;left:50%;top:38%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(0,163,255,.22) 0%,rgba(0,163,255,0) 68%);pointer-events:none}',
         '#initial-splash .splash-logo-container{position:relative;width:132px;height:80px;margin:0 0 18px;filter:drop-shadow(0 10px 26px rgba(0,163,255,.35))}',
         '#initial-splash .splash-logo-container svg{width:100%;height:100%;overflow:visible}',
+        '#initial-splash .splash-logo-container{height:112px;width:112px}',
+        '#initial-splash .splash-logo-img{width:112px;height:112px;display:block;border-radius:26px;box-shadow:0 10px 30px rgba(0,0,0,.35)}',
         '#initial-splash .splash-logo-container circle{transform-box:fill-box;transform-origin:center;animation:sy-pulse 2.4s infinite ease-in-out}',
         '#initial-splash .splash-logo-container circle:nth-of-type(2){animation-delay:-1.2s}',
         '@keyframes sy-pulse{0%,100%{transform:scale(.92);opacity:.55}50%{transform:scale(1.08);opacity:1}}',

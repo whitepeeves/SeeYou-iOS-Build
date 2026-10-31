@@ -112,7 +112,7 @@
       if (theme) {
         new Notification('Nuevo tema del día', {
           body: theme.theme,
-          icon: new URL('logotipo.png', window.location.href).toString(),
+          icon: new URL('icon-192.png', window.location.href).toString(),
           data: { url: new URL('home.html', window.location.href).toString() }
         });
       }
@@ -400,7 +400,7 @@
 
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
-    const avatar = item.fromUserAvatar || item.fromUser?.avatar || item.fromUser?.foto || 'logotipo.png';
+    const avatar = item.fromUserAvatar || item.fromUser?.avatar || item.fromUser?.foto || 'icon-192.png';
 
     const options = {
       body,

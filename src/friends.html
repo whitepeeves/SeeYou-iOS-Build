@@ -6,7 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Amigos - SeeYou</title>
-    <link rel="icon" type="image/png" href="logotipo.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -460,11 +461,7 @@
          entra aquí desde dentro de la app, cuando ya estábamos conectados segundos antes. -->
     <div id="initial-splash" class="splash-screen" style="display:none">
         <div class="splash-logo-container">
-            <svg class="splash-logo-svg" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
-                <circle class="c1" cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
-                <circle class="c2" cx="65" cy="30" r="22" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" />
-                <path class="arc" d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
-            </svg>
+            <img class="splash-logo-img" src="icon-192.png" alt="SeeYou">
         </div>
         <div class="splash-text" id="splash-status">Conectando con el servidor...</div>
         <button id="btn-splash-config" class="btn-splash-config">Configurar Servidor</button>
@@ -529,11 +526,7 @@
     <!-- SIDEBAR (NAV LATERAL) -->
     <aside class="sidebar">
         <div class="logo-section" style="cursor:pointer; margin-bottom: 30px; display:flex; justify-content:center;" onclick="window.location.href='home.html'">
-            <svg width="40" height="24" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" />
-                <circle cx="65" cy="30" r="22" fill="none" stroke="#1B3A5C" stroke-width="8" />
-                <path d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
-            </svg>
+            <img src="aros.png" alt="SeeYou" style="width:40px;height:auto;display:block">
         </div>
 
         <button class="nav-btn" onclick="window.location.href='home.html'" style="margin-bottom:12px;" data-i18n-title="nav_home">
@@ -571,11 +564,7 @@
         <!-- MOBILE HEADER -->
         <header class="mobile-header">
             <div class="logo-section" style="cursor:pointer; margin:0; display:flex; align-items:center;" onclick="window.location.href='home.html'">
-                <svg width="40" height="24" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
-                    <circle cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" />
-                    <circle cx="65" cy="30" r="22" fill="none" stroke="#1B3A5C" stroke-width="8" />
-                    <path d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
-                </svg>
+                <img src="aros.png" alt="SeeYou" style="width:40px;height:auto;display:block">
                 <span style="font-size: 20px; font-weight: 700; color: var(--primary); margin-left:6px; letter-spacing:-0.5px;">SeeYou</span>
             </div>
             <div class="user-section" style="width:36px; height:36px; pointer-events:auto; border:2px solid var(--primary); box-shadow:none; flex-shrink:0;" onclick="document.getElementById('mobile-dropdown').classList.toggle('show')">

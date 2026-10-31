@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="style.css?v=6">
     <script src="js/palette.js?v=2"></script>
     <script src="js/banner_mask.js?v=4"></script>
-    <link rel="icon" type="image/png" href="logotipo.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json">
     <script defer src="js/session_guard.js?v=3"></script>
 
@@ -2855,12 +2856,7 @@
     <!-- SPLASH SCREEN: oculta por defecto (ver mismo cambio en friends.html/chat.html). -->
     <div id="initial-splash" class="splash-screen" style="display:none">
         <div class="splash-logo-container">
-            <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
-                <circle cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
-                <circle cx="65" cy="30" r="22" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" />
-                <path d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8"
-                    stroke-linecap="round" />
-            </svg>
+            <img class="splash-logo-img" src="icon-192.png" alt="SeeYou">
         </div>
         <div class="splash-text" id="splash-status">Conectando con el servidor...</div>
         <button id="btn-splash-config" class="btn-splash-config">Configurar Servidor</button>
@@ -3078,11 +3074,7 @@
     <!-- SIDEBAR (NAV LATERAL) -->
     <aside class="sidebar">
         <div class="logo-section" style="cursor:pointer; margin-bottom: 30px; display:flex; justify-content:center;" onclick="window.location.reload()">
-            <svg width="40" height="24" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="35" cy="30" r="22" fill="none" stroke="#00A3FF" stroke-width="8" />
-                <circle cx="65" cy="30" r="22" fill="none" stroke="#1B3A5C" stroke-width="8" />
-                <path d="M 35 8 A 22 22 0 0 1 57 30" fill="none" stroke="#00A3FF" stroke-width="8" stroke-linecap="round" />
-            </svg>
+            <img src="aros.png" alt="SeeYou" style="width:40px;height:auto;display:block">
         </div>
 
         <button class="nav-btn active" id="nav-inicio" data-section="inicio" onclick="navigate('inicio')" style="margin-bottom:12px;" data-i18n-title="nav_home">
@@ -3121,7 +3113,7 @@
             <!-- Feed Horizontal (Tics) -->
             <div class="home-top">
                 <div class="home-brand" aria-label="SeeYou">
-                    <svg class="home-logo" viewBox="0 0 48 32" aria-hidden="true" focusable="false"><circle cx="17" cy="16" r="10.5" fill="none" stroke="#29a9f0" stroke-width="4.2"/><circle cx="31" cy="16" r="10.5" fill="none" stroke="#1B3A5C" stroke-width="4.2"/></svg>
+                    <img class="home-logo" src="aros.png" alt="SeeYou" style="object-fit:contain">
                     <span class="home-brand-name">SeeYou</span>
                 </div>
                 <div class="home-streak" id="home-streak" hidden title="Tu racha" data-i18n-title="hm_my_streak" aria-label="Tu racha" data-i18n-aria-label="hm_my_streak">
