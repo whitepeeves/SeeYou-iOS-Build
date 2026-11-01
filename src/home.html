@@ -30,8 +30,8 @@
     <script defer src="js/qr_mini.js?v=1"></script>
     <script src="js/nomoney.js?v=1"></script>
     <script defer src="js/coins_ui.js?v=33"></script>
-    <script defer src="js/coin_shop_ui.js?v=3"></script>
-    <script defer src="js/premium_ui.js?v=4"></script>
+    <script defer src="js/coin_shop_ui.js?v=4"></script>
+    <script defer src="js/premium_ui.js?v=5"></script>
     <script defer src="js/admob_ui.js?v=4"></script>
     <script defer src="js/tics_archive.js?v=4"></script>
     <script defer src="js/photo_meta.js?v=1"></script>
@@ -2898,7 +2898,7 @@
     <script src="js/road_snapper.js?v=2"></script>
     <script src="js/daily_themes.js?v=6"></script>
     <script src="js/image_cache_manager.js?v=1"></script>
-    <script src="config.js?v=19"></script>
+    <script src="config.js?v=21"></script>
     <script src="js/back_button.js?v=3"></script>
     <script src="js/notifications_system.js?v=10"></script>
     <script>
@@ -2956,6 +2956,9 @@
             panel.style.cssText = 'display:none; position:fixed; left:8px; right:8px; bottom:72px; max-height:35vh; overflow:auto; z-index:20000; margin:0; padding:10px; background:#fff3cd; color:#664d03; border:1px solid #ffecb5; border-radius:8px; font:11px monospace; white-space:pre-wrap;';
             document.body.appendChild(panel);
             window.showNativeDiagnostic = (message) => {
+                try { console.warn('[SeeYou]', message); } catch (e) { }
+                var dbg = false; try { dbg = localStorage.getItem('seeyou_debug') === '1'; } catch (e) { }
+                if (!dbg) return; /* el cuadro técnico solo aparece si activas el modo depuración */
                 panel.style.display = 'block';
                 panel.textContent = String(message).slice(-4000);
             };
@@ -3906,6 +3909,7 @@
                 };
             }
 
+            window.buildAvatarUrl = buildAvatarUrl;
             function buildAvatarUrl(avatarValue) {
                 if (!avatarValue || avatarValue === 'null') return '';
                 if (avatarValue.startsWith('http') || avatarValue.startsWith('data:')) {
@@ -5223,10 +5227,26 @@
             const visibility = localStorage.getItem('current_user_visibility') || 'public';
             document.getElementById('visibility-public').checked = visibility === 'public';
             document.getElementById('visibility-private').checked = visibility === 'private';
+            // Lo que cuenta es lo que tiene el SERVIDOR (el dato del movil puede estar desfasado): se lee y se muestra.
+            try {
+                const uid = localStorage.getItem('current_user_id') || localStorage.getItem('current_user');
+                const tok = localStorage.getItem('seeYou_auth_token');
+                if (uid && tok) {
+                    fetch(`${CONFIG.API_BASE_URL}/api/users/${encodeURIComponent(uid)}?_=${Date.now()}`, { headers: { 'Authorization': 'Bearer ' + tok }, cache: 'no-store' })
+                        .then((r) => r.ok ? r.json() : null)
+                        .then((u) => {
+                            const v = u && (u.visibilidad || u.visibility);
+                            if (v !== 'public' && v !== 'private') return;
+                            document.getElementById('visibility-public').checked = v === 'public';
+                            document.getElementById('visibility-private').checked = v === 'private';
+                            localStorage.setItem('current_user_visibility', v);
+                        }).catch(() => { });
+                }
+            } catch (e) { }
             // populate avatar preview
             try {
                 const avatarVal = localStorage.getItem('current_user_foto');
-                const avatarUrl = buildAvatarUrl(avatarVal);
+                const avatarUrl = window.buildAvatarUrl ? window.buildAvatarUrl(avatarVal) : '';
                 const img = document.getElementById('edit-profile-avatar-img');
                 const ph = document.getElementById('edit-profile-avatar-placeholder');
                 if (img) {

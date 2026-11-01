@@ -47,7 +47,7 @@
         if (rc.ready) return rc.ready;
         var P = rcPlugin(), key = cfg.rc && cfg.rc[rcPlatform()];
         if (!P || !key) return Promise.resolve(false);
-        rc.ready = P.configure({ apiKey: key, appUserID: String(cfg.userId) }).then(function () { return true; }).catch(function () { rc.ready = null; return false; });
+        rc.ready = Promise.resolve().then(function () { return P.configure({ apiKey: key, appUserID: String(cfg.userId) }); }).then(function () { return true; }).catch(function () { rc.ready = null; return false; });
         return rc.ready;
     }
     function mountNativeShop(el, cfg) {
@@ -68,7 +68,7 @@
                 var b = e.target.closest('[data-pk]');
                 if (!b || b.disabled || !products[b.dataset.pk]) return;
                 b.disabled = true;
-                P.purchaseStoreProduct({ product: products[b.dataset.pk] }).then(function () {
+                Promise.resolve(P.purchaseStoreProduct({ product: products[b.dataset.pk] })).then(function () {
                     toast(T('shop_paid', '¡Pago recibido! Tus monedas llegan en unos segundos.'));
                     [2500, 6000, 12000].forEach(function (ms) { setTimeout(function () { try { if (window.SeeYouCoins && SeeYouCoins.checkGain) SeeYouCoins.checkGain(cfg.userId); } catch (e) { } }, ms); });
                 }).catch(function (err) {

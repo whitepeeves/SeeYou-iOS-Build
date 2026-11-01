@@ -1,7 +1,7 @@
 {
   "name": "SeeYou",
   "short_name": "SeeYou",
-  "description": "Tu red social de música y fotos en cadena",
+  "description": "Una nueva forma de conectar. SeeYou, más libre, más tú.",
   "id": "seeyou-app-final",
   "start_url": "index.html",
   "scope": "./",

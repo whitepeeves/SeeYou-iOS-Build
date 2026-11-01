@@ -25,7 +25,7 @@
         if (rcReady) return rcReady;
         var pl = rcPlugin(), key = keys && keys[platform()];
         if (!pl || !key) return Promise.resolve(false);
-        rcReady = pl.configure({ apiKey: key, appUserID: String(uid) }).then(function () { return true; }).catch(function () { rcReady = null; return false; });
+        rcReady = Promise.resolve().then(function () { return pl.configure({ apiKey: key, appUserID: String(uid) }); }).then(function () { return true; }).catch(function () { rcReady = null; return false; });
         return rcReady;
     }
 
@@ -89,7 +89,7 @@
         }
         var pl = rcPlugin();
         if (!pl || !storeProduct) { toast(T('pm_app_soon', 'La suscripción en la app estará disponible muy pronto.')); return done(); }
-        pl.purchaseStoreProduct({ product: storeProduct }).then(function () {
+        Promise.resolve(pl.purchaseStoreProduct({ product: storeProduct })).then(function () {
             toast(T('pm_thanks', '¡Gracias! Activando tu Premium…'));
             [2000, 6000, 12000].forEach(function (ms) { setTimeout(refresh, ms); });
         }).catch(function (err) {
@@ -122,7 +122,7 @@
             return rcInit(uid, r.data && r.data.rc);
         }).then(function (ok) {
             if (!ok) return;
-            return pl.getProducts({ productIdentifiers: [d.productId || 'premium_monthly'], type: 'SUBSCRIPTION' }).then(function (r) {
+            return Promise.resolve(pl.getProducts({ productIdentifiers: [d.productId || 'premium_monthly'], type: 'SUBSCRIPTION' })).then(function (r) {
                 var p = ((r && r.products) || [])[0];
                 if (p) { storeProduct = p; storePrice = p.priceString || ''; render(); }
             });
