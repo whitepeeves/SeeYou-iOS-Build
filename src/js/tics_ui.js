@@ -195,7 +195,7 @@
         return '<div class="tic-comment"><a class="tic-avatar tic-avatar--xs" href="' + profileHref(c.userId) + '" data-uid="' + esc(c.userId || '') + '">' + avatarInner(name, av) + '</a>' +
             '<div class="tic-comment-body"><a class="tic-comment-name" href="' + profileHref(c.userId) + '" data-uid="' + esc(c.userId || '') + '" data-role="name">' + esc(name) + '</a> ' +
             (c.replyToUserName ? '<span class="tic-reply-to">↪ ' + esc(c.replyToUserName) + '</span> ' : '') +
-            (c.sticker ? '<img class="tic-comment-sticker" src="' + esc(assetUrl(c.sticker)) + '" alt="Sticker" loading="lazy" decoding="async">' : '<span>' + linkifyTags(c.text || '') + '</span>') +
+            (c.sticker ? '<img class="tic-comment-sticker" data-stk-src="' + esc(c.sticker) + '" src="' + esc(assetUrl(c.sticker)) + '" alt="Sticker" loading="lazy" decoding="async">' : '<span>' + linkifyTags(c.text || '') + '</span>') +
             (c.id && me() ? '<div class="tic-comment-actions"><button type="button" class="tic-reply-btn" data-act="reply-comment" data-cid="' + esc(c.id) + '" data-cname="' + esc(name) + '" data-cuser="' + esc(c.userUsername || '') + '">' + esc(CONFIG.translate('tic_reply', 'Responder')) + '</button>' +
                 (c.userId && String(c.userId) !== String(me()) ? '<button type="button" class="tic-reply-btn tic-report-btn" data-act="report-comment" data-cid="' + esc(c.id) + '" data-cuid="' + esc(c.userId) + '" data-cname="' + esc(name) + '">' + esc(CONFIG.translate('tic_report', 'Reportar')) + '</button>' : '') + '</div>' : '') +
             '</div></div>';
@@ -947,6 +947,73 @@
             var card = tile.closest('.tic-card');
             if (card) deleteSticker(card, tile.dataset.stk);
         });
+    })();
+
+    /* ---------- Guardar en favoritos un sticker de un comentario (mantener pulsado / clic derecho) ---------- */
+    (function bindCommentStickerFav() {
+        var timer = null, ov = null, startX = 0, startY = 0;
+        function fileOf(u) { return String(u || '').split('?')[0].split('/').pop(); }
+        function isFav(url) {
+            var f = fileOf(url), l = (stickerCache && stickerCache.favorites) || [];
+            for (var k = 0; k < l.length; k++) if (fileOf(l[k].url) === f) return true;
+            return false;
+        }
+        function closeOv() { if (ov && ov.parentNode) ov.parentNode.removeChild(ov); ov = null; }
+        function ensureStyle() {
+            if (document.getElementById('tic-stkfav-style')) return;
+            var st = document.createElement('style'); st.id = 'tic-stkfav-style';
+            st.textContent = '.tic-stkfav-ov{position:fixed;inset:0;z-index:100000;background:rgba(10,20,40,.55);display:flex;align-items:center;justify-content:center;padding:24px}' +
+                '.tic-stkfav{background:var(--c-surface,#fff);color:var(--c-text,#0A2E5C);border-radius:22px;padding:18px;width:min(300px,100%);display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.35)}' +
+                '.tic-stkfav-img{display:flex;justify-content:center;padding:6px 0 4px}.tic-stkfav-img img{width:150px;height:150px;object-fit:contain}' +
+                '.tic-stkfav button{border:0;border-radius:14px;padding:13px;font:600 15px/1 inherit;cursor:pointer;background:var(--c-bg-soft,#eef5ff);color:inherit}' +
+                '.tic-stkfav button.primary{background:#0A2E5C;color:#fff}.tic-stkfav button.primary.on{background:#f5b301;color:#2b1d00}';
+            document.head.appendChild(st);
+        }
+        function open(img) {
+            var src = img.getAttribute('data-stk-src') || ''; if (!src) return;
+            closeOv(); ensureStyle();
+            ov = document.createElement('div'); ov.className = 'tic-stkfav-ov';
+            function paint() {
+                var on = isFav(src);
+                ov.innerHTML = '<div class="tic-stkfav" role="dialog"><div class="tic-stkfav-img"><img src="' + esc(assetUrl(src)) + '" alt=""></div>' +
+                    '<button type="button" class="primary' + (on ? ' on' : '') + '" data-m="fav">' + (on ? '★ ' : '☆ ') + esc(on ? CONFIG.translate('tic_sticker_unfav', 'Quitar de favoritos') : CONFIG.translate('tic_sticker_fav', 'Añadir a favoritos')) + '</button>' +
+                    '<button type="button" data-m="x">' + esc(CONFIG.translate('tic_back', 'Cancelar')) + '</button></div>';
+            }
+            paint();
+            document.body.appendChild(ov);
+            loadStickers(true).then(function () { if (ov) paint(); }).catch(function () {});
+            ov.addEventListener('click', function (ev) {
+                ev.stopPropagation();
+                if (ev.target === ov) { closeOv(); return; }
+                var b = ev.target.closest && ev.target.closest('[data-m]'); if (!b) return;
+                if (b.dataset.m !== 'fav') { closeOv(); return; }
+                var on = !isFav(src);
+                apiCall('POST', '/api/stickers/favorite-by-url', { url: src, on: on }).then(function (r) {
+                    if (!r.ok) { toastMsg((r.data && r.data.message) || CONFIG.translate('tic_sticker_upload_failed', 'No se pudo guardar el sticker')); return; }
+                    return loadStickers(true).then(function () { if (ov) paint(); });
+                }).catch(function () { toastMsg(CONFIG.translate('tic_sticker_upload_failed', 'No se pudo guardar el sticker')); });
+            });
+        }
+        var longDone = false;
+        function start(e, x, y) {
+            var img = e.target.closest && e.target.closest('.tic-comment-sticker'); if (!img) return;
+            longDone = false; startX = x; startY = y; clearTimeout(timer);
+            timer = setTimeout(function () { longDone = true; open(img); }, 600);
+        }
+        document.addEventListener('touchstart', function (e) { var t = e.touches && e.touches[0]; if (t) start(e, t.clientX, t.clientY); }, { passive: true });
+        document.addEventListener('mousedown', function (e) { if (e.button === 0) start(e, e.clientX, e.clientY); });
+        function move(x, y) { if (Math.abs(x - startX) > 10 || Math.abs(y - startY) > 10) clearTimeout(timer); }
+        document.addEventListener('touchmove', function (e) { var t = e.touches && e.touches[0]; if (t) move(t.clientX, t.clientY); }, { passive: true });
+        document.addEventListener('mousemove', function (e) { if (timer) move(e.clientX, e.clientY); });
+        ['touchend', 'touchcancel', 'mouseup'].forEach(function (ev) { document.addEventListener(ev, function () { clearTimeout(timer); }, { passive: true }); });
+        document.addEventListener('contextmenu', function (e) {
+            var img = e.target.closest && e.target.closest('.tic-comment-sticker'); if (!img) return;
+            e.preventDefault(); clearTimeout(timer); open(img);
+        });
+        // Si el menú se abrió con una pulsación larga, el "clic" que sigue al soltar no debe hacer nada más.
+        document.addEventListener('click', function (e) {
+            if (longDone && e.target.closest && e.target.closest('.tic-comment-sticker')) { longDone = false; e.stopPropagation(); e.preventDefault(); }
+        }, true);
     })();
 
     /* ---------- eventos delegados ---------- */

@@ -21,7 +21,7 @@
     </style>
     <link rel="stylesheet" href="css/tics.css?v=17">
     <link rel="stylesheet" href="css/tic_viewer.css?v=18">
-    <script defer src="js/tics_ui.js?v=40"></script>
+    <script defer src="js/tics_ui.js?v=43"></script>
     <script defer src="js/tic_viewer.js?v=14"></script>
     <script defer src="js/home_header.js?v=1"></script>
     <script defer src="js/onboarding_tutorial.js?v=3"></script>
@@ -2751,6 +2751,7 @@
         .home-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: calc(max(env(safe-area-inset-top, 0px), 24px) + 6px) 76px 4px 20px; }
         .home-brand { display: flex; align-items: center; gap: 10px; min-width: 0; cursor: pointer; }
         .home-logo { width: 38px; height: 26px; flex: none; display: block; }
+        @media (min-width: 901px) { .home-brand .home-logo { display: none; } }
         .home-brand-name { font-size: 25px; font-weight: 800; letter-spacing: -.01em; color: #1B3A5C; }
         .home-streak { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 8px 14px; border-radius: 999px; background: #FDF1E7; color: #E8651A; font-weight: 800; font-size: 18px; line-height: 1; }
         .home-streak[hidden] { display: none; }
@@ -3114,7 +3115,7 @@
             <div class="home-top">
                 <div class="home-brand" aria-label="SeeYou">
                     <img class="home-logo" src="aros.png" alt="SeeYou" style="object-fit:contain">
-                    <span class="home-brand-name">SeeYou</span>
+                    <img class="brand-wordmark" src="logotipo-texto.png" alt="SeeYou" style="height:22px;width:auto;display:block">
                 </div>
                 <div class="home-streak" id="home-streak" hidden title="Tu racha" data-i18n-title="hm_my_streak" aria-label="Tu racha" data-i18n-aria-label="hm_my_streak">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M19.48 12.35c-1.57-4.08-7.16-4.3-5.81-10.23.1-.44-.37-.78-.75-.55C9.29 3.71 6.68 8 8.87 13.62c.18.46-.36.89-.75.59-1.81-1.37-2-3.34-1.84-4.75.06-.52-.62-.77-.91-.34C4.69 10.16 4 11.84 4 14.37c.38 5.6 5.11 7.32 6.81 7.54 2.43.31 5.06-.14 6.95-1.87 2.08-1.93 2.84-5.01 1.72-7.69zm-9.28 5.03c1.44-.35 2.18-1.39 2.38-2.31.33-1.43-.96-2.83-.09-5.09.33 1.87 3.27 3.04 3.27 5.08.08 2.53-2.66 4.7-5.56 2.32z"/></svg>

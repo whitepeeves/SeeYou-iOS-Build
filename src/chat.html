@@ -1016,6 +1016,9 @@
         @keyframes pop-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: none; } }
         .message-reaction-picker button { border: 0; background: transparent; cursor: pointer; padding: 4px; border-radius: 50%; line-height: 0; transition: transform 0.12s; }
         .message-reaction-picker button:hover { transform: scale(1.22); }
+        .message-reaction-picker .stk-fav-btn { margin-left: 4px; padding: 4px 4px 4px 10px; border-left: 1px solid var(--c-border); border-radius: 0; color: var(--c-text-soft, #64748b); }
+        .message-reaction-picker .stk-fav-btn.on { color: #f5b301; }
+        .message-reaction-picker .stk-fav-btn.on svg { fill: #f5b301; }
         .message-reaction-picker button svg { width: 28px; height: 28px; }
         .message-reactions { position: absolute; bottom: -13px; display: flex; gap: 3px; z-index: 2; }
         .msg-row.mine .message-reactions { right: 10px; }
@@ -1278,7 +1281,7 @@
         <header class="mobile-header">
             <div class="logo-section" style="cursor:pointer; margin:0; display:flex; align-items:center;" onclick="window.location.href='home.html'">
                 <img src="aros.png" alt="SeeYou" style="width:40px;height:auto;display:block">
-                <span style="font-size: 20px; font-weight: 700; color: var(--primary); margin-left:6px; letter-spacing:-0.5px;">SeeYou</span>
+                <img class="brand-wordmark" src="logotipo-texto.png" alt="SeeYou" style="height:20px;width:auto;display:block;margin-left:6px">
             </div>
             <div class="user-section" style="width:36px; height:36px; pointer-events:auto; border:2px solid var(--primary); box-shadow:none; flex-shrink:0;" onclick="document.getElementById('mobile-dropdown').classList.toggle('show')">
                 <div class="avatar" style="font-size:16px; background:#fff; color:var(--primary); font-weight:800;" id="mobile-avatar-initial">U</div>
@@ -3335,6 +3338,8 @@
                 picker.classList.toggle('below', wrapRect.top - boxRect.top < 70);
                 picker.classList.add('is-visible');
                 pickerOpenedAt = Date.now();
+                const fb = picker.querySelector('.stk-fav-btn');
+                if (fb) refreshStickerFavBtn(fb);
             }
 
             function sameGroup(a, b) {
@@ -3606,6 +3611,15 @@
                         });
                         picker.appendChild(option);
                     });
+                    if (isSticker) {
+                        const favBtn = document.createElement('button');
+                        favBtn.type = 'button';
+                        favBtn.className = 'stk-fav-btn';
+                        favBtn.dataset.url = String(m.image || m.photo);
+                        favBtn.innerHTML = STK_STAR;
+                        favBtn.addEventListener('click', (event) => { event.stopPropagation(); toggleStickerFav(favBtn); });
+                        picker.appendChild(favBtn);
+                    }
                     wrap.appendChild(picker);
 
                     // Botón para reaccionar (ratón)
@@ -3794,6 +3808,36 @@
             const stkEsc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
             const stkUrl = (u) => /^(https?:|data:|blob:)/i.test(u) ? u : `${API()}/${String(u || '').replace(/^\/?/, '')}`;
             let chatStkTab = 'fav';
+            const STK_STAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.6 6.9 19.3l1-5.7-4.1-4 5.7-.8z"/></svg>';
+            const stkFile = (u) => String(u || '').split('?')[0].split('/').pop();
+            function stkIsFav(url) {
+                const f = stkFile(url);
+                return !!(chatStickers && (chatStickers.fav || []).some((x) => stkFile(x.url) === f));
+            }
+            function paintStickerFavBtn(btn) {
+                const on = stkIsFav(btn.dataset.url);
+                const label = on ? CT('ch_stk_unfav', 'Quitar de favoritos') : CT('ch_stk_fav_add', 'Añadir a favoritos');
+                btn.classList.toggle('on', on);
+                btn.setAttribute('aria-label', label);
+                btn.title = label;
+            }
+            async function refreshStickerFavBtn(btn) {
+                paintStickerFavBtn(btn);
+                if (!chatStickers) { try { await loadChatStickers(); } catch (e) { return; } }
+                paintStickerFavBtn(btn);
+            }
+            async function toggleStickerFav(btn) {
+                if (!chatStickers) { try { await loadChatStickers(); } catch (e) { /* se intenta igualmente */ } }
+                const on = !stkIsFav(btn.dataset.url);
+                try {
+                    const res = await fetch(`${API()}/api/stickers/favorite-by-url`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: btn.dataset.url, on }) });
+                    const out = await res.json().catch(() => ({}));
+                    if (!res.ok) { showToast(out.message || CT('ch_t_stk_up_err', 'No se pudo guardar el sticker')); return; }
+                    await loadChatStickers();
+                    paintStickerFavBtn(btn);
+                    if (typeof renderChatStickers === 'function') renderChatStickers();
+                } catch (e) { showToast(CT('ch_t_stk_up_err', 'No se pudo guardar el sticker')); }
+            }
             const STK_ICONS = {
                 fav: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.6 6.9 19.3l1-5.7-4.1-4 5.7-.8z"/></svg>',
                 recent: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
@@ -3942,6 +3986,15 @@
                         timer = setTimeout(() => { long = true; del(t.dataset.id); }, 650);
                     }, { passive: true });
                     ['touchend', 'touchmove', 'touchcancel'].forEach((ev) => tray.addEventListener(ev, () => clearTimeout(timer), { passive: true }));
+                    // Ordenador: mantener pulsado el botón del ratón también abre las opciones (el clic derecho sigue funcionando).
+                    tray.addEventListener('mousedown', (e) => {
+                        if (e.button !== 0) return;
+                        const t = e.target.closest('[data-id]');
+                        if (!t) return;
+                        long = false; clearTimeout(timer);
+                        timer = setTimeout(() => { long = true; del(t.dataset.id); }, 650);
+                    });
+                    ['mouseup', 'mouseleave', 'mousemove'].forEach((ev) => tray.addEventListener(ev, () => clearTimeout(timer)));
                     tray.addEventListener('contextmenu', (e) => {
                         const t = e.target.closest('[data-id]');
                         if (!t) return;
