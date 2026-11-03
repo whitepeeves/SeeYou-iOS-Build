@@ -1536,13 +1536,13 @@
         <!-- MODAL CÁMARA EN VIVO -->
         <div id="live-camera-modal" style="display:none; position:fixed; inset:0; background:black; z-index:9999; flex-direction:column; align-items:center; justify-content:space-between; overflow:hidden;">
             <!-- Header cámara -->
-            <div style="position:absolute; top:20px; left:20px; right:20px; display:flex; justify-content:space-between; align-items:center; z-index:10;">
-                <button onclick="closeLiveCamera()" style="background:rgba(0,0,0,0.5); border:none; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                    <span class="material-icons-outlined" style="font-size:28px;">close</span>
+            <div style="position:absolute; top:calc(max(env(safe-area-inset-top, 0px), 28px) + 24px); left:18px; right:18px; display:flex; justify-content:space-between; align-items:center; z-index:10;">
+                <button onclick="closeLiveCamera()" aria-label="Cerrar" style="background:rgba(20,20,20,0.38); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.18); color:white; width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
                 </button>
-                <span id="camera-title-badge" style="background:rgba(0,0,0,0.5); color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700;" data-i18n="ch_live_camera">Cámara en vivo</span>
-                <button onclick="toggleCameraFacingMode()" style="background:rgba(0,0,0,0.5); border:none; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Cambiar cámara (frontal/trasera)" data-i18n-title="ch_switch_cam">
-                    <span class="material-icons-outlined" style="font-size:26px;">cameraswitch</span>
+                <span style="width:42px;height:42px;"></span>
+                <button onclick="toggleCameraFacingMode()" aria-label="Cambiar cámara" style="background:rgba(20,20,20,0.38); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.18); color:white; width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;" title="Cambiar cámara (frontal/trasera)" data-i18n-title="ch_switch_cam">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.3-4.6L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.6L20 15.5"/><path d="M20 20v-4.5h-4.5"/></svg>
                 </button>
             </div>
 
@@ -2972,6 +2972,12 @@
             let liveCameraReplyToPhotoUrl = null; // La foto de la otra persona a la que respondemos
             let previewCurrentReplyToPhoto = null; // Guardado cuando abrimos preview para luego responder
 
+            function applyLiveCameraMirror() {
+                // Cámara frontal: se ve en espejo (como un espejo / Instagram), así inclinar el móvil a un lado se ve hacia el mismo lado
+                const v = document.getElementById('camera-video-stream');
+                if (v) v.style.transform = (liveCameraFacingMode === 'user') ? 'scaleX(-1)' : 'none';
+            }
+
             window.openLiveCamera = async function(replyToPhotoUrl) {
                 liveCameraReplyToPhotoUrl = replyToPhotoUrl || null;
                 liveCameraSnapshotDataUrl = null;
@@ -3009,6 +3015,7 @@
                     });
                     liveCameraStream = stream;
                     videoEl.srcObject = stream;
+                    applyLiveCameraMirror();
                 } catch(e) {
                     closeLiveCamera();
                     // Fallback al file input si no hay cámara
@@ -3037,6 +3044,7 @@
                     });
                     liveCameraStream = stream;
                     videoEl.srcObject = stream;
+                    applyLiveCameraMirror();
                 } catch(e) { console.warn('Error al cambiar cámara', e); }
             };
 
@@ -3050,7 +3058,9 @@
 
                 canvas.width = videoEl.videoWidth;
                 canvas.height = videoEl.videoHeight;
-                canvas.getContext('2d').drawImage(videoEl, 0, 0);
+                const ctx2d = canvas.getContext('2d');
+                if (liveCameraFacingMode === 'user') { ctx2d.translate(canvas.width, 0); ctx2d.scale(-1, 1); }
+                ctx2d.drawImage(videoEl, 0, 0);
                 liveCameraSnapshotDataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
                 snapPreview.src = liveCameraSnapshotDataUrl;

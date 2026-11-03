@@ -5199,7 +5199,7 @@
 
             if (!s.files.length && s.pending) {
                 if (s.pending < s.total) { try { await renderHorizontalFeed(); } catch (e) { } }
-                ticJobPending(job);
+                ticJobPending(job, result);
             } else if (!s.files.length) {
                 await afterTicPublished(job, s.userId, s.total, s.streak);
             } else {
@@ -9992,9 +9992,15 @@
         }
 
         // El Tic sigue a salvo en el móvil: se quita el círculo de subida y se ve la tarjeta "Pendiente" encima de New Tic.
-        function ticJobPending(job) {
+        function ticJobPending(job, result) {
             removeTicJob(job);
             if (window.TicOutbox) TicOutbox.render();
+            // Antes el círculo desaparecía sin avisar: ahora se dice qué ha pasado y por qué.
+            try {
+                const why = result && ((result.data && (result.data.message || result.data.error)) || (result.status ? 'Error ' + result.status : 'sin conexión con el servidor'));
+                showToast('Tu Tic está guardado en tu móvil y se publicará solo en cuanto el servidor responda' + (why ? ' (' + why + ')' : '') + '. Lo verás en la tarjeta amarilla de arriba.');
+                console.warn('Tic pendiente de publicar:', result && result.status, why);
+            } catch (e) { }
         }
 
         // Lo llama js/outbox.js cuando un Tic pendiente por fin se publica.
@@ -10107,7 +10113,7 @@
                     const d = result.data || {};
                     await afterTicPublished(job, currentUserId, 1, { increased: !!d.streak_increased, lastDays: Number(d.streak_days) || 0, first: Number(d.streak_days) || 0 });
                 } else if (result.pendingSaved) {
-                    ticJobPending(job);
+                    ticJobPending(job, result);
                 } else {
                     const msg = (result.data && (result.data.message || result.data.error)) || `Error ${result.status || ''}`.trim();
                     console.error('Error publicando:', msg);
