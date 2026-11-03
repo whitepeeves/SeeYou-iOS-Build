@@ -48,7 +48,20 @@
         document.head.appendChild(st);
     }
 
+    // Premium = sin anuncios. Si el estado Premium aun no ha cargado se espera un momento (max 1.5 s) antes de decidir.
+    function premiumActive() { try { return !!(window.SeePremium && window.SeePremium.active); } catch (e) { return false; } }
+    function whenPremiumKnown() {
+        return new Promise(function (res) {
+            var P = window.SeePremium;
+            if (!P || P.loaded) return res();
+            var t = setTimeout(res, 1500);
+            window.addEventListener('seeyou-premium', function f() { window.removeEventListener('seeyou-premium', f); clearTimeout(t); res(); });
+        });
+    }
     function load() {
+        return whenPremiumKnown().then(function () { return premiumActive() ? [] : loadAds(); });
+    }
+    function loadAds() {
         if (Date.now() - loaded.at < 60000) return Promise.resolve(loaded.ads);
         var ctl = typeof AbortController === 'function' ? new AbortController() : null;
         var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 2500);
@@ -110,7 +123,7 @@
 
     // Un anuncio tras el 4.o Tic y luego cada 5 (en feeds cortos, al final). Cada anuncio se usa una vez por carga.
     function interleave(cards, ads) {
-        if (!ads || !ads.length) return cards.join('');
+        if (premiumActive() || !ads || !ads.length) return cards.join('');
         injectCss();
         var out = [], next = 0;
         cards.forEach(function (html, i) {

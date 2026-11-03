@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'seeyou-cache-v208';
+const CACHE_VERSION = 'seeyou-cache-v229';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;

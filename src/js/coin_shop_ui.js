@@ -123,7 +123,7 @@
         ensureStyle();
         var old = document.querySelector('.shop-banner'); if (old) old.remove();
         var b = document.createElement('div'); b.className = 'shop-banner';
-        b.innerHTML = '<button class="sb-x" type="button" aria-label="Cerrar">×</button><b>🔥 ' + esc(label) + '</b><div>' + esc(T('shop_restore_text', 'Puedes recuperarla por {{c}} monedas.').replace('{{c}}', info.cost)) + '</div>' +
+        b.innerHTML = '<button class="sb-x" type="button" aria-label="Cerrar">×</button><b>🔥 ' + esc(label) + '</b><div>' + esc(info.free ? T('shop_restore_free', 'Usa tu salvavidas Premium de este mes: es gratis.') : T('shop_restore_text', 'Puedes recuperarla por {{c}} monedas.').replace('{{c}}', info.cost)) + '</div>' +
             '<div class="sb-row"><button class="go" type="button">' + esc(T('shop_restore_btn', 'Restaurar')) + '</button><button class="no" type="button">' + esc(T('shop_restore_no', 'Ahora no')) + '</button></div>';
         function close(remember) { if (remember) { try { sessionStorage.setItem(dismissKey, '1'); } catch (e) { } } b.remove(); }
         b.querySelector('.sb-x').onclick = function () { close(true); };
@@ -164,6 +164,41 @@
         });
     }
 
+    /* ---------- salvavidas de racha (Premium) ---------- */
+    function showLifesavers(friendId) {
+        ensureStyle();
+        var old = document.getElementById('sy-ls-sheet'); if (old) old.remove();
+        call('GET', '/api/streak/lifesavers' + (friendId ? '?friendId=' + encodeURIComponent(friendId) : '')).then(function (r) {
+            if (!r.ok) { toast(r.data.message || T('generic_connection_error', 'Error de conexión')); return; }
+            var d = r.data, lines = [];
+            if (!d.premium) {
+                lines.push(T('shop_ls_free_user', 'Con Premium tienes un salvavidas al mes para tu racha de Tics y otro por cada chat con racha: restauran la racha perdida sin gastar monedas.'));
+            } else if (friendId) {
+                var c = d.chat || { remaining: 0, total: 1 };
+                lines.push(T('shop_ls_chat_left', 'Salvavidas de este chat este mes: {{n}} de {{t}}').replace('{{n}}', c.remaining).replace('{{t}}', c.total));
+            } else {
+                var p = d.profile || { remaining: 0, total: 1 };
+                lines.push(T('shop_ls_profile_left', 'Salvavidas de tu racha de Tics este mes: {{n}} de {{t}}').replace('{{n}}', p.remaining).replace('{{t}}', p.total));
+                lines.push(T('shop_ls_chats_note', 'Además tienes uno al mes en cada chat con racha. Lo ves al tocar la racha dentro del chat.'));
+            }
+            lines.push(T('shop_ls_renew', 'Se renuevan el día 1 de cada mes.'));
+            var ov = document.createElement('div'); ov.id = 'sy-ls-sheet';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:30000;background:rgba(9,16,28,.55);display:flex;align-items:center;justify-content:center;padding:18px';
+            ov.innerHTML = '<div style="background:var(--app-surface,#fff);color:var(--app-text,#1D1B20);border-radius:20px;max-width:380px;width:100%;padding:20px 20px 16px;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:inherit">' +
+                '<div style="font-size:18px;font-weight:800;margin-bottom:10px">' + esc(T('shop_ls_title', 'Salvavidas de racha')) + '</div>' +
+                lines.map(function (l) { return '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.45">' + esc(l) + '</p>'; }).join('') +
+                '<div style="display:flex;gap:10px;margin-top:14px">' +
+                (d.premium ? '' : '<button type="button" data-a="up" style="flex:1;border:0;border-radius:999px;padding:11px 14px;font:800 14px system-ui,sans-serif;background:#1B3A5C;color:#fff;cursor:pointer">' + esc(T('pm_buy', 'Hazte Premium')) + '</button>') +
+                '<button type="button" data-a="ok" style="flex:1;border:1px solid rgba(128,128,128,.35);border-radius:999px;padding:11px 14px;font:700 14px system-ui,sans-serif;background:transparent;color:inherit;cursor:pointer">' + esc(T('ch_continue', 'Continuar')) + '</button></div></div>';
+            function close() { try { ov.remove(); } catch (e) { } }
+            ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+            ov.querySelector('[data-a="ok"]').onclick = close;
+            var up = ov.querySelector('[data-a="up"]');
+            if (up) up.onclick = function () { close(); try { if (window.SeePremium && SeePremium.promptUpgrade) SeePremium.promptUpgrade(T('shop_ls_title', 'Salvavidas de racha')); } catch (e) { } };
+            document.body.appendChild(ov);
+        });
+    }
+
     // Vuelta desde el pago (Stripe)
     try {
         var q = new URLSearchParams(location.search).get('coins');
@@ -171,5 +206,5 @@
         if (q === 'ok') { document.addEventListener('DOMContentLoaded', function () { toast(T('shop_paid', '¡Pago recibido! Tus monedas llegan en unos segundos.')); }); }
     } catch (e) { }
 
-    window.SeeYouShop = { mountShop: mountShop, checkStreakBanner: checkStreakBanner, chatStreakHint: chatStreakHint };
+    window.SeeYouShop = { mountShop: mountShop, checkStreakBanner: checkStreakBanner, chatStreakHint: chatStreakHint, showLifesavers: showLifesavers };
 })();

@@ -15,20 +15,21 @@
     <script defer src="js/session_guard.js?v=3"></script>
     <link rel="stylesheet" href="style.css?v=4">
     <script src="js/palette.js?v=2"></script>
-    <script src="js/banner_mask.js?v=4"></script>
+    <script src="js/banner_mask.js?v=5"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="css/tics.css?v=17">
     <script defer src="js/auth_fetch.js?v=3"></script>
-    <script defer src="config.js?v=21"></script>
+    <script defer src="config.js?v=23"></script>
     <script defer src="js/back_button.js?v=3"></script>
     <script defer src="js/daily_themes.js?v=6"></script>
-    <script defer src="js/tics_ui.js?v=43"></script>
+    <script defer src="js/tics_ui.js?v=51"></script>
     <script defer src="js/badges_ui.js?v=7"></script>
     <script defer src="js/qr_mini.js?v=1"></script>
     <script src="js/nomoney.js?v=1"></script>
     <script defer src="js/coins_ui.js?v=33"></script>
-    <script defer src="js/coin_shop_ui.js?v=4"></script>
+    <script defer src="js/coin_shop_ui.js?v=5"></script>
+    <script defer src="js/realtime.js?v=1"></script>
     <script defer src="js/admob_ui.js?v=4"></script>
     <script defer src="js/tics_archive.js?v=3"></script>
     <script defer src="js/notifications_system.js?v=10"></script>
@@ -495,7 +496,7 @@
             ]);
             state.following = (rel[5] && Array.isArray(rel[5].following)) ? rel[5].following : [];
             state.friends = rel[0] || []; state.sent = rel[1] || []; state.received = rel[2] || []; state.theirFriends = rel[3] || [];
-            var tics = (rel[4] || []).slice().sort(function (a, b) { return new Date(b.customDate || b.createdAt || b.date || 0) - new Date(a.customDate || a.createdAt || a.date || 0); });
+            var tics = (rel[4] || []).slice().sort(function (a, b) { return new Date(b.createdAt || b.date || 0) - new Date(a.createdAt || a.date || 0); });
 
             function relation() {
                 if (state.friends.some(function (f) { return String(f.id) === String(uid); })) return { t: 'friend' };
@@ -587,7 +588,7 @@
                 if (typeof loc === 'string') { try { loc = JSON.parse(loc); } catch (e) { loc = null; } }
                 return {
                     id: item.id, imgUrl: img, author: user.name || user.username || '', authorAvatar: user.avatar || '', userId: uid,
-                    caption: item.caption || '', date: new Date(item.customDate || item.createdAt || item.created_at || item.date || 0),
+                    caption: item.caption || '', date: new Date(item.createdAt || item.created_at || item.date || 0),
                     likes: Array.isArray(item.likes) ? item.likes : [], comments: Array.isArray(item.comments) ? item.comments : [],
                     taggedUserIds: item.taggedUserIds || item.tagged_user_ids || [],
                     visibility: item.visibility || 'public',

@@ -115,7 +115,7 @@
         apply: function (cover, endEl, maskUrl) {
             if (!cover) return;
             if (!cover.__bmFx) cover.__bmFx = new Fx(cover, endEl);
-            cover.__bmFx.setMask(maskUrl);
+            cover.__bmFx.setMask(''); // forma fija: ya no se aplican formas personalizadas del banner
         }
     };
 

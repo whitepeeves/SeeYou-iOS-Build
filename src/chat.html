@@ -744,6 +744,16 @@
         .cl-new:active { transform: scale(0.95); box-shadow: 0 3px 8px rgba(27, 58, 92, 0.3); }
         body[data-theme="dark"] .cl-new, body[data-theme="blue"] .cl-new { background: linear-gradient(135deg, #2563EB, #3B82F6); }
         .cl-search { position: relative; margin-bottom: 14px; }
+        .cl-tabs { display: flex; gap: 6px; margin: -4px 0 12px; padding: 4px; background: var(--c-hover, #F0F2F5); border-radius: 14px; }
+        .cl-tabs[hidden] { display: none; }
+        .cl-tab { flex: 1; border: 0; background: transparent; color: var(--c-muted); font: 700 14px 'Roboto', sans-serif; padding: 9px 10px; border-radius: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .2s, color .2s, box-shadow .2s; }
+        .cl-tab.active { background: var(--c-surface, #fff); color: var(--c-text); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+        .cl-tab-badge { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #2563EB; color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+        .cl-tab-badge:empty { display: none; }
+        .cl-folder-hint { font-size: 12.5px; color: var(--c-muted); text-align: center; margin: 2px 8px 12px; line-height: 1.4; }
+        .cl-move-pop { position: fixed; z-index: 30000; min-width: 210px; background: var(--c-surface, #fff); color: var(--c-text); border: 1px solid var(--c-border); border-radius: 14px; box-shadow: 0 12px 36px rgba(0,0,0,.25); padding: 6px; animation: pop-in .14s ease-out; }
+        .cl-move-pop button { display: block; width: 100%; text-align: left; border: 0; background: transparent; color: inherit; font: 600 14.5px 'Roboto', sans-serif; padding: 12px 14px; border-radius: 10px; cursor: pointer; }
+        .cl-move-pop button:hover, .cl-move-pop button:active { background: var(--c-hover, #F0F2F5); }
         .cl-search input {
             width: 100%; height: 46px; box-sizing: border-box;
             padding: 0 42px 0 44px;
@@ -882,6 +892,29 @@
         #chat-streak-badge svg { width: 13px; height: 13px; }
         body[data-theme="dark"] #chat-streak-badge, body[data-theme="blue"] #chat-streak-badge { color: #FDBA74; }
         .cv-peer-text.has-streak #chat-header-subtitle { display: none; }
+        .cv-peer-text.has-presence #chat-header-subtitle { display: none; }
+        .cv-presence { font-size: 12px; color: var(--c-muted); line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+        .cv-presence[hidden] { display: none; }
+        .cv-presence.online { color: #16A34A; font-weight: 600; }
+        .cv-presence.online::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #22C55E; box-shadow: 0 0 0 0 rgba(34,197,94,.5); animation: cv-online-pulse 2s ease-out infinite; flex: none; }
+        .cv-presence.typing { color: #16A34A; font-weight: 600; font-style: italic; }
+        .cv-presence.typing::after { content: ''; display: inline-block; width: 1.2em; text-align: left; animation: cv-dots 1.2s steps(4, end) infinite; }
+        @keyframes cv-online-pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,.45); } 70%, 100% { box-shadow: 0 0 0 6px rgba(34,197,94,0); } }
+        @keyframes cv-dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75%, 100% { content: '...'; } }
+        /* Transiciones al entrar y salir de una conversacion */
+        #conversation-view.cv-enter { animation: cv-slide-in .28s cubic-bezier(.22,.9,.3,1) both; }
+        #conversation-view.cv-leave { animation: cv-slide-out .2s cubic-bezier(.4,0,1,1) both; pointer-events: none; }
+        #chat-list-view.cl-enter { animation: cl-back-in .26s ease-out both; }
+        @keyframes cv-slide-in { from { transform: translateX(100%); opacity: .6; } to { transform: none; opacity: 1; } }
+        @keyframes cv-slide-out { from { transform: none; opacity: 1; } to { transform: translateX(100%); opacity: .5; } }
+        @keyframes cl-back-in { from { transform: translateX(-24px); opacity: .5; } to { transform: none; opacity: 1; } }
+        @media (min-width: 901px) {
+            @keyframes cv-slide-in { from { transform: translateX(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+            @keyframes cv-slide-out { from { transform: none; opacity: 1; } to { transform: translateX(28px); opacity: 0; } }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #conversation-view.cv-enter, #conversation-view.cv-leave, #chat-list-view.cl-enter, .cv-presence.online::before { animation: none !important; }
+        }
 
         #messages-container {
             flex: 1; min-height: 0;
@@ -986,8 +1019,11 @@
         .stk-pop button.danger { color: #dc2626; }
         .stk-pop button.cancel { color: var(--c-muted); }
         .msg-time { font-size: 11px; color: var(--c-muted); margin: 4px 6px 2px; }
-        .msg-row.is-new { animation: msg-in 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.15); }
-        @keyframes msg-in { from { opacity: 0; transform: translateY(12px) scale(0.94); } to { opacity: 1; transform: none; } }
+        .msg-row.is-new { animation: msg-in-theirs 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.15); transform-origin: left bottom; }
+        .msg-row.mine.is-new { animation: msg-in-mine 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.2); transform-origin: right bottom; }
+        @keyframes msg-in-theirs { from { opacity: 0; transform: translate(-14px, 10px) scale(0.92); } to { opacity: 1; transform: none; } }
+        @keyframes msg-in-mine { from { opacity: 0; transform: translate(18px, 22px) scale(0.9); } to { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .msg-row.is-new, .msg-row.mine.is-new { animation: none; } }
         .msg-img { position: relative; display: block; line-height: 0; border-radius: 16px; overflow: hidden; cursor: pointer; background: var(--c-skel-a); min-width: 170px; min-height: 130px; }
         .msg-img.loaded { min-width: 0; min-height: 0; }
         .msg-img img { display: block; max-width: min(250px, 64vw); max-height: 320px; object-fit: cover; }
@@ -1133,7 +1169,7 @@
     <script src="js/session_guard.js?v=3"></script>
     <script src="js/auth_fetch.js?v=3"></script>
     <script src="js/html_safe.js?v=2"></script>
-    <script src="config.js?v=21"></script>
+    <script src="config.js?v=23"></script>
     <script>window.CT = function (k, d, v) { var s = (typeof CONFIG !== "undefined" && CONFIG.translate) ? CONFIG.translate(k, d) : d; if (v) for (var x in v) s = String(s).split('{{' + x + '}}').join(v[x]); return s; };</script>
     <script src="js/back_button.js?v=3"></script>
     <script src="js/notifications_system.js?v=10"></script>
@@ -1143,7 +1179,8 @@
     <script src="js/qr_mini.js?v=1"></script>
     <script src="js/nomoney.js?v=1"></script>
     <script src="js/coins_ui.js?v=33"></script>
-    <script src="js/coin_shop_ui.js?v=4"></script>
+    <script src="js/coin_shop_ui.js?v=5"></script>
+    <script src="js/realtime.js?v=1"></script>
     <script src="js/admob_ui.js?v=4"></script>
     <script src="js/mentions_ui.js?v=2"></script>
     <!-- Iconos SVG en línea: sustituyen a la fuente Material Icons (que puede no cargar) -->
@@ -1335,6 +1372,10 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 </div>
+                <div class="cl-tabs" id="cl-tabs" hidden role="tablist">
+                    <button type="button" class="cl-tab active" data-folder="principal" role="tab" data-i18n="ch_folder_main">Principal</button>
+                    <button type="button" class="cl-tab" data-folder="general" role="tab"><span data-i18n="ch_folder_general">General</span><span class="cl-tab-badge" id="cl-general-badge"></span></button>
+                </div>
                 <div id="chats-list" class="cl-card" aria-live="polite">
                     <div class="sk-row"><div class="sk circle"></div><div class="sk-col"><div class="sk" style="height:14px;width:90px"></div><div class="sk" style="height:12px;width:140px;max-width:80%"></div></div></div><div class="sk-row"><div class="sk circle"></div><div class="sk-col"><div class="sk" style="height:14px;width:127px"></div><div class="sk" style="height:12px;width:193px;max-width:80%"></div></div></div><div class="sk-row"><div class="sk circle"></div><div class="sk-col"><div class="sk" style="height:14px;width:94px"></div><div class="sk" style="height:12px;width:246px;max-width:80%"></div></div></div><div class="sk-row"><div class="sk circle"></div><div class="sk-col"><div class="sk" style="height:14px;width:131px"></div><div class="sk" style="height:12px;width:189px;max-width:80%"></div></div></div><div class="sk-row"><div class="sk circle"></div><div class="sk-col"><div class="sk" style="height:14px;width:98px"></div><div class="sk" style="height:12px;width:242px;max-width:80%"></div></div></div><div class="sk-row"><div class="sk circle"></div><div class="sk-col"><div class="sk" style="height:14px;width:135px"></div><div class="sk" style="height:12px;width:185px;max-width:80%"></div></div></div>
                 </div>
@@ -1351,6 +1392,7 @@
                         <div class="cv-peer-text" id="chat-peer-text">
                             <div id="chat-header-name">Amigo</div>
                             <div id="chat-header-subtitle"></div>
+                            <div id="chat-header-presence" class="cv-presence" hidden></div>
                             <div id="chat-streak-badge">
                                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg>
                                 <span><span id="chat-streak-days">0</span> <span id="chat-streak-unit">días</span> <span data-i18n="ch_streak_suffix">de racha</span></span>
@@ -1802,6 +1844,97 @@
                 el.textContent = streakLineText(ev);
                 return el;
             }
+            (function () {
+                var b = document.getElementById('chat-streak-badge');
+                if (b) { b.style.cursor = 'pointer'; b.addEventListener('click', function () { try { if (window.SeeYouShop && currentChatUserId && !currentChatIsGroup) SeeYouShop.showLifesavers(currentChatUserId); } catch (e) { } }); }
+            })();
+            // ─── Presencia y "escribiendo…" (tiempo real) ───
+            let presenceFor = '', presenceState = null, typingTimer = null, peerTyping = false, presenceTick = null;
+            function presenceEl() { return document.getElementById('chat-header-presence'); }
+            function lastSeenText(iso) {
+                if (!iso) return '';
+                const t = Date.parse(iso); if (!t) return '';
+                const mins = Math.max(0, Math.floor((Date.now() - t) / 60000));
+                if (mins < 1) return CT('ch_seen_now', 'Desconectado hace un momento');
+                if (mins < 60) return CT('ch_seen_min', 'Desconectado hace {{n}} min').replace('{{n}}', mins);
+                const hrs = Math.floor(mins / 60);
+                if (hrs < 24) return CT('ch_seen_hour', 'Desconectado hace {{n}} h').replace('{{n}}', hrs);
+                let d = '';
+                try { d = new Date(t).toLocaleDateString((typeof CONFIG !== 'undefined' && CONFIG.currentLanguage) || undefined, { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch (e) { d = new Date(t).toLocaleDateString(); }
+                return CT('ch_seen_date', 'Desconectado desde el {{d}}').replace('{{d}}', d);
+            }
+            function paintPresence() {
+                const el = presenceEl(); const pt = document.getElementById('chat-peer-text');
+                if (!el) return;
+                let text = '', cls = 'cv-presence';
+                if (!presenceFor || currentChatIsGroup) { el.hidden = true; if (pt) pt.classList.remove('has-presence'); return; }
+                if (peerTyping) { text = CT('ch_typing', 'escribiendo'); cls += ' typing'; }
+                else if (presenceState && presenceState.online) { text = CT('ch_online', 'En línea'); cls += ' online'; }
+                else if (presenceState && presenceState.lastSeen) { text = lastSeenText(presenceState.lastSeen); }
+                if (!text) { el.hidden = true; if (pt) pt.classList.remove('has-presence'); return; }
+                el.className = cls; el.textContent = text; el.hidden = false;
+                if (pt) pt.classList.add('has-presence');
+            }
+            function samePeer(id) {
+                const x = String(id || ''); if (!x) return false;
+                const p = window.currentChatPeer || {};
+                return [currentChatUserId, p.id, p.userId, p.user_id].some((v) => v != null && String(v) === x);
+            }
+            function startPresence(item) {
+                stopPresence();
+                if (!item || item.isGroup) return;
+                presenceFor = String(item.userId || item.id || '');
+                presenceState = null; peerTyping = false; paintPresence();
+                const want = presenceFor;
+                const apply = (p) => { if (p && want === presenceFor) { presenceState = p; paintPresence(); } };
+                const asked = window.SeeYouRT && SeeYouRT.emit('presence:watch', { userId: want }, apply);
+                if (!asked) {
+                    // sin tiempo real todavia: se pregunta por HTTP y se reintenta al conectar
+                    fetch(`${CONFIG.API_BASE_URL}/api/presence/${encodeURIComponent(want)}`, { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).then(apply).catch(() => {});
+                }
+                clearInterval(presenceTick);
+                presenceTick = setInterval(paintPresence, 30000);   // "hace 5 min" -> "hace 6 min"
+            }
+            function stopPresence() {
+                presenceFor = ''; presenceState = null; peerTyping = false;
+                clearInterval(presenceTick); clearTimeout(typingTimer);
+                const el = presenceEl(); if (el) el.hidden = true;
+                const pt = document.getElementById('chat-peer-text'); if (pt) pt.classList.remove('has-presence');
+            }
+            if (window.SeeYouRT) {
+                SeeYouRT.on('presence:update', (p) => { if (p && presenceFor && String(p.userId) === presenceFor) { presenceState = { online: !!p.online, lastSeen: p.lastSeen || null }; if (p.online) peerTyping = false; paintPresence(); } });
+                SeeYouRT.on('chat:typing', (p) => {
+                    if (!p || currentChatIsGroup || !currentChatUserId || !samePeer(p.from)) return;
+                    peerTyping = !!p.typing; paintPresence();
+                    clearTimeout(typingTimer);
+                    if (peerTyping) typingTimer = setTimeout(() => { peerTyping = false; paintPresence(); }, 6000);
+                });
+                SeeYouRT.on('chat:message', (m) => {
+                    try {
+                        peerTyping = false; paintPresence();
+                        if (currentChatUserId && !currentChatIsGroup) fetchMessages();
+                        if (typeof refreshChatListQuietly === 'function') refreshChatListQuietly();
+                    } catch (e) { }
+                });
+                SeeYouRT.on('connect', () => { if (currentChatUserId && !currentChatIsGroup && window.currentChatPeer) startPresence(window.currentChatPeer); });
+            }
+            // Lo que escribo: avisa al otro cada pocos segundos mientras tecleo y al parar
+            (function () {
+                const input = document.getElementById('chat-message-input');
+                if (!input) return;
+                let lastSent = 0, idle = null;
+                const send = (on) => { if (currentChatIsGroup || !presenceFor || !window.SeeYouRT) return; SeeYouRT.emit('typing', { to: presenceFor, typing: on }); };
+                input.addEventListener('input', () => {
+                    if (!input.value.trim()) { clearTimeout(idle); send(false); lastSent = 0; return; }
+                    const now = Date.now();
+                    if (now - lastSent > 3000) { send(true); lastSent = now; }
+                    clearTimeout(idle); idle = setTimeout(() => { send(false); lastSent = 0; }, 2500);
+                });
+                const sendBtn = document.getElementById('chat-send-btn');
+                if (sendBtn) sendBtn.addEventListener('click', () => { clearTimeout(idle); send(false); lastSent = 0; });
+                input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { clearTimeout(idle); send(false); lastSent = 0; } });
+            })();
+
             async function loadChatStreak() {
                 if (!currentChatUserId || currentChatIsGroup) return;
                 try {
@@ -2106,6 +2239,40 @@
                 return { html: `<span class="pv-text">${safeText(prefix + text.replace(/\s+/g, ' '))}</span>`, soft: false };
             }
 
+            let chatFolder = 'principal';
+            try { chatFolder = sessionStorage.getItem('seeyou_chat_folder') === 'general' ? 'general' : 'principal'; } catch (e) { }
+            (function () {
+                const tabs = document.getElementById('cl-tabs');
+                if (tabs) tabs.addEventListener('click', (e) => {
+                    const b = e.target.closest('.cl-tab'); if (!b) return;
+                    chatFolder = b.dataset.folder === 'general' ? 'general' : 'principal';
+                    try { sessionStorage.setItem('seeyou_chat_folder', chatFolder); } catch (err) { }
+                    filterChatList();
+                });
+            })();
+            function closeMovePop() { const o = document.querySelector('.cl-move-pop'); if (o) o.remove(); }
+            function openMovePop(item, x, y) {
+                if (item.isGroup || !(window.allConversations || []).some((c) => c && c.foldersEnabled)) return;
+                closeMovePop();
+                const to = item.folder === 'general' ? 'principal' : 'general';
+                const pop = document.createElement('div'); pop.className = 'cl-move-pop';
+                const btn = document.createElement('button'); btn.type = 'button';
+                btn.textContent = to === 'principal' ? CT('ch_move_main', 'Mover a Principal') : CT('ch_move_general', 'Mover a General');
+                btn.onclick = async () => {
+                    closeMovePop();
+                    const prev = item.folder; item.folder = to; filterChatList();
+                    try {
+                        const r = await fetch(`${API()}/api/chat/folder`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ peerId: String(item.id), folder: to }) });
+                        if (!r.ok) throw new Error('x');
+                        showToast(to === 'principal' ? CT('ch_moved_main', 'Chat movido a Principal') : CT('ch_moved_general', 'Chat movido a General'));
+                    } catch (e) { item.folder = prev; filterChatList(); showToast(CT('ch_move_fail', 'No se pudo mover el chat')); }
+                };
+                pop.appendChild(btn); document.body.appendChild(pop);
+                const w = pop.offsetWidth, h = pop.offsetHeight;
+                pop.style.left = Math.max(8, Math.min(x, window.innerWidth - w - 8)) + 'px';
+                pop.style.top = Math.max(8, Math.min(y, window.innerHeight - h - 8)) + 'px';
+                setTimeout(() => { document.addEventListener('pointerdown', function off(ev) { if (!ev.target.closest('.cl-move-pop')) { closeMovePop(); document.removeEventListener('pointerdown', off, true); } }, true); }, 0);
+            }
             function buildRow(item) {
                 const name = convName(item);
                 const unread = Number(unreadMap.get(String(item.id)) || 0);
@@ -2118,7 +2285,17 @@
                 row.dataset.id = item.id;
                 row.dataset.group = item.isGroup ? '1' : '0';
                 row.setAttribute('aria-label', `${name}${unread ? `, ${unread} sin leer` : ''}`);
-                row.addEventListener('click', () => openConversation(item));
+                let pressTimer = null, longDone = false, px = 0, py = 0;
+                row.addEventListener('click', (e) => { if (longDone) { longDone = false; e.preventDefault(); return; } openConversation(item); });
+                row.addEventListener('contextmenu', (e) => { e.preventDefault(); openMovePop(item, e.clientX, e.clientY); });
+                row.addEventListener('pointerdown', (e) => {
+                    if (e.pointerType === 'mouse') return;
+                    px = e.clientX; py = e.clientY; longDone = false;
+                    clearTimeout(pressTimer);
+                    pressTimer = setTimeout(() => { longDone = true; openMovePop(item, px, py); }, 520);
+                });
+                ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => row.addEventListener(ev, () => clearTimeout(pressTimer)));
+                row.addEventListener('pointermove', (e) => { if (Math.abs(e.clientX - px) > 10 || Math.abs(e.clientY - py) > 10) clearTimeout(pressTimer); });
 
                 row.appendChild(makeAvatar(item, 52));
 
@@ -2204,13 +2381,26 @@
                 }
 
                 const list = window.allConversations || [];
+                // Cuenta publica: Principal (amigos y gente que sigues) y General (el resto). Buscando se mira en las dos.
+                const foldersOn = list.some((c) => c && c.foldersEnabled);
+                const tabs = $('cl-tabs');
+                if (tabs) {
+                    tabs.hidden = !foldersOn;
+                    tabs.querySelectorAll('.cl-tab').forEach((b) => b.classList.toggle('active', b.dataset.folder === chatFolder));
+                    const gUnread = list.reduce((n, c) => n + (c && !c.isGroup && c.folder === 'general' ? Number(unreadMap.get(String(c.id)) || 0) : 0), 0);
+                    const badge = $('cl-general-badge'); if (badge) badge.textContent = gUnread ? String(gUnread > 99 ? '99+' : gUnread) : '';
+                }
                 const filtered = list.filter((item) => {
+                    if (foldersOn && !query && (item.folder || 'principal') !== chatFolder) return false;
                     if (!query) return true;
                     return [item.name, item.username, item.usuario].some((value) => value && String(value).toLowerCase().includes(query));
                 });
 
                 container.innerHTML = '';
-                if (!list.length) {
+                if (foldersOn && !query && !filtered.length && list.length) {
+                    container.className = 'cl-plain';
+                    container.innerHTML = `<div class="cl-empty"><div class="ill">${icon('chat_bubble_outline')}</div><h2>${chatFolder === 'general' ? CT('ch_general_empty_t', 'General está vacío') : CT('ch_main_empty_t', 'Principal está vacío')}</h2><p>${chatFolder === 'general' ? CT('ch_general_empty_x', 'Aquí llegan los mensajes de gente que no sigues. Mantén pulsado un chat para moverlo a Principal.') : CT('ch_main_empty_x', 'Aquí están tus amigos y la gente que os seguís mutuamente. Mantén pulsado un chat de General para traerlo aquí.')}</p></div>`;
+                } else if (!list.length) {
                     container.className = 'cl-plain';
                     container.innerHTML = `<div class="cl-empty"><div class="ill">${icon('chat_bubble_outline')}</div><h2>${CT('ch_empty_t', 'Tu bandeja está vacía')}</h2><p>${CT('ch_empty_x', 'Aún no tienes conversaciones — empieza una desde Amigos.')}</p><a class="btn-primary" href="friends.html">${icon('group')}${CT('ch_go_friends', 'Ir a Amigos')}</a></div>`;
                 } else if (!filtered.length) {
@@ -2469,6 +2659,7 @@
                 $('chat-list-view').style.display = 'none';
                 $('conversation-view').style.display = 'flex';
                 document.body.classList.add('in-conversation');
+                if (!opts.fromUrl) { const cvEl = $('conversation-view'); cvEl.classList.remove('cv-enter'); void cvEl.offsetWidth; cvEl.classList.add('cv-enter'); setTimeout(() => cvEl.classList.remove('cv-enter'), 340); }
                 $('chat-header-name').textContent = SeeYouHTML.dec(name);
                 fillAvatar($('chat-header-avatar'), item);
 
@@ -2487,6 +2678,7 @@
                 chatStreakEvents = []; chatStreakEventsFor = ''; chatStreakLastDays = null;
                 renderChatStreak(0);
                 loadChatStreak();
+                try { startPresence(item); } catch (e) { }
 
                 // Fondo de pantalla
                 const savedWallpaper = localStorage.getItem(`chat_wallpaper_${userPhoneId}_${currentChatUserId}`);
@@ -2514,7 +2706,21 @@
                 if (window.matchMedia && window.matchMedia('(hover: hover)').matches) input.focus();
             };
 
+            let cvLeaving = false;
             function showListView() {
+                const cvEl = $('conversation-view');
+                const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (cvEl && cvEl.style.display !== 'none' && !reduced) {
+                    if (cvLeaving) return;
+                    cvLeaving = true;
+                    cvEl.classList.add('cv-leave');
+                    setTimeout(() => { cvLeaving = false; cvEl.classList.remove('cv-leave'); showListViewNow(); }, 190);
+                    return;
+                }
+                showListViewNow();
+            }
+            function showListViewNow() {
+                try { stopPresence(); } catch (e) { }
                 currentChatUserId = null;
                 currentChatIsGroup = false;
                 window.currentGroupData = null;
@@ -2527,6 +2733,7 @@
                 document.body.classList.remove('in-conversation');
                 filterChatList();
                 loadChatList();
+                try { const lv = $('chat-list-view'); lv.classList.remove('cl-enter'); void lv.offsetWidth; lv.classList.add('cl-enter'); setTimeout(() => lv.classList.remove('cl-enter'), 320); } catch (e) { }
             }
 
             window.closeConversation = function () {

@@ -9,7 +9,7 @@
     <title>SeeYou</title>
     <link rel="stylesheet" href="style.css?v=6">
     <script src="js/palette.js?v=2"></script>
-    <script src="js/banner_mask.js?v=4"></script>
+    <script src="js/banner_mask.js?v=5"></script>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json">
@@ -21,16 +21,17 @@
     </style>
     <link rel="stylesheet" href="css/tics.css?v=17">
     <link rel="stylesheet" href="css/tic_viewer.css?v=18">
-    <script defer src="js/tics_ui.js?v=43"></script>
+    <script defer src="js/tics_ui.js?v=51"></script>
     <script defer src="js/tic_viewer.js?v=14"></script>
     <script defer src="js/home_header.js?v=1"></script>
     <script defer src="js/onboarding_tutorial.js?v=3"></script>
     <script defer src="js/badges_ui.js?v=7"></script>
-    <script defer src="js/ads_ui.js?v=4"></script>
+    <script defer src="js/ads_ui.js?v=5"></script>
     <script defer src="js/qr_mini.js?v=1"></script>
     <script src="js/nomoney.js?v=1"></script>
     <script defer src="js/coins_ui.js?v=33"></script>
-    <script defer src="js/coin_shop_ui.js?v=4"></script>
+    <script defer src="js/coin_shop_ui.js?v=5"></script>
+    <script defer src="js/realtime.js?v=1"></script>
     <script defer src="js/premium_ui.js?v=5"></script>
     <script defer src="js/admob_ui.js?v=4"></script>
     <script defer src="js/tics_archive.js?v=4"></script>
@@ -2340,6 +2341,7 @@
             flex-direction: column;
             gap: 6px;
             z-index: 6;
+            pointer-events: auto; /* el overlay es pointer-events:none: sin esto los toques atravesaban el menu y cerraban el Tic */
         }
 
         .story-menu-panel.open {
@@ -2364,6 +2366,7 @@
         .story-menu-button {
             width: 36px;
             height: 36px;
+            color: #fff; /* sin esto el icono salia negro sobre fondo negro y los tres puntos no se veian */
             background: rgba(0,0,0,0.5);
             border-radius: 50%;
             display: flex;
@@ -2898,7 +2901,7 @@
     <script src="js/road_snapper.js?v=2"></script>
     <script src="js/daily_themes.js?v=6"></script>
     <script src="js/image_cache_manager.js?v=1"></script>
-    <script src="config.js?v=21"></script>
+    <script src="config.js?v=23"></script>
     <script src="js/back_button.js?v=3"></script>
     <script src="js/notifications_system.js?v=10"></script>
     <script>
@@ -3325,12 +3328,13 @@
                     </div>
 
                     <div class="cfg-card pm-card" id="premium-card" style="padding:16px;"></div>
+                    <div class="cfg-card" style="padding:14px 16px;"><div class="cfg-fx-row"><span><b><span data-i18n="shop_ls_title">Salvavidas de racha</span><span class="cfg-pm-tag">PREMIUM</span></b><small data-i18n="shop_ls_row_x">Un salvavidas al mes para tu racha de Tics y otro por cada chat con racha. Mira cuántos te quedan.</small></span><button type="button" id="streak-lifesavers-btn" class="cfg-banner-mask-btn" data-i18n="shop_ls_see">Ver</button></div></div>
 
                     <div class="cfg-card" style="padding:14px 16px 16px;">
                         <p class="cfg-theme-title" style="margin:0 0 10px;" data-i18n="hm_banner_title">Banner de tu perfil</p>
                         <div id="profile-banner-selector" class="cfg-banner-swatches"></div>
                         <p id="profile-banner-hint" class="cfg-banner-hint"></p>
-                        <div class="cfg-fx-row"><span><b><span data-i18n="hm_banner_shape">Forma del banner</span><span class="cfg-pm-tag">PREMIUM</span></b><small data-i18n="hm_banner_shape_x">Dibuja a mano (rayos, lagrimas, una ola...) la parte de debajo de tu banner. Se ve tu foto o color real, y lo ve quien visite tu perfil.</small></span><button type="button" id="banner-mask-edit-btn" class="cfg-banner-mask-btn" data-i18n="hm_edit_shape">Editar forma</button></div>
+                        
                     </div>
 
                     <div class="cfg-card" style="padding:14px 16px 16px;">
@@ -3824,7 +3828,7 @@
             </div>
             <div id="story-menu-panel" class="story-menu-panel">
                 <button onclick="closeStoryMenu()" data-i18n="tic_close">Cerrar</button>
-                <button onclick="toggleLikeCurrentStory()" data-i18n="tic_aria_like">Me gusta</button>
+                <button onclick="showCurrentTicLikes()" data-i18n="hm_x_likes">Quién le dio me gusta</button>
                 <button onclick="shareCurrentStory()" data-i18n="tic_menu_share">Compartir</button>
                 <button onclick="editCurrentTic()" data-i18n="hm_edit_vis">Editar / visibilidad</button>
                 <button onclick="showCurrentTicViewers()" data-i18n="hm_x_viewers">Quién lo ha visto</button>
@@ -4454,6 +4458,17 @@
                 closeCreateMenu();
                 closeCreatePostSection();
             }
+        });
+
+        // Esc en el visor de Tics (Mis Tics / historias): cierra menu o paneles abiertos y, si no hay, sale al inicio.
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            const sv = document.getElementById('story-viewer-container');
+            if (!sv || !sv.classList.contains('open')) return;
+            if (document.querySelector('.tsheet-back')) return; // la hoja abierta se cierra sola con Esc
+            const menu = document.getElementById('story-menu-panel');
+            if (menu && menu.classList.contains('open')) { closeStoryMenu(); return; }
+            closeStory();
         });
 
         function closeCreateMenu() {
@@ -5471,6 +5486,13 @@
             }).catch(function () { });
         }
         window.renderProfileBannerCover = renderProfileBannerCover;
+        (function () {
+            function openLs() { try { if (window.SeeYouShop && SeeYouShop.showLifesavers) SeeYouShop.showLifesavers(); } catch (e) { } }
+            document.addEventListener('click', function (e) {
+                var t = e.target && e.target.closest ? e.target.closest('#streak-lifesavers-btn, #home-streak, #profile-streak') : null;
+                if (t) openLs();
+            });
+        })();
         function setupBannerMaskButton() {
             var btn = document.getElementById('banner-mask-edit-btn');
             if (!btn) return;
@@ -5536,7 +5558,7 @@
                     '<span class="cfg-banner-check">&check;</span>' + (locked ? '<span class="cfg-banner-lock">🔒 ' + cost + '</span>' : '') + '</button>';
             }).join('') +
                 '<button type="button" class="cfg-banner-swatch cfg-banner-image' + (bannerPickerState.hasImage ? '' : ' is-locked') + '" data-banner="imagen" aria-label="' + CONFIG.translate('hm_bn_propia', 'Imagen propia') + '">' +
-                (bannerPickerState.hasImage ? '<span class="cfg-banner-check">&check;</span>' : '<span class="cfg-banner-lock">📷 ' + ((window.SeePremium && window.SeePremium.active) ? CONFIG.translate('hm_m_free', 'gratis') : CONFIG.translate('hm_m_perday', '1/día')) + '</span>') + '</button>';
+                (bannerPickerState.hasImage ? '<span class="cfg-banner-check">&check;</span>' : '<span class="cfg-banner-lock">📷 ' + ((window.SeePremium && window.SeePremium.active) ? CONFIG.translate('hm_m_free', 'gratis') : CONFIG.translate('hm_m_perday', '4/día')) + '</span>') + '</button>';
             wrap.querySelectorAll('.cfg-banner-swatch').forEach(function (btn) {
                 btn.classList.toggle('is-selected', btn.dataset.banner === bannerPickerState.current);
                 btn.addEventListener('click', function () { onBannerSwatchClick(btn, wrap); });
@@ -5631,7 +5653,7 @@
                         cover.style.background = "url('" + bImg + "') center / cover no-repeat";
                     }
                 } catch (e) { }
-                if (window.showToast) showToast(CONFIG.translate('hm_j035', '¡Banner con tu imagen activado! Se cobrará 1 moneda cada día que lo mantengas.'));
+                if (window.showToast) showToast(CONFIG.translate('hm_j035', '¡Banner con tu imagen activado! Se cobrarán 4 monedas cada día que lo mantengas.'));
                 try { window.SeeYouCoins && SeeYouCoins.refresh && SeeYouCoins.refresh(); } catch (e) { }
             } catch (e) {
                 if (window.showToast) showToast(CONFIG.translate('hm_j036', 'No se pudo subir el banner. Inténtalo de nuevo.'));
@@ -6649,7 +6671,8 @@
                             lng: up.metadata?.longitude,
                             name: 'Ubicación GPS de la foto'
                         }),
-                        date: up.customDate || up.date || up.createdAt ? new Date(up.customDate || up.date || up.createdAt) : null,
+                        date: up.createdAt || up.date ? new Date(up.createdAt || up.date) : null,
+                        photoDate: up.customDate || (up.metadata && up.metadata.dateTimeOriginal) || null,
                         userId,
                         source: up.source || 'friend',
                         type: String(up.type || 'tic').toLowerCase(),
@@ -6847,7 +6870,8 @@
                         ...item,
                         id: item.id,
                         imgUrl: item.imageUrl || item.image_url || item.data || '',
-                        date: new Date(item.customDate || item.createdAt || item.created_at || item.date || 0),
+                        date: new Date(item.createdAt || item.created_at || item.date || 0),
+                        photoDate: item.customDate || (item.metadata && item.metadata.dateTimeOriginal) || null,
                         likes: Array.isArray(item.likes) ? item.likes : [],
                         comments: Array.isArray(item.comments) ? item.comments : [],
                         taggedUserIds: Array.isArray(item.taggedUserIds || item.tagged_user_ids) ? (item.taggedUserIds || item.tagged_user_ids) : [],
@@ -6864,13 +6888,15 @@
                         authorAvatar: localStorage.getItem('current_user_foto') || '',
                         userId: item.userId || item.user_id || userId,
                         caption: item.caption || '',
-                        date: item.date || new Date(item.customDate || item.createdAt || item.created_at || 0),
+                        date: item.date || new Date(item.createdAt || item.created_at || 0),
+                        photoDate: item.photoDate || item.customDate || (item.metadata && item.metadata.dateTimeOriginal) || null,
                         likes: Array.isArray(item.likes) ? item.likes : [],
                         comments: Array.isArray(item.comments) ? item.comments : [],
                         taggedUserIds: Array.isArray(item.taggedUserIds || item.tagged_user_ids) ? (item.taggedUserIds || item.tagged_user_ids) : [],
                         visibility: item.visibility || 'public',
                         music: item.spotifyInfo && item.spotifyInfo.title ? item.spotifyInfo.title : null,
                         location: normalizePublicationLocation(item.location),
+                        metadata: item.metadata || {},
                         frameOverlayUrl: item.frameOverlayUrl || null,
                         imgAlt: [item.originalImageUrl, item.original_image_url, item.data, item.image_url, item.imageUrl]
                     };
@@ -7293,9 +7319,87 @@
             showToast('Me gusta registrado');
         }
 
+        // Lista de quién ha dado me gusta al Tic actual (tus propios Tics): primero tus amigos,
+        // luego la gente que sigues o te sigue, y al final el resto.
+        async function showCurrentTicLikes() {
+            closeStoryMenu();
+            const phot = getCurrentStoryPhoto();
+            if (!phot) return;
+            const me = localStorage.getItem('current_user_id') || '';
+            let likeIds = Array.isArray(phot.likes) ? phot.likes.map((l) => String((l && typeof l === 'object') ? (l.userId || l.id) : l)).filter(Boolean) : [];
+            try {
+                const r = await fetch(`${CONFIG.API_BASE_URL}/api/publicaciones/${encodeURIComponent(phot.id)}?viewerId=${encodeURIComponent(me)}`, { cache: 'no-store' });
+                if (r.ok) {
+                    const j = await r.json();
+                    const pub = j && (j.publication || j);
+                    if (pub && Array.isArray(pub.likes)) likeIds = pub.likes.map((l) => String((l && typeof l === 'object') ? (l.userId || l.id) : l)).filter(Boolean);
+                }
+            } catch (e) { }
+            likeIds = [...new Set(likeIds)].filter((id) => id !== String(me));
+
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed; inset:0; z-index:20000; background:rgba(0,0,0,0.6); display:flex; align-items:flex-end; justify-content:center;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+            const sheet = document.createElement('div');
+            sheet.style.cssText = 'background:#fff; width:100%; max-width:480px; max-height:70vh; border-radius:20px 20px 0 0; padding:16px; overflow-y:auto; box-sizing:border-box;';
+            sheet.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                    <strong style="font-size:16px; color:#1D1B20;">${CONFIG.translate('hm_x_likes_n', 'Me gusta ({{n}})').replace('{{n}}', likeIds.length)}</strong>
+                    <button type="button" style="border:none; background:transparent; cursor:pointer;"><span class="material-icons-outlined">close</span></button>
+                </div>
+                <div id="tic-likes-list">${likeIds.length ? '<div style="text-align:center; padding:20px;"><span class="material-icons-outlined" style="animation: spin 1s linear infinite; color:var(--primary);">sync</span></div>' : '<p style="color:#79747E; font-size:14px; text-align:center; padding:20px 0;">' + CONFIG.translate('hm_x_likes_none', 'Todavía nadie le ha dado me gusta.') + '</p>'}</div>`;
+            overlay.appendChild(sheet);
+            overlay.querySelector('button').onclick = () => overlay.remove();
+            document.body.appendChild(overlay);
+            if (!likeIds.length) return;
+
+            try {
+                const base = CONFIG.API_BASE_URL;
+                const [users, friendsRes, netRes] = await Promise.all([
+                    Promise.all(likeIds.map(async (id) => {
+                        try { const res = await fetch(`${base}/api/users/${encodeURIComponent(id)}`); return res.ok ? await res.json() : { id, name: 'Usuario' }; }
+                        catch (e) { return { id, name: 'Usuario' }; }
+                    })),
+                    fetch(`${base}/api/friends/${encodeURIComponent(me)}`).then((r) => (r.ok ? r.json() : [])).catch(() => []),
+                    fetch(`${base}/api/follows/${encodeURIComponent(me)}`).then((r) => (r.ok ? r.json() : {})).catch(() => ({}))
+                ]);
+                const friendSet = new Set((Array.isArray(friendsRes) ? friendsRes : []).map((u) => String(u.id)));
+                const followSet = new Set([].concat(Array.isArray(netRes.followers) ? netRes.followers : [], Array.isArray(netRes.following) ? netRes.following : []).map((u) => String(u.id)));
+                const rank = (u) => (friendSet.has(String(u.id)) ? 0 : (followSet.has(String(u.id)) ? 1 : 2));
+                const tagFor = (u) => (friendSet.has(String(u.id)) ? CONFIG.translate('hm_x_tag_friend', 'Amigo') : (followSet.has(String(u.id)) ? CONFIG.translate('hm_x_tag_follow', 'Seguidor / seguido') : ''));
+                const ordered = users.map((u, i) => ({ u, i, r: rank(u) })).sort((a, b) => (a.r - b.r) || (a.i - b.i)).map((x) => x.u);
+                const listEl = document.getElementById('tic-likes-list');
+                if (!listEl) return;
+                listEl.innerHTML = ordered.map((u) => {
+                    const name = escapeHtml(u.name || u.username || 'Usuario');
+                    const avatarUrl = u.avatar ? (u.avatar.startsWith('http') || u.avatar.startsWith('data:') ? u.avatar : `${base}/${u.avatar.replace(/^\/?/, '')}`) : '';
+                    const tag = tagFor(u);
+                    return `
+                        <div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid #f0f0f0;">
+                            ${avatarUrl
+                                ? `<img src="${avatarUrl}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">`
+                                : `<div style="width:38px; height:38px; border-radius:50%; background:#eee; display:flex; align-items:center; justify-content:center;"><span class="material-icons-outlined" style="color:#999; font-size:20px;">person</span></div>`}
+                            <span style="font-size:14px; color:#1D1B20; flex:1;">${name}</span>
+                            ${tag ? `<span style="font-size:11px; color:#1B3A5C; background:#E8EEF5; padding:3px 8px; border-radius:10px; font-weight:600;">${escapeHtml(tag)}</span>` : ''}
+                        </div>`;
+                }).join('');
+            } catch (err) {
+                console.error('Error cargando los me gusta del Tic', err);
+                const listEl = document.getElementById('tic-likes-list');
+                if (listEl) listEl.innerHTML = '<p style="color:#ef4444; font-size:14px; text-align:center;">' + CONFIG.translate('hm_m_list_err', 'No se pudo cargar la lista.') + '</p>';
+            }
+        }
+
         function shareCurrentStory() {
             closeStoryMenu();
-            showToast('Compartido');
+            const phot = getCurrentStoryPhoto();
+            if (!phot || !phot.id || !window.SocialUI || !window.SocialUI.openSendSheet) return;
+            if (!(window.publicationPhotos || []).some(p => String(p.id) === String(phot.id))) {
+                window.publicationPhotos = [...(window.publicationPhotos || []), phot];
+            }
+            // La hoja se abre encima del visor (sin cerrarlo)
+            if (typeof clearStoryProgressTimer === 'function') clearStoryProgressTimer();
+            window.SocialUI.openSendSheet(phot.id);
         }
 
         function editCurrentTic() {
@@ -7306,12 +7410,44 @@
                 window.publicationPhotos = [...(window.publicationPhotos || []), phot];
             }
             const id = phot.id;
-            closeStory();
+            // Se edita encima del Tic, sin cerrarlo
+            if (typeof clearStoryProgressTimer === 'function') clearStoryProgressTimer();
             window.SocialUI.openOwnMenu(id);
         }
 
+        // Cuando un Tic se borra (desde la hoja de confirmacion), se quita tambien del visor abierto.
+        document.addEventListener('seeyou:tic-deleted', (e) => {
+            const id = e.detail && e.detail.id;
+            if (id == null) return;
+            try {
+                const sv = document.getElementById('story-viewer-container');
+                if (!sv || !sv.classList.contains('open')) return;
+                if (ticTourMode) {
+                    ticTourPhotos = ticTourPhotos.filter(p => String(p.id) !== String(id));
+                    if (currentStoryIndex >= ticTourPhotos.length) currentStoryIndex = ticTourPhotos.length - 1;
+                    if (ticTourPhotos.length === 0) closeStory(); else updateStoryView();
+                } else {
+                    const g = window.storyGroups && window.storyGroups[currentStoryGroupIndex];
+                    if (g && g.photos) {
+                        g.photos = g.photos.filter(p => String(p.id) !== String(id));
+                        if (g.photos.length === 0) {
+                            window.storyGroups.splice(currentStoryGroupIndex, 1);
+                            if (currentStoryGroupIndex >= window.storyGroups.length) currentStoryGroupIndex = window.storyGroups.length - 1;
+                        }
+                        if (g.photos && currentStoryIndex >= g.photos.length) currentStoryIndex = Math.max(0, g.photos.length - 1);
+                    }
+                    if (!window.storyGroups || window.storyGroups.length === 0) closeStory(); else updateStoryView();
+                }
+            } catch (err) { console.warn('[SeeYou] visor tras borrar:', err); }
+        });
+
         async function deleteCurrentTic() {
             closeStoryMenu();
+            // Hoja de confirmacion propia (el confirm() nativo falla en la app y en algunos navegadores)
+            try {
+                const cur = getCurrentStoryPhoto();
+                if (cur && cur.id && window.SocialUI && SocialUI.confirmDelete) { SocialUI.confirmDelete(cur.id); return; }
+            } catch (e) { }
             if (!confirm(CONFIG.translate('hm_j078', '¿Borrar este Tic?'))) return;
             const phot = getCurrentStoryPhoto();
             if (!phot || !phot.id) return;
@@ -7367,7 +7503,7 @@
             const viewerIds = Array.isArray(phot.viewers) ? phot.viewers.filter(Boolean) : [];
 
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed; inset:0; z-index:9500; background:rgba(0,0,0,0.6); display:flex; align-items:flex-end; justify-content:center;';
+            overlay.style.cssText = 'position:fixed; inset:0; z-index:20000; background:rgba(0,0,0,0.6); display:flex; align-items:flex-end; justify-content:center;';
             overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
             const sheet = document.createElement('div');
@@ -8191,8 +8327,9 @@
             const found = [];
 
             if (meta.date && window.PhotoMeta.isBackdated(meta.date) && !currentPhotoData.customDate) {
+                // customDate = fecha de la foto: el Tic se publica con la de hoy y esta se ve en el mapa y en el Tic.
                 setPhotoDate(meta.date.toISOString());
-                found.push('la fecha');
+                found.push('la fecha de la foto');
             }
 
             if (meta.lat != null && meta.lng != null && !currentPhotoData.location) {
@@ -10687,6 +10824,21 @@
         }
 
         function navigate(section) {
+            // Pulsar Inicio estando ya en Inicio: sube arriba y refresca el feed (sin usar la copia guardada)
+            if (section === 'inicio') {
+                try {
+                    const ini = document.getElementById('inicio-section');
+                    const alreadyHere = ini && ini.style.display !== 'none' && getComputedStyle(ini).display !== 'none' && !document.getElementById('story-viewer-container')?.classList.contains('open');
+                    if (alreadyHere) {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        try { localStorage.removeItem(FEED_CACHE_KEY); } catch (e) { }
+                        const tabBtn = document.querySelector('.feed-tab-btn.active');
+                        if (tabBtn) tabBtn.click();
+                        else if (typeof renderHorizontalFeed === 'function') renderHorizontalFeed().catch(() => { });
+                        return;
+                    }
+                } catch (e) { }
+            }
             const activeSection = section === 'actividades-map' ? 'actividades-map' : section;
             document.documentElement.classList.toggle('route-map', section === 'actividades-map');
             document.documentElement.classList.toggle('route-profile', section === 'perfil');
@@ -11032,7 +11184,7 @@
 
             const location = photo.location || {};
             const metadata = photo.metadata || {};
-            const date = photo.date || metadata.dateTimeOriginal || metadata.modifyDate;
+            const date = photo.photoDate || metadata.dateTimeOriginal || photo.date || metadata.modifyDate;
             const dateText = date ? new Date(date).toLocaleString() : CONFIG.translate('hm_j116', 'Sin fecha disponible');
             const locationText = location.name || metadata.locationName || CONFIG.translate('hm_j117', 'Ubicación marcada en el mapa');
             const gpsText = Number.isFinite(location.lat) && Number.isFinite(location.lng)

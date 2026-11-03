@@ -234,7 +234,17 @@
         var themePreview = themeFull.length > 46 ? themeFull.slice(0, 46).replace(/\s+\S*$/, '') + '…' : themeFull;
         var themeChip = themeFull ? '<button type="button" class="tic-theme" data-act="theme" data-theme-full="' + esc(themeFull) + '">' + ICON.theme + '<em data-role="theme-preview">' + esc(themePreview) + '</em></button>' : '';
         var feed = !!opts.feed; // visor a pantalla completa: mismo contenido, otra disposicion (ver css/tic_viewer.css)
-        var sub = [feed ? '' : themeChip, when ? '<span>' + esc(when) + '</span>' : ''].filter(Boolean).join('<i class="tic-dot"></i>');
+        // Si la foto es antigua (se publicó hoy pero se hizo otro día), se enseña cuándo se hizo de verdad.
+        var photoWhen = '';
+        try {
+            var odRaw = p.photoDate || (p.metadata && p.metadata.dateTimeOriginal) || null;
+            var od = odRaw ? new Date(odRaw) : null;
+            var pd = p.date ? new Date(p.date) : null;
+            if (od && !isNaN(od.getTime()) && pd && !isNaN(pd.getTime()) && (pd - od) > 24 * 3600 * 1000) {
+                photoWhen = '\uD83D\uDCF7 ' + CONFIG.translate('tic_photo_taken', 'Foto del {{date}}').replace('{{date}}', od.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }));
+            }
+        } catch (e) { }
+        var sub = [feed ? '' : themeChip, when ? '<span>' + esc(when) + '</span>' : '', photoWhen ? '<span>' + esc(photoWhen) + '</span>' : ''].filter(Boolean).join('<i class="tic-dot"></i>');
         var id = esc(p.id);
         var musicArt = p.musicArtwork ? '<img src="' + esc(p.musicArtwork) + '" alt="" style="width:16px;height:16px;border-radius:3px;object-fit:cover;margin-right:4px;">' : ICON.music;
         var music = p.music ? '<div class="tic-chip tic-chip--music">' + musicArt + '<span>' + esc(p.music) + '</span></div>' : '';
@@ -1422,12 +1432,12 @@
         var vis = normVis(pub.visibility);
         var body = setSheetBody(
             '<h3>' + esc(CONFIG.translate('tic_menu_title_own', 'Tu Tic')) + '</h3>' +
-            '<button type="button" class="ts-btn" data-ts="edit">✏️ ' + esc(CONFIG.translate('tic_menu_edit_caption', 'Editar descripción')) + '</button>' +
-            '<button type="button" class="ts-btn" data-ts="vis">🔒 ' + esc(CONFIG.translate('tic_menu_who_can_see', 'Quién puede verlo:')) + ' <b style="margin-left:auto;color:#1B3A5C">' + esc(VIS_LABEL[vis]) + '</b></button>' +
-            '<button type="button" class="ts-btn" data-ts="share">📤 ' + esc(CONFIG.translate('tic_menu_share', 'Compartir')) + '</button>' +
-            '<button type="button" class="ts-btn" data-ts="boost">🚀 ' + esc(CONFIG.translate('tic_menu_boost', 'Destacar con monedas')) + '</button>' +
-            '<button type="button" class="ts-btn" data-ts="download">⬇️ ' + esc(CONFIG.translate('tic_menu_download', 'Descargar')) + '</button>' +
-            '<button type="button" class="ts-btn danger" data-ts="delete">🗑️ ' + esc(CONFIG.translate('tic_menu_delete', 'Borrar Tic')) + '</button>' +
+            '<button type="button" class="ts-btn" data-ts="edit">' + esc(CONFIG.translate('tic_menu_edit_caption', 'Editar descripción')) + '</button>' +
+            '<button type="button" class="ts-btn" data-ts="vis">' + esc(CONFIG.translate('tic_menu_who_can_see', 'Quién puede verlo:')) + ' <b style="margin-left:auto;color:#1B3A5C">' + esc(VIS_LABEL[vis]) + '</b></button>' +
+            '<button type="button" class="ts-btn" data-ts="share">' + esc(CONFIG.translate('tic_menu_share', 'Compartir')) + '</button>' +
+            '<button type="button" class="ts-btn" data-ts="boost">' + esc(CONFIG.translate('tic_menu_boost', 'Destacar con monedas')) + '</button>' +
+            '<button type="button" class="ts-btn" data-ts="download">' + esc(CONFIG.translate('tic_menu_download', 'Descargar')) + '</button>' +
+            '<button type="button" class="ts-btn danger" data-ts="delete">' + esc(CONFIG.translate('tic_menu_delete', 'Borrar Tic')) + '</button>' +
             '<button type="button" class="ts-btn" data-ts="close" style="color:#6B7280">' + esc(CONFIG.translate('tic_cancel', 'Cancelar')) + '</button>');
         body.onclick = function (e) {
             var b = e.target.closest('[data-ts]');
@@ -1464,7 +1474,7 @@
     // (antes siempre salia el tema de hoy, aunque descargaras un Tic viejo).
     function themeInfoForPub(pub) {
         try {
-            var raw = pub && (pub.customDate || pub.createdAt || pub.created_at || pub.date);
+            var raw = pub && (pub.createdAt || pub.created_at || pub.date || pub.customDate);
             var d = raw ? new Date(raw) : null;
             if (d && isNaN(d.getTime())) d = null;
             if (typeof getDailyThemeForDate === 'function') {
@@ -1480,7 +1490,7 @@
     }
     function renderDownloadMenu(pub) {
         var body = setSheetBody(
-            '<h3>⬇️ ' + esc(CONFIG.translate('tic_download_title', 'Descargar este Tic')) + '</h3>' +
+            '<h3>' + esc(CONFIG.translate('tic_download_title', 'Descargar este Tic')) + '</h3>' +
             '<button type="button" class="ts-opt" data-ts="plain"><div><b>' + esc(CONFIG.translate('tic_download_plain', 'Descargar tal cual')) + '</b><span>' + esc(CONFIG.translate('tic_download_plain_desc', 'La foto como la subiste.')) + '</span></div></button>' +
             '<button type="button" class="ts-opt" data-ts="themed"><div><b>' + esc(CONFIG.translate('tic_download_themed', 'Descargar con el tema del día')) + '</b><span>' + esc(CONFIG.translate('tic_download_themed_desc', 'Añade una pegatina del tema de hoy que puedes mover a tu gusto.')) + '</span></div></button>' +
             '<div class="ts-row"><button type="button" class="ts-ghost" data-ts="back">' + esc(CONFIG.translate('tic_back', 'Atrás')) + '</button></div>');
@@ -1492,26 +1502,53 @@
             if (b.dataset.ts === 'themed') return startTicDownload(pub, true);
         };
     }
-    // Dibuja el logo de SeeYou (solo los dos aros, sin fondo blanco) + "SeeYou" debajo, centrado abajo.
+    // Marca de agua: el logotipo real de SeeYou (letras con las caritas), en blanco translucido, arriba en el centro.
+    var wmLogoImg = null, wmLogoPromise = null, wmWhiteCache = null;
+    function loadWmLogo() {
+        if (wmLogoImg) return Promise.resolve(wmLogoImg);
+        if (!wmLogoPromise) {
+            wmLogoPromise = new Promise(function (resolve) {
+                var im = new Image();
+                im.onload = function () { wmLogoImg = im; resolve(im); };
+                im.onerror = function () { resolve(null); };
+                im.src = new URL('logotipo-texto.png?v=1', window.location.href).href;
+            });
+        }
+        return wmLogoPromise;
+    }
+    function whiteLogo() {
+        if (wmWhiteCache || !wmLogoImg) return wmWhiteCache;
+        var c = document.createElement('canvas');
+        c.width = wmLogoImg.naturalWidth; c.height = wmLogoImg.naturalHeight;
+        var x = c.getContext('2d');
+        x.drawImage(wmLogoImg, 0, 0);
+        try {
+            // Logo fiel al original (mismas formas y tamanos, caritas incluidas): todo en blanco con la misma opacidad.
+            var d = x.getImageData(0, 0, c.width, c.height), px = d.data;
+            for (var i = 0; i < px.length; i += 4) { px[i] = 255; px[i + 1] = 255; px[i + 2] = 255; }
+            x.putImageData(d, 0, 0);
+        } catch (e) {
+            x.globalCompositeOperation = 'source-in'; x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+        }
+        wmWhiteCache = c;
+        return c;
+    }
     function drawWatermark(ctx, w, h) {
-        var scale = Math.max(1, w / 900);
-        var r = 15 * scale, cx = w / 2, cy = h - 74 * scale;
-        // Separados, sin tocarse ni cruzarse (el logo real de SeeYou no superpone los dos aros).
-        var gap = r + 5 * scale;
+        var logo = whiteLogo();
         ctx.save();
-        ctx.globalAlpha = 0.55; // mas translucido: lo importante es la foto, no la marca de agua
-        ctx.lineWidth = 5.5 * scale;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = '#00A3FF';
-        ctx.beginPath(); ctx.arc(cx - gap, cy, r, 0, Math.PI * 2); ctx.stroke();
-        ctx.strokeStyle = 'rgba(255,255,255,.96)';
-        ctx.beginPath(); ctx.arc(cx + gap, cy, r, 0, Math.PI * 2); ctx.stroke();
-        ctx.font = '700 ' + Math.round(15 * scale) + 'px system-ui,-apple-system,sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 6 * scale;
-        ctx.fillStyle = '#fff';
-        ctx.fillText('SeeYou', cx, cy + r + 6 * scale);
+        if (logo) {
+            var lw = Math.round(w * 0.30), lh = Math.round(lw * logo.height / logo.width);
+            var x = Math.round((w - lw) / 2), y = Math.round(h * 0.045);
+            ctx.globalAlpha = 0.72;
+            ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = Math.max(4, w * 0.006); ctx.shadowOffsetY = Math.max(1, w * 0.0025);
+            ctx.drawImage(logo, x, y, lw, lh);
+        } else {
+            // Respaldo si no cargara el logo: solo el nombre
+            ctx.globalAlpha = 0.72; ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.font = '800 ' + Math.round(w * 0.05) + 'px system-ui,-apple-system,sans-serif';
+            ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 6;
+            ctx.fillText('SeeYou', w / 2, h * 0.045);
+        }
         ctx.restore();
     }
     // Marco/vignette con los colores del tema del dia, para que el fondo "pegue" con la foto
@@ -1556,7 +1593,7 @@
         closeSheet();
         toastMsg(CONFIG.translate('tic_downloading', 'Preparando descarga…'));
         fetch(src, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('fetch'); return r.blob(); }).then(function (blob) {
-            return loadImageFromBlob(blob);
+            return Promise.all([loadImageFromBlob(blob), loadWmLogo()]).then(function (rs) { return rs[0]; });
         }).then(function (res) {
             if (!themed) {
                 var c = document.createElement('canvas');
@@ -1582,8 +1619,9 @@
         st.textContent =
             '.tdl-overlay{position:fixed;inset:0;z-index:45000;background:#0B1A2E;display:flex;flex-direction:column}' +
             '.tdl-stage{position:relative;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;touch-action:none}' +
-            '.tdl-img-wrap{position:relative;max-width:100%;max-height:100%;display:inline-flex}' +
-            '.tdl-stage img{max-width:100%;max-height:100%;display:block;user-select:none;-webkit-user-drag:none}' +
+            '.tdl-img-wrap{position:relative;display:inline-block;line-height:0;max-width:100%}' +
+            '.tdl-stage img{display:block;width:auto;height:auto;max-width:100vw;max-height:calc(100vh - 150px);max-height:calc(100dvh - 150px);object-fit:contain;user-select:none;-webkit-user-drag:none}' +
+            '.tdl-wm{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}' +
             '.tdl-frame{position:absolute;inset:0;pointer-events:none;opacity:.9;border-radius:2px}' +
             '.tdl-sticker{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;color:#fff;font:800 15px system-ui,sans-serif;white-space:nowrap;box-shadow:0 10px 24px -8px rgba(0,0,0,.5);cursor:grab;touch-action:none;-webkit-tap-highlight-color:transparent}' +
             '.tdl-sticker:active{cursor:grabbing}' +
@@ -1604,6 +1642,13 @@
             '<div class="tdl-sticker" style="background:linear-gradient(135deg,' + theme.from + ',' + theme.to + ')">' + theme.emoji + ' ' + esc(theme.label) + '</div></div>' +
             '<div class="tdl-bar"><button type="button" class="ghost" data-ts="cancel">' + esc(CONFIG.translate('tic_cancel', 'Cancelar')) + '</button><button type="button" class="go" data-ts="save">' + esc(CONFIG.translate('tic_download_save', 'Guardar')) + '</button></div>';
         document.body.appendChild(ov);
+        // La marca de agua se ve ya en la vista previa (el mismo dibujo que se guarda en la imagen).
+        try {
+            var wmW = res.img.naturalWidth || res.img.width, wmH = res.img.naturalHeight || res.img.height;
+            var wmC = document.createElement('canvas'); wmC.width = wmW; wmC.height = wmH; wmC.className = 'tdl-wm';
+            drawWatermark(wmC.getContext('2d'), wmW, wmH);
+            ov.querySelector('.tdl-img-wrap').appendChild(wmC);
+        } catch (e) { }
         var stage = ov.querySelector('.tdl-stage'), imgEl = ov.querySelector('img'), sticker = ov.querySelector('.tdl-sticker');
         var pos = { xPct: 50, yPct: 50 };
         function applyPos() { sticker.style.left = pos.xPct + '%'; sticker.style.top = pos.yPct + '%'; }
@@ -1677,12 +1722,12 @@
 
     /* Destacar un Tic con monedas: durante unas horas sale mas veces en los feeds de otras personas. */
     function renderBoost(pub) {
-        var body = setSheetBody('<h3>🚀 ' + esc(CONFIG.translate('tic_boost_title', 'Destacar este Tic')) + '</h3><p class="ts-note">' + esc(CONFIG.translate('tic_loading', 'Cargando…')) + '</p>');
+        var body = setSheetBody('<h3>' + esc(CONFIG.translate('tic_boost_title', 'Destacar este Tic')) + '</h3><p class="ts-note">' + esc(CONFIG.translate('tic_loading', 'Cargando…')) + '</p>');
         Promise.all([apiCall('GET', '/api/publicaciones/' + encodeURIComponent(pub.id) + '/boost'), apiCall('GET', '/api/shop/config')]).then(function (rs) {
             var b = (rs[0] && rs[0].data) || {}, cfg = (rs[1] && rs[1].data) || {};
             var cost = Number(b.cost) || 20, hours = Number(b.hours) || 24, mult = Number(b.multiplier) || 3, bal = Number(cfg.balance) || 0;
             var box = setSheetBody(
-                '<h3>🚀 ' + esc(CONFIG.translate('tic_boost_title', 'Destacar este Tic')) + '</h3>' +
+                '<h3>' + esc(CONFIG.translate('tic_boost_title', 'Destacar este Tic')) + '</h3>' +
                 '<p class="ts-note">' + esc(CONFIG.translate('tic_boost_text', 'Durante {{h}} horas tu Tic saldrá {{x}} veces más en los feeds de otras personas, y tiene más opciones de hacerse viral.').replace('{{h}}', hours).replace('{{x}}', mult)) + '</p>' +
                 '<p class="ts-note"><b>' + esc(CONFIG.translate('tic_boost_cost', 'Cuesta {{n}} monedas').replace('{{n}}', cost)) + '</b> · ' + esc(CONFIG.translate('tic_boost_balance', 'Tienes {{n}}').replace('{{n}}', bal)) + '</p>' +
                 (b.boosted ? '<p class="ts-note" style="color:#16A34A"><b>' + esc(CONFIG.translate('tic_boost_active', 'Ya está destacado ahora mismo.')) + '</b></p>' : '') +
@@ -1821,11 +1866,11 @@
         if (!sheetEl) return;
         var body = setSheetBody(
             '<h3>' + esc(label) + '</h3>' +
-            (opts && opts.publicationId ? '<button type="button" class="ts-btn" data-ts="not-interested">🙈 ' + esc(CONFIG.translate('tic_not_interested', 'No me interesa')) + '</button>' : '') +
+            (opts && opts.publicationId ? '<button type="button" class="ts-btn" data-ts="not-interested">' + esc(CONFIG.translate('tic_not_interested', 'No me interesa')) + '</button>' : '') +
             (blockedByMe
-                ? '<button type="button" class="ts-btn" data-ts="unblock">✅ ' + esc(CONFIG.translate('tic_unblock_prefix', 'Desbloquear a {{name}}').replace('{{name}}', label)) + '</button>'
-                : '<button type="button" class="ts-btn danger" data-ts="block">🚫 ' + esc(CONFIG.translate('tic_block_prefix', 'Bloquear a {{name}}').replace('{{name}}', label)) + '</button>') +
-            '<button type="button" class="ts-btn" data-ts="report">⚑ ' + esc(CONFIG.translate('tic_report', 'Reportar')) + '</button>' +
+                ? '<button type="button" class="ts-btn" data-ts="unblock">' + esc(CONFIG.translate('tic_unblock_prefix', 'Desbloquear a {{name}}').replace('{{name}}', label)) + '</button>'
+                : '<button type="button" class="ts-btn danger" data-ts="block">' + esc(CONFIG.translate('tic_block_prefix', 'Bloquear a {{name}}').replace('{{name}}', label)) + '</button>') +
+            '<button type="button" class="ts-btn" data-ts="report">' + esc(CONFIG.translate('tic_report', 'Reportar')) + '</button>' +
             '<button type="button" class="ts-btn" data-ts="close" style="color:#6B7280">' + esc(CONFIG.translate('tic_cancel', 'Cancelar')) + '</button>');
         body.onclick = function (e) {
             var b = e.target.closest('[data-ts]');
@@ -1937,7 +1982,9 @@
             music: up.spotifyInfo && up.spotifyInfo.title ? up.spotifyInfo.title : null,
             caption: up.caption || '',
             location: loc,
-            date: up.customDate || up.createdAt ? new Date(up.customDate || up.createdAt) : null,
+            metadata: up.metadata || {},
+            photoDate: up.customDate || (up.metadata && up.metadata.dateTimeOriginal) || null,
+            date: up.createdAt ? new Date(up.createdAt) : null,
             userId: up.userId || up.user_id || '',
             likes: Array.isArray(up.likes) ? up.likes : [],
             comments: Array.isArray(up.comments) ? up.comments : [],
@@ -2445,8 +2492,13 @@
     function renderSendSheet(pubId, friends) {
         if (!sheetEl) return;
         var link = ticShareLink(pubId);
-        var html = '<h3>' + esc(CONFIG.translate('tic_send_title', 'Enviar')) + '</h3>' +
-            '<button type="button" class="ts-link-row" data-ts="copy-link"><span class="ts-link-icon">🔗</span><span>' + esc(CONFIG.translate('tic_copy_link', 'Copiar enlace')) + '</span></button>';
+        var pubForShare = findPub(pubId);
+        var isOwnPub = !!(pubForShare && String(pubForShare.userId || pubForShare.user_id || '') === String(me()));
+        var ico = function (d) { return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>'; };
+        var html = '<h3>' + esc(CONFIG.translate('tic_send_title', 'Compartir')) + '</h3>' +
+            '<button type="button" class="ts-link-row" data-ts="native-share"><span class="ts-link-icon">' + ico('<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/>') + '</span><span>' + esc(CONFIG.translate('tic_share_apps', 'Compartir en otras apps (WhatsApp, Instagram...)')) + '</span></button>' +
+            '<button type="button" class="ts-link-row" data-ts="copy-link"><span class="ts-link-icon">' + ico('<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>') + '</span><span>' + esc(CONFIG.translate('tic_copy_link', 'Copiar enlace')) + '</span></button>' +
+            (isOwnPub ? '<button type="button" class="ts-link-row" data-ts="to-download"><span class="ts-link-icon">' + ico('<path d="M12 4v11M7.5 11 12 15.5 16.5 11M5 19h14"/>') + '</span><span>' + esc(CONFIG.translate('tic_menu_download', 'Descargar')) + '</span></button>' : '');
         if (Array.isArray(friends) && friends.length) {
             html += '<p class="ts-note" style="margin:2px 4px 4px">' + esc(CONFIG.translate('tic_send_to_friend', 'Enviar por chat a:')) + '</p>' +
                 '<div class="ts-send-grid">';
@@ -2483,6 +2535,28 @@
             var b = e.target.closest('[data-ts]');
             if (!b) return;
             if (b.dataset.ts === 'close') return closeSheet();
+            if (b.dataset.ts === 'to-download') return renderDownloadMenu(pubForShare);
+            if (b.dataset.ts === 'native-share') {
+                var shareData = { title: 'SeeYou', text: CONFIG.translate('tic_share_text', 'Mira este Tic en SeeYou'), url: link };
+                var fallbackCopy = function () {
+                    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).catch(function () { });
+                    toastMsg(CONFIG.translate('tic_link_copied', 'Enlace copiado'));
+                };
+                if (typeof navigator.share !== 'function') { fallbackCopy(); return; }
+                // Primero se intenta con la foto (WhatsApp, Instagram...); si el movil no lo permite, se comparte el enlace.
+                var imgSrc = pubForShare && (pubForShare.imgUrl || pubForShare.imageUrl || pubForShare.data);
+                var tryFile = imgSrc ? fetch(assetUrl(imgSrc)).then(function (r) { return r.blob(); }).then(function (blob) {
+                    var ext = /png/i.test(blob.type) ? 'png' : (/webp/i.test(blob.type) ? 'webp' : 'jpg');
+                    var file = new File([blob], 'seeyou-tic.' + ext, { type: blob.type || 'image/jpeg' });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) return navigator.share({ files: [file], title: 'SeeYou', text: shareData.text + ' ' + link });
+                    return Promise.reject(new Error('no-files'));
+                }) : Promise.reject(new Error('no-image'));
+                tryFile.then(closeSheet).catch(function (err) {
+                    if (err && err.name === 'AbortError') return;
+                    navigator.share(shareData).then(closeSheet).catch(function (e2) { if (!e2 || e2.name !== 'AbortError') fallbackCopy(); });
+                });
+                return;
+            }
             if (b.dataset.ts === 'copy-link') {
                 var done = function () { toastMsg(CONFIG.translate('tic_link_copied', 'Enlace copiado')); closeSheet(); };
                 if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done).catch(done);
@@ -2507,6 +2581,8 @@
         warmImage: warmImage,
         openTicMenu: openTicMenu,
         openOwnMenu: openOwnMenu,
+        openSendSheet: openSendSheet,
+        confirmDelete: function (pubId) { var pub = findPub(pubId) || { id: pubId, caption: '', visibility: 'public', _stub: true }; openSheet(''); renderConfirmDelete(pub); },
         openUserMenu: openUserMenu,
         openReportComment: openReportComment,
         openHashtag: openHashtag,

@@ -223,7 +223,7 @@
             '?viewerId=' + encodeURIComponent(opts.viewerId || '') + '&limit=' + (RECENT_COUNT + 1);
         return authFetch(url).then(function (data) {
             var list = Array.isArray(data) ? data : [];
-            list.sort(function (a, b) { return new Date(b.customDate || b.createdAt || b.created_at || b.date || 0) - new Date(a.customDate || a.createdAt || a.created_at || a.date || 0); });
+            list.sort(function (a, b) { return new Date(b.createdAt || b.created_at || b.date || 0) - new Date(a.createdAt || a.created_at || a.date || 0); });
             var hasMore = list.length > RECENT_COUNT;
             var shown = list.slice(0, RECENT_COUNT);
             if (opts.register) opts.register(shown);

@@ -196,6 +196,8 @@
     // Todo junto para publicar: { customDate: ISO|'' , location: {lat,lng,name,city}|null }
     function readForPublish(file) {
         return read(file).then(function (m) {
+            // customDate = fecha en la que se hizo la foto. El Tic se publica y se ordena con la fecha de HOY (createdAt);
+            // la fecha de la foto solo se ve en el mapa, en el archivo por fecha y dentro del Tic.
             var out = { customDate: '', location: null };
             if (isBackdated(m.date)) out.customDate = m.date.toISOString();
             if (m.lat == null || m.lng == null) return out;
