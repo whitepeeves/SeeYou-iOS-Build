@@ -255,11 +255,11 @@ body.tv-open .top-right-actions { display: none !important; }
 /* Escribiendo: la hoja sube hasta el teclado, la lista sigue visible encima y la barra de abajo de la app se oculta. */
 body.tv-composing .bottom-nav-bar { display: none !important; }
 .tv-slide .tic-comments.tv-typing { max-height: min(78%, 520px); }
-.tv-slide .tic-comments.tv-stickers { max-height: min(70%, 560px); }
+.tv-slide .tic-comments.tv-stickers { max-height: min(74%, 600px); }
 .tv-slide .tic-comment-form .tic-stk-btn { color: rgba(255, 255, 255, .85); background: rgba(255, 255, 255, .12); }
 .tv-slide .tic-comment-form .tic-stk-btn.is-on { color: #9CC2F7; background: rgba(122, 167, 232, .25); }
 .tv-slide .tic-stk-tray { border-top-color: rgba(255, 255, 255, .12); }
-.tv-slide .tic-stk { background: rgba(255, 255, 255, .08); }
+.tv-slide .tic-stk:hover { background: rgba(255, 255, 255, .1); }
 .tv-slide .tic-stk-add { border-color: rgba(255, 255, 255, .35); color: rgba(255, 255, 255, .75); background: transparent; }
 .tv-slide .tic-stk-hint { color: rgba(255, 255, 255, .6); }
 .tv-slide .tic-comments .tic-comment-name, .tv-slide .tic-comments .tic-comment-body span { color: #e8ecf1; }
@@ -276,8 +276,8 @@ body.tv-composing .bottom-nav-bar { display: none !important; }
 
 .tv-slide .tv-vid-err { position: absolute; left: 50%; top: 45%; transform: translateX(-50%); z-index: 5; max-width: 86%; padding: 8px 14px; border-radius: 12px; background: rgba(8, 20, 36, .8); color: #fff; font-size: 13px; text-align: center; pointer-events: none; }
 
-.tv-slide .tic-stk-tabs { background: rgba(255, 255, 255, .1); }
-.tv-slide .tic-stk-tab { color: rgba(255, 255, 255, .7); }
+.tv-slide .tic-stk-tabs { background: transparent; }
+.tv-slide .tic-stk-tab { color: rgba(255, 255, 255, .75); background: rgba(255, 255, 255, .1); }
 .tv-slide .tic-stk-tab.on { background: rgba(255, 255, 255, .95); color: #2563eb; }
 .tv-slide .tic-stk-menu { background: #1c2b42; }
 .tv-slide .tic-stk-menu button { color: #fff; }

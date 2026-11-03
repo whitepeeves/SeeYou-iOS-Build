@@ -195,21 +195,24 @@ body[data-theme="dark"] .tic-theme-full, body[data-theme="blue"] .tic-theme-full
 .tic-comment-form .tic-stk-btn { flex: none; width: 38px; height: 38px; border: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--tc-text); background: var(--tc-border); transition: background .18s, color .18s; -webkit-tap-highlight-color: transparent; }
 .tic-comment-form .tic-stk-btn svg { width: 19px; height: 19px; }
 .tic-comment-form .tic-stk-btn.is-on { color: #2563eb; background: rgba(59, 130, 246, .18); }
-.tic-stk-tray { flex: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--tc-border); max-height: min(200px, 30vh); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+.tic-stk-tray { flex: 1 1 auto; min-height: 0; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--tc-border); max-height: min(340px, 44vh); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; scrollbar-width: thin; }
 .tic-stk-tray[hidden] { display: none; }
-.tic-stk-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.tic-stk { position: relative; overflow: hidden; aspect-ratio: 1; border: 0; border-radius: 12px; padding: 4px; background: rgba(27, 58, 92, .06); display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
-/* La imagen va fuera del flujo: asi el cuadro siempre es cuadrado, aunque el sticker no lo sea (antes se estiraba y tapaba el texto de ayuda) */
-.tic-stk img { position: absolute; inset: 4px; width: calc(100% - 8px); height: calc(100% - 8px); object-fit: contain; pointer-events: none; }
-.tic-stk-add { border: 1.5px dashed #9aa6b8; background: transparent; color: #6b7686; }
-.tic-stk-add svg { width: 22px; height: 22px; }
-.tic-stk-hint { margin: 8px 2px 0; font-size: 12px; line-height: 1.35; color: #6b7686; }
+.tic-stk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 4px; padding-bottom: 6px; }
+.tic-stk { position: relative; overflow: hidden; aspect-ratio: 1; border: 0; border-radius: 14px; padding: 4px; background: transparent; display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; transition: transform .12s ease, background .12s ease; }
+.tic-stk:hover { background: rgba(27, 58, 92, .08); }
+.tic-stk:active { transform: scale(.9); }
+/* La imagen va fuera del flujo: asi el cuadro siempre es cuadrado, aunque el sticker no lo sea */
+.tic-stk img { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); object-fit: contain; pointer-events: none; }
+.tic-stk-add { border: 1.5px dashed #9aa6b8; background: transparent; color: #6b7686; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font: 700 12px system-ui, sans-serif; }
+.tic-stk-add svg { width: 24px; height: 24px; }
+.tic-stk-hint { margin: 10px 4px 4px; font-size: 12.5px; line-height: 1.4; color: #6b7686; text-align: center; }
 .tic-comment-sticker { display: block; width: 92px; height: 92px; object-fit: contain; margin-top: 4px; }
 
-.tic-stk-tabs { display: flex; gap: 4px; padding: 3px; margin-bottom: 9px; border-radius: 14px; background: rgba(27, 58, 92, .07); }
-.tic-stk-tab { flex: 1; height: 32px; border: 0; border-radius: 11px; display: grid; place-items: center; background: transparent; color: #6b7686; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.tic-stk-tab svg { width: 18px; height: 18px; }
-.tic-stk-tab.on { background: #fff; color: #2563eb; box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
+.tic-stk-tabs { display: flex; gap: 6px; padding: 0; margin-bottom: 8px; background: transparent; }
+.tic-stk-tab { flex: 1; height: 36px; border: 0; border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; font: 700 13px system-ui, sans-serif; background: rgba(27, 58, 92, .07); color: #6b7686; cursor: pointer; -webkit-tap-highlight-color: transparent; white-space: nowrap; transition: background .15s, color .15s; }
+.tic-stk-tab svg { width: 16px; height: 16px; flex: none; }
+.tic-stk-tab.on { background: #fff; color: #2563eb; box-shadow: 0 1px 4px rgba(0, 0, 0, .18); }
+@media (max-width: 340px) { .tic-stk-tab span { display: none; } }
 .tic-stk-menu { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; padding: 4px; border-radius: 14px; background: #fff; box-shadow: 0 6px 20px rgba(0, 0, 0, .18); }
 .tic-stk-menu button { border: 0; background: transparent; padding: 10px 12px; text-align: left; font: 600 14px system-ui, sans-serif; color: #1b2430; border-radius: 10px; }
 .tic-stk-menu button.danger { color: #dc2626; }

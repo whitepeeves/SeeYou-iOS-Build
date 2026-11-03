@@ -797,23 +797,28 @@
         });
     }
     function stickerTrayHTML(data) {
-        var tabs = [['fav', ICON.star, 'tic_sticker_tab_fav', 'Favoritos'], ['recent', ICON.clock, 'tic_sticker_tab_recent', 'Recientes'], ['trend', ICON.flame, 'tic_sticker_tab_trend', 'De moda hoy']];
-        var h = '<div class="tic-stk-tabs">';
+        var tabs = [['fav', ICON.star, 'tic_sticker_tab_fav', 'Favoritos'], ['recent', ICON.clock, 'tic_sticker_tab_recent', 'Recientes'], ['trend', ICON.flame, 'tic_sticker_tab_trend', 'De moda']];
+        var h = '<div class="tic-stk-tabs" role="tablist">';
         tabs.forEach(function (t) {
-            h += '<button type="button" class="tic-stk-tab' + (stickerTab === t[0] ? ' on' : '') + '" data-stk-tab="' + t[0] + '" aria-label="' + esc(CONFIG.translate(t[2], t[3])) + '">' + t[1] + '</button>';
+            var label = CONFIG.translate(t[2], t[3]);
+            h += '<button type="button" role="tab" class="tic-stk-tab' + (stickerTab === t[0] ? ' on' : '') + '" data-stk-tab="' + t[0] + '" aria-label="' + esc(label) + '">' + t[1] + '<span>' + esc(label) + '</span></button>';
         });
-        h += '<button type="button" class="tic-stk-tab tic-stk-new" data-stk-add="1" aria-label="' + esc(CONFIG.translate('tic_sticker_add', 'Crear sticker')) + '">' + ICON.plus + '</button></div>';
+        h += '</div>';
         var list = stickerTab === 'fav' ? data.favorites : stickerTab === 'recent' ? data.recent : data.trending;
         h += '<div class="tic-stk-grid">';
+        // "Crear" va como primera casilla de la cuadricula (como en Instagram/TikTok), siempre a mano
+        h += '<button type="button" class="tic-stk tic-stk-add" data-stk-add="1" aria-label="' + esc(CONFIG.translate('tic_sticker_add', 'Crear sticker')) + '">' + ICON.plus + '<span>' + esc(CONFIG.translate('tic_sticker_create_short', 'Crear')) + '</span></button>';
         list.forEach(function (st) {
             h += '<button type="button" class="tic-stk" data-stk="' + esc(st.id) + '"><img src="' + esc(assetUrl(st.url)) + '" alt="" loading="lazy" decoding="async"></button>';
         });
         h += '</div>';
-        var msg = list.length ? CONFIG.translate('tic_sticker_hint', 'Toca uno para enviarlo. Mantén pulsado para más opciones.') :
-            (stickerTab === 'fav' ? CONFIG.translate('tic_sticker_empty_fav', 'Aquí salen tus favoritos y los stickers que creas. Toca + para crear uno (mejor un PNG con fondo transparente).') :
-            stickerTab === 'recent' ? CONFIG.translate('tic_sticker_empty_recent', 'Aún no has usado ningún sticker.') :
-            CONFIG.translate('tic_sticker_empty_trend', 'Hoy todavía no hay stickers de moda. ¡Sé el primero!'));
-        return h + '<p class="tic-stk-hint">' + esc(msg) + '</p>';
+        if (!list.length) {
+            var msg = stickerTab === 'fav' ? CONFIG.translate('tic_sticker_empty_fav', 'Aquí salen tus favoritos y los stickers que creas. Toca + para crear uno (mejor un PNG con fondo transparente).') :
+                stickerTab === 'recent' ? CONFIG.translate('tic_sticker_empty_recent', 'Aún no has usado ningún sticker.') :
+                CONFIG.translate('tic_sticker_empty_trend', 'Hoy todavía no hay stickers de moda. ¡Sé el primero!');
+            h += '<p class="tic-stk-hint">' + esc(msg) + '</p>';
+        }
+        return h;
     }
     function paintStickerTray(card) {
         var tray = card.querySelector('.tic-stk-tray');
@@ -876,8 +881,8 @@
     }
     function pickAndUploadSticker(card) {
         var fi = document.createElement('input');
-        fi.type = 'file'; fi.accept = 'image/png,image/webp,image/jpeg';
-        fi.style.display = 'none';
+        fi.type = 'file'; fi.accept = 'image/*';
+        fi.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;';
         document.body.appendChild(fi);
         fi.addEventListener('change', function () {
             var f = fi.files && fi.files[0];
@@ -916,7 +921,6 @@
                 if (b.dataset.m === 'fav') {
                     apiCall(st.fav ? 'DELETE' : 'POST', '/api/stickers/' + encodeURIComponent(id) + '/favorite').then(function () { renderStickerTray(card); });
                 } else if (b.dataset.m === 'del') {
-                    if (!window.confirm(CONFIG.translate('tic_sticker_delete_confirm', '¿Borrar este sticker?'))) return;
                     apiCall('DELETE', '/api/stickers/' + encodeURIComponent(id)).then(function () { renderStickerTray(card); });
                 }
             });
@@ -1137,7 +1141,7 @@
             var t = e.touches[0];
             var panel = t.target.closest && t.target.closest('.tv-slide .tic-comments');
             if (!panel) return;
-            if (t.target.closest('input, button, a, textarea')) return;
+            if (t.target.closest('input, button, a, textarea, .tic-stk-tray')) return;
             var head = t.target.closest('.tic-comments-head');
             var onHandle = t.target === panel || !!head;
             var list = panel.querySelector('.tic-comment-list');

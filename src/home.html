@@ -19,9 +19,9 @@
         .feed-tab-btn { border: none; background: #F0F2F5; color: #5B6673; font-weight: 700; font-size: 14px; padding: 8px 18px; border-radius: 999px; cursor: pointer; }
         .feed-tab-btn.active { background: #1B3A5C; color: #fff; }
     </style>
-    <link rel="stylesheet" href="css/tics.css?v=17">
-    <link rel="stylesheet" href="css/tic_viewer.css?v=18">
-    <script defer src="js/tics_ui.js?v=51"></script>
+    <link rel="stylesheet" href="css/tics.css?v=18">
+    <link rel="stylesheet" href="css/tic_viewer.css?v=19">
+    <script defer src="js/tics_ui.js?v=52"></script>
     <script defer src="js/tic_viewer.js?v=14"></script>
     <script defer src="js/home_header.js?v=1"></script>
     <script defer src="js/onboarding_tutorial.js?v=3"></script>
@@ -3922,6 +3922,7 @@
                 return `${CONFIG.API_BASE_URL}/${avatarValue.replace(/^\/?/, '')}`;
             }
 
+            window.updateTopRightAvatar = updateTopRightAvatar;
             function updateTopRightAvatar() {
                 const avatarImg = document.getElementById('top-right-avatar-img');
                 const avatarFallback = document.querySelector('.top-right-avatar-fallback');
@@ -4259,6 +4260,7 @@
                 try { chargeBannerImageIfActive(); } catch (e) { }
             }
 
+            window.renderProfileBio = renderProfileBio;
             function renderProfileBio() {
                 const el = document.getElementById('perfil-user-bio');
                 if (!el) return;
@@ -4414,7 +4416,7 @@
                 if (found) { openWithList(found, list); return; }
                 if (attemptsLeft > 0) { setTimeout(() => tryNow(attemptsLeft - 1), 400); return; }
                 // No estaba en lo ya cargado: se pide suelto.
-                fetch(`${CONFIG.API_BASE_URL}/api/publicaciones/${encodeURIComponent(ticId)}?viewerId=${encodeURIComponent(currentUserId || '')}`)
+                fetch(`${CONFIG.API_BASE_URL}/api/publicaciones/${encodeURIComponent(ticId)}?viewerId=${encodeURIComponent(localStorage.getItem('current_user_id') || localStorage.getItem('current_user') || '')}`)
                     .then((r) => r.ok ? r.json() : Promise.reject(r))
                     .then((pub) => openWithList(pub, [pub]))
                     .catch(() => { if (typeof showToast === 'function') showToast(CONFIG.translate('hm_j007', 'Ese Tic ya no está disponible')); });
@@ -5154,6 +5156,7 @@
             // La foto siguiente se prepara mientras se sube la actual.
             const prepare = (i) => s.prepared[i] || (s.prepared[i] = preparePhotoForUpload(s.files[i]));
             let failureMessage = '';
+            let lastResult = null;
             updateTicJob(job, s.done / s.total, 'Preparando foto…');
             try {
                 while (s.files.length) {
@@ -5184,6 +5187,7 @@
                     if (s.overlay) formData.append('frameOverlayUrl', s.overlay);
 
                     const result = await postTicWithJob(job, formData, base, span, label);
+                    lastResult = result;
                     if (ticResultOk(result) && result.data && result.data.success) {
                         if (s.streak.first === null) s.streak.first = Number(result.data.streak_days) || 0;
                         if (result.data.streak_increased) s.streak.increased = true;
@@ -5214,7 +5218,7 @@
 
             if (!s.files.length && s.pending) {
                 if (s.pending < s.total) { try { await renderHorizontalFeed(); } catch (e) { } }
-                ticJobPending(job, result);
+                ticJobPending(job, lastResult);
             } else if (!s.files.length) {
                 await afterTicPublished(job, s.userId, s.total, s.streak);
             } else {
