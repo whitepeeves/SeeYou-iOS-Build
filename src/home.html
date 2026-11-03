@@ -6412,7 +6412,7 @@
         const FEED_PAGE_SIZE = 30; // paginas mas pequeñas: menos datos y menos filas leidas de la base de datos
         const FEED_CACHE_KEY = 'seeyou_public_feed_cache_v4';
         // Semilla del orden del feed: distinta en cada apertura de la app (el orden "Para ti" se baraja un poco con ella)
-        const FEED_SESSION_SEED = (() => {
+        let FEED_SESSION_SEED = (() => {
             try {
                 let seed = sessionStorage.getItem('seeyou_feed_seed');
                 const seedAt = Number(sessionStorage.getItem('seeyou_feed_seed_at') || 0);
@@ -6427,6 +6427,16 @@
             } catch (e) { return Math.random().toString(36).slice(2, 10); }
         })();
 
+        // Refrescar de verdad: el servidor guarda el orden por semilla, asi que con la misma semilla
+        // devolveria siempre los mismos Tics. Una semilla nueva rehace el orden "Para ti".
+        window.renewFeedSeed = function () {
+            FEED_SESSION_SEED = Math.random().toString(36).slice(2, 10);
+            try {
+                sessionStorage.setItem('seeyou_feed_seed', FEED_SESSION_SEED);
+                sessionStorage.setItem('seeyou_feed_seed_at', String(Date.now()));
+            } catch (e) { }
+            dropFeedLocalCache();
+        };
         // Cambios hechos desde el menú de un Tic (js/tics_ui.js): se actualizan las cachés del feed.
         function dropFeedLocalCache() { try { localStorage.removeItem(FEED_CACHE_KEY); } catch (e) { } }
         function pruneTicsFromCaches(predicate) {
@@ -10836,6 +10846,7 @@
                     if (alreadyHere) {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                         try { localStorage.removeItem(FEED_CACHE_KEY); } catch (e) { }
+                        try { window.renewFeedSeed && window.renewFeedSeed(); } catch (e) { }
                         const tabBtn = document.querySelector('.feed-tab-btn.active');
                         if (tabBtn) tabBtn.click();
                         else if (typeof renderHorizontalFeed === 'function') renderHorizontalFeed().catch(() => { });
