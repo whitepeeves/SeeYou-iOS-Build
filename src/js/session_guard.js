@@ -57,6 +57,12 @@
             window.fetch = function (input, init) {
                 return nativeFetch(input, init).then(function (res) {
                     try {
+                        // Sesion renovable: el servidor manda un token nuevo (60 dias) mientras usas la app.
+                        // Solo se guarda si sigues con sesion iniciada (si cerraste sesion entre medias, no se vuelve a abrir).
+                        var renewed = res && res.headers && res.headers.get && res.headers.get('X-Renewed-Token');
+                        if (renewed && localStorage.getItem('seeYou_auth_token')) localStorage.setItem('seeYou_auth_token', renewed);
+                    } catch (e) { }
+                    try {
                         // Cuenta suspendida o baneada: se avisa y se vuelve al inicio de sesion.
                         if (res && res.status === 403 && !handled) {
                             var url403 = typeof input === 'string' ? input : (input && input.url) || '';

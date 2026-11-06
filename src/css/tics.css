@@ -96,6 +96,11 @@
 .tic-like.is-liked { color: var(--tc-like); }
 .tic-like.is-liked svg { fill: var(--tc-like); stroke: var(--tc-like); }
 .tic-like.pop svg { animation: ticPop .5s cubic-bezier(.2, .9, .3, 1.4); }
+.tic-save svg { fill: none; stroke: currentColor; transition: fill .2s, stroke .2s; }
+.tic-save.is-saved { color: #1B3A5C; animation: ticSavePop .35s ease; }
+body[data-theme="dark"] .tic-save.is-saved, body[data-theme="blue"] .tic-save.is-saved { color: #8fb8e8; }
+.tic-save.is-saved svg { fill: currentColor; stroke: currentColor; }
+@keyframes ticSavePop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
 @keyframes ticPop { 0% { transform: scale(1); } 35% { transform: scale(1.35); } 65% { transform: scale(.92); } 100% { transform: scale(1); } }
 
 .tic-likes-line { padding: 2px 18px 0; font-size: 13.5px; color: var(--tc-text); min-height: 0; }
@@ -174,8 +179,10 @@ body[data-theme="dark"] .tic-theme-full, body[data-theme="blue"] .tic-theme-full
 /* Tics de vídeo: insignia de reproducción sobre el póster */
 .tic-play { position: absolute; right: 12px; top: 12px; z-index: 4; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: rgba(8, 20, 36, .55); color: #fff; font-size: 14px; padding-left: 2px; pointer-events: none; backdrop-filter: blur(4px); }
 
-/* Auto-centrado suave al hacer scroll por el feed (ver AAAResumenesAplicacion/tareas de UX) */
+/* Auto-centrado suave al hacer scroll por el feed (ver AAAResumenesAplicacion/tareas de UX).
+   El PRIMER Tic del feed no se centra solo: si no, la pantalla salta hasta el y tapa "Nuevo Tic" y tus Tics de arriba. */
 .tic-card { scroll-snap-align: center; }
+#vertical-feed > .tic-card:first-child { scroll-snap-align: none; }
 
 /* iOS: toques inmediatos en botones y accesos a comentarios */
 .tic-card [data-act], .tic-viewcomments, .tic-send { touch-action: manipulation; cursor: pointer; -webkit-tap-highlight-color: transparent; }
