@@ -359,8 +359,36 @@
         });
     }
 
+    /* ---------- Guardados: el icono se rellena si el Tic ya esta en alguna de tus listas ---------- */
+    var savedSet = null, savedLoading = false;   // ids de Tics guardados (null = aun sin cargar)
+    function paintSavedButtons(root) {
+        if (!savedSet) return;
+        (root || document).querySelectorAll('.tic-card[data-pub-id]').forEach(function (card) {
+            var on = savedSet.has(String(card.dataset.pubId));
+            card.querySelectorAll('.tic-save').forEach(function (b) {
+                b.classList.toggle('is-saved', on);
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+        });
+    }
+    function setSavedFromLists(lists) {
+        var s = new Set();
+        (lists || []).forEach(function (l) { (l.publicationIds || []).forEach(function (id) { s.add(String(id)); }); });
+        savedSet = s;
+        paintSavedButtons(document);
+    }
+    function ensureSaved() {
+        if (savedSet || savedLoading || !me()) return;
+        savedLoading = true;
+        apiCall('GET', '/api/saved/' + encodeURIComponent(me())).then(function (r) {
+            savedLoading = false;
+            if (r && r.ok) setSavedFromLists((r.data && r.data.lists) || []);
+        }).catch(function () { savedLoading = false; });
+    }
+
     function hydrate(root) {
         try { dwellObserve(root); } catch (e) { }
+        try { if (savedSet) paintSavedButtons(root); else ensureSaved(); } catch (e) { }
         root = root || document;
         var ids = {};
         root.querySelectorAll('[data-uid]').forEach(function (el) { if (el.dataset.uid) ids[el.dataset.uid] = 1; });
@@ -2338,6 +2366,7 @@
         apiCall('GET', '/api/saved/' + encodeURIComponent(uid)).then(function (r) {
             if (!sheetEl || !saveCtx || saveCtx.pubId !== pubId) return;
             saveCtx.lists = (r.data && r.data.lists) || [];
+            setSavedFromLists(saveCtx.lists);
             renderSaveSheet();
         });
     }
@@ -2372,6 +2401,7 @@
         function apply(add) {
             l.publicationIds = add ? ids.concat([String(pubId)]) : ids.filter(function (id) { return id !== String(pubId); });
             l.count = Math.max(0, (l.count || 0) + (add ? 1 : -1));
+            setSavedFromLists(ctx.lists);
             if (sheetEl && saveCtx === ctx) renderSaveSheet();
         }
         var before = { ids: l.publicationIds, count: l.count };
@@ -2382,6 +2412,7 @@
                 if (has && l.count === 0) { ctx.lists = ctx.lists.filter(function (x) { return x !== l; }); if (sheetEl && saveCtx === ctx) renderSaveSheet(); }
             } else {
                 l.publicationIds = before.ids; l.count = before.count;
+                setSavedFromLists(ctx.lists);
                 if (sheetEl && saveCtx === ctx) renderSaveSheet();
                 toastMsg((r.data && r.data.message) || CONFIG.translate('tic_save_failed', 'No se pudo guardar'));
             }
