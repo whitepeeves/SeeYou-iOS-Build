@@ -351,6 +351,16 @@
     window.location.href = url.toString();
   }
 
+  // Insignia especial: al pulsar el aviso se abre el perfil y se repite la animacion (opcional, solo si se pulsa).
+  function specialBadgeUrl(item) {
+    const m = /^badge_special_([a-z0-9_]+)$/.exec(String((item && item.type) || ''));
+    if (!m) return null;
+    const url = new URL('home.html', window.location.href);
+    url.searchParams.set('section', 'perfil');
+    url.searchParams.set('special', m[1]);
+    return url.toString();
+  }
+
   function getNotificationUrl(item) {
     const url = new URL('chat.html', window.location.href);
     if (item.fromUserId) url.searchParams.set('userId', item.fromUserId);
@@ -388,7 +398,7 @@
             id: Math.abs(String(item.id).split('').reduce((hash, char) => ((hash << 5) - hash) + char.charCodeAt(0), 0)),
             title,
             body,
-            extra: { url: item.type === 'chat_message' ? getNotificationUrl(item) : new URL('home.html', window.location.href).toString() },
+            extra: { url: item.type === 'chat_message' ? getNotificationUrl(item) : (specialBadgeUrl(item) || new URL('home.html', window.location.href).toString()) },
             sound: 'default',
             channelId: NATIVE_CHANNEL_ID,
             smallIcon: 'ic_stat_seeyou'
@@ -407,7 +417,7 @@
       icon: avatar,
       tag: item.id,
       renotify: true,
-      data: { url: item.type === 'chat_message' ? getNotificationUrl(item) : new URL('home.html', window.location.href).toString() }
+      data: { url: item.type === 'chat_message' ? getNotificationUrl(item) : (specialBadgeUrl(item) || new URL('home.html', window.location.href).toString()) }
     };
 
     if ('serviceWorker' in navigator) {

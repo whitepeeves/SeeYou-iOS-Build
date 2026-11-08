@@ -1339,6 +1339,17 @@
             '.ts-opt.sel .ts-radio:after{content:"";position:absolute;inset:3px;border-radius:50%;background:#00A3FF}',
             '.tsheet textarea{width:100%;box-sizing:border-box;border:1.5px solid #D7DBE8;border-radius:14px;padding:12px 14px;font-size:14.5px;font-family:inherit;resize:vertical;outline:none;min-height:96px}',
             '.tsheet textarea:focus{border-color:#00A3FF}',
+            '.ts-sub{margin:0 0 10px;font-size:13px;color:#6B7280}',
+            '.ts-chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}',
+            '.ts-chip{display:inline-flex;align-items:center;gap:4px;background:#E6F4FF;color:#0B5FA5;border-radius:999px;padding:6px 6px 6px 12px;font-size:14px;font-weight:600}',
+            '.ts-chip-x{border:0;background:rgba(11,95,165,.14);color:#0B5FA5;width:22px;height:22px;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;padding:0}',
+            '.ts-tagrow{display:flex;gap:8px}',
+            '.ts-tagrow input{flex:1;min-width:0;box-sizing:border-box;border:1.5px solid #D7DBE8;border-radius:14px;padding:11px 14px;font-size:15px;font-family:inherit;outline:none}',
+            '.ts-tagrow input:focus{border-color:#00A3FF}',
+            '.ts-addtag{flex:none;border:0;border-radius:14px;padding:0 18px;font-size:15px;font-weight:700;font-family:inherit;color:#fff;background:linear-gradient(135deg,#00A3FF,#5B7CFF);box-shadow:0 4px 12px rgba(0,163,255,.32);cursor:pointer;display:inline-flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent;transition:transform .12s ease}',
+            '.ts-addtag span{font-size:20px;line-height:1;font-weight:800;margin-top:-2px}',
+            '.ts-addtag:active{transform:scale(.95)}',
+            '.ts-addtag:disabled{opacity:.45;box-shadow:none;cursor:default}',
             '.ts-row{display:flex;gap:10px;margin-top:12px}',
             '.ts-row button{flex:1;border:0;border-radius:14px;padding:13px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:inherit}',
             '.ts-primary{background:#1B3A5C;color:#fff}',
@@ -1465,6 +1476,7 @@
         var body = setSheetBody(
             '<h3>' + esc(CONFIG.translate('tic_menu_title_own', 'Tu Tic')) + '</h3>' +
             '<button type="button" class="ts-btn" data-ts="edit">' + esc(CONFIG.translate('tic_menu_edit_caption', 'Editar descripción')) + '</button>' +
+            '<button type="button" class="ts-btn" data-ts="tags">' + esc(CONFIG.translate('tic_menu_hashtags', 'Hashtags')) + '</button>' +
             '<button type="button" class="ts-btn" data-ts="vis">' + esc(CONFIG.translate('tic_menu_who_can_see', 'Quién puede verlo:')) + ' <b style="margin-left:auto;color:#1B3A5C">' + esc(VIS_LABEL[vis]) + '</b></button>' +
             '<button type="button" class="ts-btn" data-ts="share">' + esc(CONFIG.translate('tic_menu_share', 'Compartir')) + '</button>' +
             '<button type="button" class="ts-btn" data-ts="boost">' + esc(CONFIG.translate('tic_menu_boost', 'Destacar con monedas')) + '</button>' +
@@ -1477,6 +1489,7 @@
             var a = b.dataset.ts;
             if (a === 'close') closeSheet();
             else if (a === 'edit') renderEditCaption(pub);
+            else if (a === 'tags') renderHashtags(pub);
             else if (a === 'vis') renderVisibility(pub);
             else if (a === 'share') openSendSheet(pub.id);
             else if (a === 'boost') renderBoost(pub);
@@ -1816,6 +1829,68 @@
                 toastMsg(CONFIG.translate('tic_caption_updated', 'Descripción actualizada'));
             });
         };
+    }
+
+    /* ---------- Hashtags "ocultos": hasta 5 por Tic, sin escribirlos en la descripción ---------- */
+    var HASHTAG_MAX = 5;
+    function cleanTagInput(v) {
+        return String(v || '').replace(/^#+/, '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^\p{L}\p{N}_]/gu, '').slice(0, 40);
+    }
+    function renderHashtags(pub) {
+        var tags = [];
+        function draw(refocus) {
+            var chips = tags.map(function (t, i) {
+                return '<span class="ts-chip">#' + esc(t) + '<button type="button" class="ts-chip-x" data-rm="' + i + '" aria-label="' + esc(CONFIG.translate('tic_hashtag_remove', 'Quitar')) + '">×</button></span>';
+            }).join('');
+            var full = tags.length >= HASHTAG_MAX;
+            var body = setSheetBody(
+                '<h3>' + esc(CONFIG.translate('tic_hashtags_title', 'Hashtags')) + '</h3>' +
+                '<p class="ts-sub">' + esc(CONFIG.translate('tic_hashtags_help', 'Ayudan a que lleguen a quien le gusta este tema. No se ven en la descripción. Máximo 5.')) + '</p>' +
+                '<div class="ts-chips">' + (chips || '<span class="ts-sub">' + esc(CONFIG.translate('tic_hashtags_none', 'Todavía no hay hashtags')) + '</span>') + '</div>' +
+                '<div class="ts-tagrow"><input id="ts-tag-input" type="text" maxlength="40" autocapitalize="none" autocomplete="off" ' + (full ? 'disabled ' : '') +
+                'placeholder="' + esc(full ? CONFIG.translate('tic_hashtags_full', 'Ya tienes 5 hashtags') : CONFIG.translate('tic_hashtags_placeholder', 'Escribe un hashtag y pulsa Añadir')) + '">' +
+                '<button type="button" class="ts-addtag" data-ts="add"' + (full ? ' disabled' : '') + '><span aria-hidden="true">+</span> ' + esc(CONFIG.translate('tic_hashtags_add', 'Añadir')) + '</button></div>' +
+                '<div class="ts-row"><button type="button" class="ts-ghost" data-ts="back">' + esc(CONFIG.translate('tic_back', 'Atrás')) + '</button><button type="button" class="ts-primary" data-ts="save">' + esc(CONFIG.translate('tic_save', 'Guardar')) + '</button></div>');
+            var input = body.querySelector('#ts-tag-input');
+            // Tras añadir uno, el cursor vuelve solo al recuadro para escribir el siguiente sin volver a pinchar
+            if (refocus && !full) {
+                try { input.focus(); } catch (e) { }
+                setTimeout(function () { try { input.focus(); } catch (e) { } }, 60);
+            }
+            function addFromInput() {
+                var parts = String(input.value || '').split(/[\s,#]+/);
+                parts.forEach(function (raw) {
+                    var t = cleanTagInput(raw);
+                    if (t.length < 2 || /^\d+$/.test(t) || tags.indexOf(t) >= 0 || tags.length >= HASHTAG_MAX) return;
+                    tags.push(t);
+                });
+                draw(true);
+            }
+            input.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ' || e.key === ',') { e.preventDefault(); addFromInput(); } });
+            body.onclick = function (e) {
+                var rm = e.target.closest('[data-rm]');
+                if (rm) { tags.splice(Number(rm.dataset.rm), 1); return draw(true); }
+                var b = e.target.closest('[data-ts]');
+                if (!b) return;
+                if (b.dataset.ts === 'back') return renderOwnMenu(pub);
+                if (b.dataset.ts === 'add') return addFromInput();
+                if (b.dataset.ts !== 'save') return;
+                if (input.value.trim()) { addFromInput(); }
+                b.disabled = true;
+                b.textContent = CONFIG.translate('tic_saving', 'Guardando…');
+                apiCall('PUT', '/api/publicaciones/' + encodeURIComponent(pub.id) + '/hashtags', { userId: me(), hashtags: tags }).then(function (r) {
+                    if (!r.ok) { b.disabled = false; b.textContent = CONFIG.translate('tic_save', 'Guardar'); toastMsg(r.data.message || CONFIG.translate('tic_save_failed', 'No se pudo guardar el cambio')); return; }
+                    closeSheet();
+                    toastMsg(CONFIG.translate('tic_hashtags_saved', 'Hashtags guardados'));
+                });
+            };
+        }
+        setSheetBody('<h3>' + esc(CONFIG.translate('tic_hashtags_title', 'Hashtags')) + '</h3><p class="ts-sub">' + esc(CONFIG.translate('tic_loading', 'Cargando…')) + '</p>');
+        apiCall('GET', '/api/publicaciones/' + encodeURIComponent(pub.id) + '/hashtags?userId=' + encodeURIComponent(me())).then(function (r) {
+            if (!r.ok) { toastMsg(r.data.message || CONFIG.translate('tic_save_failed', 'No se pudo cargar')); return renderOwnMenu(pub); }
+            tags = Array.isArray(r.data.hashtags) ? r.data.hashtags.slice(0, HASHTAG_MAX) : [];
+            draw();
+        });
     }
 
     function renderVisibility(pub) {

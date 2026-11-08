@@ -1,5 +1,5 @@
-/* SeeYou - monetizacion apagada desde administracion.
-   Marca <html class="sy-no-money"> y oculta todo lo de Premium, anuncios por monedas, etc. El servidor ya rechaza esas peticiones;
+/* SeeYou - monetizacion apagada desde administracion (Premium gratis para todos).
+   Marca <html class="sy-no-money"> y oculta solo la compra de monedas. El servidor ya rechaza esas peticiones;
    esto solo quita lo que se veria. Se recuerda el ultimo estado para que no parpadee al abrir la app. */
 (function () {
     'use strict';
@@ -11,7 +11,7 @@
     window.SyNoMoney = { set: set };
     try {
         var st = document.createElement('style');
-        st.textContent = 'html.sy-no-money #premium-card,html.sy-no-money .cfg-pm-tag,html.sy-no-money #profile-banner-hint,html.sy-no-money .cfg-fx-row:has(#banner-mask-edit-btn),html.sy-no-money .cn-ads-card,html.sy-no-money .cn-ads-row,html.sy-no-money #cn-rewarded,html.sy-no-money #cn-shop{display:none!important}';
+        st.textContent = 'html.sy-no-money #cn-shop{display:none!important}';
         (document.head || document.documentElement).appendChild(st);
         if (localStorage.getItem(KEY) === '1') document.documentElement.classList.add('sy-no-money');
     } catch (e) { }

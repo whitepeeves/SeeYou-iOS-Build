@@ -31,6 +31,10 @@
     // su copia local de index.html (por eso llegaba HTML donde se esperaba JSON).
     var API = function () { try { return (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) || ''; } catch (e) { return ''; } };
 
+    // Hay traducción propia de esta clave (es/en)? Si no, se usa el texto antiguo en el idioma que toque.
+    function hasTr(key) { try { return CONFIG.translate(key, '\u0001') !== '\u0001'; } catch (e) { return false; } }
+    // Texto de nuestras traducciones con <b>negrita</b> permitida; el resto se escapa
+    function richTxt(s) { return esc(s).replace(/&lt;(\/?)b&gt;/g, '<$1b>'); }
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function getJson(url) { return fetch(API() + url, { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
     // Igual que getJson, pero sin tragarse el motivo del fallo: para la hoja principal de
@@ -126,6 +130,8 @@
             '.cn-code code{font:800 16px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;word-break:break-all}' +
             '.cn-mini{appearance:none;border:1px solid var(--cn-border);background:var(--cn-surface);color:var(--cn-accent);font:700 12.5px system-ui,sans-serif;border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap}' +
             '.cn-btn{appearance:none;border:0;width:100%;border-radius:999px;padding:13px 18px;font:800 15px system-ui,sans-serif;cursor:pointer;color:#fff;background:linear-gradient(135deg,#1B3A5C,#2F6FDD);box-shadow:0 10px 22px -10px rgba(27,58,92,.7);margin-top:4px}' +
+            '.cn-perk{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--cn-border);font-size:13.5px}.cn-perk em{font-style:normal;width:30px;height:30px;border-radius:50%;background:#FFF1D6;display:flex;align-items:center;justify-content:center;flex:none}.cn-perk b{color:#B45309}' +
+            '.cn-qrrow{display:flex;gap:12px;align-items:center;border:1px solid var(--cn-border);background:var(--cn-soft);border-radius:18px;padding:10px 12px;margin:6px 0 4px}.cn-qrrow .q{width:88px;height:88px;background:#fff;border-radius:10px;padding:4px;flex:none}.cn-qrrow .q svg{width:100%;height:100%}.cn-qrrow b{display:block;font-size:14px;margin-bottom:2px}.cn-qrrow span{font-size:12.5px;color:var(--cn-muted);line-height:1.35}' +
             '.cn-sg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 4px}' +
             '.cn-so{appearance:none;border:1px solid var(--cn-border);background:var(--cn-soft);color:var(--cn-text);border-radius:14px;padding:11px 2px;font:700 11.5px system-ui,sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px;text-decoration:none}' +
             '.cn-so i{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal}' +
@@ -319,6 +325,18 @@
             return '<div class="cn-row"><div><b>' + esc(f[0]) + '</b><span>' + esc(f[1]) + (h.at ? ' · ' + esc(dateShort(h.at)) : '') + '</span></div><div class="cn-amt">' + (h.amount < 0 ? '\u2212' : '+') + fmt(Math.abs(h.amount)) + coinSvg(16) + '</div></div>';
         }).join('') + '</div>';
     }
+    function inviteIntro(inv) {
+        var r = inv.rewards, last = r.milestones[r.milestones.length - 1];
+        if (hasTr('coin_perk_first')) {
+            var perk = function (ic, txt) { return '<div class="cn-perk"><em>' + ic + '</em><div>' + richTxt(txt) + '</div></div>'; };
+            return '<p style="margin-bottom:6px">' + esc(T('coin_invite_intro', '')) + '</p>' +
+                perk('🎁', T('coin_perk_first', '').replace('{{n}}', r.firstTic)) +
+                perk('📅', T('coin_perk_days', '').replace('{{m}}', r.milestones.reduce(function (a, m) { return a + m.coins; }, 0))) +
+                perk('💙', T('coin_perk_friend', '').replace('{{bonus}}', r.invitedBonus));
+        }
+        // Otros idiomas: el texto de siempre en su idioma, pero con la negrita bien aplicada
+        return '<p>' + richTxt(T('coin_invite_desc', '').replace('{{n}}', r.firstTic).replace('{{days}}', r.milestones.map(function (m) { return m.days; }).join(', ')).replace('{{bonus}}', r.invitedBonus)) + '</p>';
+    }
     function renderInvite(inv) {
         if (!inv) return '<div class="cn-empty">' + esc(T('coin_invite_load_failed', 'No se pudo cargar tu invitación. Inténtalo de nuevo en un momento.')) + '</div>';
         var qr = '';
@@ -328,7 +346,7 @@
             var next = p.nextMilestone ? T('coin_invite_next_milestone', 'Siguiente: {{days}} días (+{{coins}})').replace('{{days}}', p.nextMilestone.days).replace('{{coins}}', p.nextMilestone.coins) : T('coin_invite_all_milestones', 'Todos los hitos conseguidos');
             return '<div class="cn-row"><div class="cn-av">' + av + '</div><div><b>' + esc(p.name) + '</b><span>' + p.activeDays + ' días activo · ' + esc(next) + '</span></div><div class="cn-amt">+' + fmt(p.coinsEarned) + coinSvg(16) + '</div></div>';
         }).join('') : '<div class="cn-empty">' + esc(T('coin_invite_none_yet', 'Aún no has invitado a nadie. Comparte tu enlace o enséñales el QR.')) + '</div>';
-        return '<div class="cn-card"><h4>' + esc(T('coin_invite_title', 'Invita a tus amigos')) + '</h4><p>' + esc(T('coin_invite_desc', 'Quien se registre con tu enlace o QR será amigo tuyo desde el primer momento y quedará vinculado a ti para siempre, aunque luego dejéis de ser amigos. Ganas <b>{{n}} monedas</b> cuando suba su primer Tic y más a medida que pase tiempo activo en SeeYou (hitos de {{days}} días). Tu amigo también recibe {{bonus}}.').replace('{{n}}', inv.rewards.firstTic).replace('{{days}}', inv.rewards.milestones.map(function (m) { return m.days; }).join(', ')).replace('{{bonus}}', inv.rewards.invitedBonus)) + '</p></div>' +
+        return '<div class="cn-card"><h4>' + esc(T('coin_invite_title', 'Invita a tus amigos')) + '</h4>' + inviteIntro(inv) + '</div>' +
             '<div class="cn-qr">' + qr + '</div>' +
             '<div class="cn-code"><div><div style="font-size:11.5px;color:var(--cn-muted);font-weight:700">' + esc(T('coin_your_code', 'TU CÓDIGO')) + '</div><code>' + esc(inv.code.slice(0, 5) + '-' + inv.code.slice(5)) + '</code></div><button type="button" class="cn-mini" data-act="copycode">' + esc(T('coin_copy', 'Copiar')) + '</button></div>' +
             '<div class="cn-code"><code style="font-size:12.5px;letter-spacing:0;font-weight:700">' + esc(inv.link) + '</code><button type="button" class="cn-mini" data-act="copylink">' + esc(T('coin_copy', 'Copiar')) + '</button></div>' +
@@ -344,7 +362,7 @@
     }
     function shareOptions(inv) {
         var text = shareText(inv), t = encodeURIComponent(text), u = encodeURIComponent(inv.link);
-        var title = T('coin_share_message', 'Únete a SeeYou con mi invitación y seremos amigos desde el primer momento');
+        var title = T('coin_share_message', '¡Únete a SeeYou conmigo!');
         return [
             { k: 'wa', n: 'WhatsApp', c: '#25D366', i: 'wa', href: 'https://wa.me/?text=' + t },
             { k: 'tg', n: 'Telegram', c: '#26A5E4', i: 'tg', href: 'https://t.me/share/url?url=' + u + '&text=' + encodeURIComponent(title) },
@@ -358,11 +376,17 @@
         ];
     }
     // Ventana con todas las formas de compartir (en la web no existe el menú nativo de compartir, así que se ofrecen las redes directamente).
+    function shareQrRow(inv) {
+        var qr = '';
+        try { qr = window.SeeYouQR ? SeeYouQR.svg(inv.link, { size: 200, margin: 1, fg: '#0B1F3A', bg: '#ffffff' }) : ''; } catch (e) { qr = ''; }
+        if (!qr) return '';
+        return '<div class="cn-qrrow"><div class="q">' + qr + '</div><div><b>' + esc(T('coin_share_qr_title', 'Tu código QR')) + '</b><span>' + esc(T('coin_share_qr_hint', 'Enséñaselo a quien tengas al lado y se une al momento.')) + '</span></div></div>';
+    }
     function openShare(inv) {
         injectCss();
         var native = typeof navigator.share === 'function';
         var html = '<h4 style="margin:2px 2px 4px;font-size:17px">' + esc(T('coin_share_invitation', 'Compartir invitación')) + '</h4><p style="margin:0 2px 6px;font-size:13.5px;color:var(--cn-muted)">' + esc(T('coin_share_sub', 'Quien se registre con tu enlace será amigo tuyo desde el primer momento.')) + '</p>' +
-            (native ? '<button type="button" class="cn-btn" data-share="native" style="margin-top:8px">' + esc(T('coin_share_native', 'Compartir con…')) + '</button>' : '') +
+            shareQrRow(inv) + (native ? '<button type="button" class="cn-btn" data-share="native" style="margin-top:8px">' + esc(T('coin_share_native', 'Compartir con…')) + '</button>' : '') +
             '<div class="cn-sg">' + shareOptions(inv).map(function (o) {
                 return '<a class="cn-so" data-share="' + o.k + '" href="' + esc(o.href) + '" target="_blank" rel="noopener noreferrer"><i style="background:' + o.c + '">' + ico(o.i) + '</i>' + esc(o.n) + '</a>';
             }).join('') +
@@ -389,7 +413,11 @@
         });
     }
 
-    function shareText(inv) { return 'Únete a SeeYou con mi invitación y seremos amigos desde el primer momento: ' + inv.link; }
+    function shareText(inv) {
+        var code = inv.code.slice(0, 5) + '-' + inv.code.slice(5);
+        var line = hasTr('coin_share_code_line') ? T('coin_share_code_line', '').replace('{{code}}', code) : '\uD83D\uDD11 ' + code;
+        return T('coin_share_message', '¡Únete a SeeYou conmigo!') + '\n' + inv.link + '\n' + line;
+    }
     function copy(text, msg) {
         var done = function () { smallToast(msg); };
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(done);
