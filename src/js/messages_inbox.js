@@ -32,12 +32,14 @@
             return x.days === 1 ? tr('msg_grant_day', m.title) : tr('msg_grant_days', m.title, { days: x.days });
         }
         if (m.kind === 'premium_revoked') return tr('msg_revoked', m.title);
+        if (m.kind === 'badge_special') return tr('msg_badge_title', 'Nueva insignia especial: {{name}}', { name: tr('bdg_sp_' + (x.special || ''), x.name || '') });
         return m.title;
     }
     function bodyOf(m) {
         var x = m.meta || {}, b = m.body;
         if (m.kind === 'premium_grant') b = x.forever ? tr('msg_body_forever', b) : tr('msg_body_days', b, { days: x.days });
         else if (m.kind === 'premium_revoked') b = tr('msg_body_revoked', b);
+        else if (m.kind === 'badge_special') b = tr('msg_badge_body', 'El equipo de SeeYou te ha dado la insignia {{name}}. Ya aparece en tu perfil.', { name: tr('bdg_sp_' + (x.special || ''), x.name || '') });
         else return b;
         return b;
     }
@@ -93,19 +95,19 @@
             var list = tr('msg_perks_list', 'Edita la forma de tu banner|2 monedas gratis al día|Verificado automático|Todos los fondos gratis').split('|');
             perks = '<div class="mi-box" style="margin-top:14px"><h4>' + esc(tr('msg_perks', 'Qué incluye')) + '</h4><ul class="mi-perks">' + list.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></div>';
         }
+        if (m.kind === 'badge_special' && x.special) {
+            perks = '<button type="button" class="mi-replay" data-sp="' + esc(x.special) + '" style="margin-top:14px;width:100%;border:0;border-radius:999px;padding:13px 18px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#E5B53A,#B8860B)">' + esc(tr('msg_badge_replay', 'Ver la animación otra vez')) + '</button>';
+        }
         body.innerHTML = '<div class="mi-detail"><h3>' + esc(titleOf(m)) + '</h3><div class="mi-when">' + esc(fdate(m.createdAt, true)) + '</div><div class="mi-text">' + esc(bodyOf(m)) + '</div>' +
             '<div class="mi-box"><h4>' + esc(tr('msg_breakdown', 'Desglose')) + '</h4>' + rows + '</div>' + perks + '</div>';
         body.scrollTop = 0;
+        var rp = body.querySelector('.mi-replay');
+        if (rp) rp.addEventListener('click', function () { if (window.SeeYouBadges && SeeYouBadges.replaySpecial) { closePanel(false); SeeYouBadges.replaySpecial(rp.getAttribute('data-sp')); } });
         if (!m.read) { m.read = true; updateRow(); api('/api/messages/' + encodeURIComponent(m.id) + '/read', { method: 'PUT' }); }
     }
 
-    function toast(m) {
-        var t = document.createElement('div'); t.className = 'mi-toast';
-        t.textContent = titleOf(m) || tr('msg_toast_new', 'Tienes un mensaje nuevo');
-        t.onclick = function () { t.remove(); openPanel(m.id); };
-        document.body.appendChild(t);
-        setTimeout(function () { try { t.remove(); } catch (e) { } }, 6500);
-    }
+    // Sin aviso emergente azul: el mensaje ya llega como notificación y queda en "Mensajes" con su indicador de no leído.
+    function toast() { }
     function load() {
         return api('/api/messages/' + encodeURIComponent(me)).then(function (d) {
             if (!d || !Array.isArray(d.messages)) return;

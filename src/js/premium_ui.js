@@ -48,11 +48,15 @@
         var el = document.getElementById('premium-card');
         if (!el) return;
         var d = P.data;
-        // Monetizacion apagada desde administracion: nadie ve nada de Premium (ni tarjeta, ni etiquetas, ni compra).
-        if (d && d.monetizationOff) { el.style.display = 'none'; return; }
         el.style.display = '';
         var perks = '<ul class="pm-perks"><li>' + esc(T('pm_perk_banner', 'Edita la forma de tu banner (dibuja rayos, lágrimas, lo que quieras)')) + '</li><li>' + esc(T('pm_perk_coins', '2 monedas gratis cada día')) + '</li><li>' + esc(T('pm_perk_verified', 'Verificado automático')) + '</li><li>' + esc(T('pm_perk_backgrounds', 'Todos los fondos gratis, también el banner con tu imagen')) + '</li></ul>';
         if (!d) { el.innerHTML = '<div class="pm-head"><b>SeeYou Premium</b></div><p class="pm-sub">' + esc(T('pm_loading', 'Cargando…')) + '</p>'; return; }
+        if (d.active && d.freeMode) {
+            // Premium gratis para todos (monetizacion apagada): sin precio, sin cancelar, sin fecha.
+            el.innerHTML = '<div class="pm-head"><b>SeeYou Premium</b><span class="pm-tag on">' + esc(T('pm_free_tag', 'Gratis')) + '</span></div>' +
+                '<p class="pm-sub">' + esc(T('pm_free_line', 'Por tiempo limitado, todo el mundo tiene todas las ventajas Premium gratis.')) + '</p>' + perks;
+            return;
+        }
         if (d.active) {
             var until = ''; try { until = new Date(d.expiresAt).toLocaleDateString(loc(), { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { }
             var gift = d.source === 'admin';
@@ -131,8 +135,7 @@
 
     // Mensaje cuando alguien sin Premium intenta usar algo Premium
     P.promptUpgrade = function (what) {
-        if (P.data && P.data.monetizationOff) { toast(T('pm_unavailable', 'No disponible por ahora.')); return; }
-        toast(T('pm_perk_only', '{{what}} es una ventaja Premium.').replace('{{what}}', what || T('pm_this', 'Esto')));
+                toast(T('pm_perk_only', '{{what}} es una ventaja Premium.').replace('{{what}}', what || T('pm_this', 'Esto')));
         var el = document.getElementById('premium-card');
         if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         if (el) { el.classList.remove('pm-flash'); void el.offsetWidth; el.classList.add('pm-flash'); }
