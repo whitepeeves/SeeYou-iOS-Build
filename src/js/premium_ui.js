@@ -49,7 +49,7 @@
         if (!el) return;
         var d = P.data;
         el.style.display = '';
-        var perks = '<ul class="pm-perks"><li>' + esc(T('pm_perk_banner', 'Edita la forma de tu banner (dibuja rayos, lágrimas, lo que quieras)')) + '</li><li>' + esc(T('pm_perk_coins', '2 monedas gratis cada día')) + '</li><li>' + esc(T('pm_perk_verified', 'Verificado automático')) + '</li><li>' + esc(T('pm_perk_backgrounds', 'Todos los fondos gratis, también el banner con tu imagen')) + '</li></ul>';
+        var perks = '<ul class="pm-perks"><li>' + esc(T('pm_perk_banner', 'Edita la forma de tu banner (dibuja rayos, lágrimas, lo que quieras)')) + '</li><li>' + esc(T('pm_perk_coins', '2 monedas gratis cada día')) + '</li><li>' + esc(T('pm_perk_verified', 'Verificado automático')) + '</li><li>' + esc(T('pm_perk_backgrounds', 'Todos los fondos gratis, también el banner con tu imagen')) + '</li><li>' + esc(T('pm_perk_noads', 'Sin anuncios')) + '</li></ul>';
         if (!d) { el.innerHTML = '<div class="pm-head"><b>SeeYou Premium</b></div><p class="pm-sub">' + esc(T('pm_loading', 'Cargando…')) + '</p>'; return; }
         if (d.active && d.freeMode) {
             // Premium gratis para todos (monetizacion apagada): sin precio, sin cancelar, sin fecha.

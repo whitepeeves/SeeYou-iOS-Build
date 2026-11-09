@@ -340,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let userId = registeredUser.id || data.id || '';
 
             // Inicio de sesión automático: obtiene el token igual que el login normal (sin guardar la contraseña)
+            let autoLoginFailed = false;
             try {
                 const fp = localStorage.getItem('seeYou_device_fingerprint') || `${navigator.userAgent || ''}||${navigator.platform || ''}`;
                 try { if (!localStorage.getItem('seeYou_device_fingerprint')) localStorage.setItem('seeYou_device_fingerprint', fp); } catch (e) { /* sin storage: se recalcula cada vez, no es grave */ }
@@ -348,7 +349,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
                     body: JSON.stringify({
-                        telefono: currentRegistration.phone,
+                        // El teléfono es opcional: se entra con el que haya, o con el usuario / correo (todos valen en el servidor).
+                        telefono: currentRegistration.phone || currentRegistration.username || currentRegistration.email,
                         contrasena: currentRegistration.password,
                         deviceFingerprint: fp,
                         remember: true,
@@ -356,6 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 });
                 const loginData = await loginRes.json();
+                if (!loginRes.ok || !loginData.token) autoLoginFailed = true;
                 if (loginRes.ok && loginData.token) {
                     localStorage.setItem('seeYou_auth_token', loginData.token);
                     const u = loginData.user || {};
@@ -365,6 +368,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (e) {
                 console.warn('[SeeYou] Login automático tras el registro no disponible', e);
+                autoLoginFailed = true;
+            }
+            if (autoLoginFailed || !localStorage.getItem('seeYou_auth_token')) {
+                // Sin token no hay sesión: se manda a iniciar sesión en vez de entrar a una app vacía que da "Token requerido".
+                currentRegistration.password = '';
+                showToast(tr('rg_created_login', 'Cuenta creada. Inicia sesión para entrar.'));
+                setTimeout(() => { window.location.href = 'index.html'; }, 900);
+                return;
             }
 
             currentRegistration.password = '';

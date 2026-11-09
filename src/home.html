@@ -24,7 +24,7 @@
     <script defer src="js/tics_ui.js?v=55"></script>
     <script defer src="js/tic_viewer.js?v=14"></script>
     <script defer src="js/home_header.js?v=1"></script>
-    <script defer src="js/onboarding_tutorial.js?v=3"></script>
+    <script defer src="js/onboarding_tutorial.js?v=4"></script>
     <script defer src="js/badges_ui.js?v=10"></script>
     <script defer src="js/ads_ui.js?v=5"></script>
     <script defer src="js/qr_mini.js?v=1"></script>
@@ -32,7 +32,7 @@
     <script defer src="js/coins_ui.js?v=34"></script>
     <script defer src="js/coin_shop_ui.js?v=5"></script>
     <script defer src="js/realtime.js?v=1"></script>
-    <script defer src="js/premium_ui.js?v=6"></script>
+    <script defer src="js/premium_ui.js?v=7"></script>
     <script defer src="js/admob_ui.js?v=4"></script>
     <script defer src="js/tics_archive.js?v=4"></script>
     <script defer src="js/photo_meta.js?v=1"></script>
@@ -2901,7 +2901,7 @@
     <script src="js/road_snapper.js?v=2"></script>
     <script src="js/daily_themes.js?v=6"></script>
     <script src="js/image_cache_manager.js?v=1"></script>
-    <script src="config.js?v=25"></script>
+    <script src="config.js?v=26"></script>
     <script src="js/back_button.js?v=3"></script>
     <script src="js/notifications_system.js?v=11"></script>
     <script>
@@ -3327,6 +3327,7 @@
                         <label class="cfg-fx-row"><span><b data-i18n="cfg_notif_remind_t">Recordatorios de tu Tic</b><small data-i18n="cfg_notif_remind_x">Un aviso por la tarde si aún no has subido tu Tic de hoy, o si tu racha está en juego.</small></span><input type="checkbox" id="push-pref-remind" checked></label>
                     </div>
 
+                    <div class="cfg-card" style="padding:14px 16px;"><button type="button" onclick="if(window.SeeYouOnboarding){SeeYouOnboarding.replay(localStorage.getItem('current_user_id')||localStorage.getItem('current_user'));navigate('inicio');}" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:0;font:inherit;font-weight:700;color:#1B3A5C;cursor:pointer;padding:0;"><span class="material-icons-outlined">school</span><span data-i18n="onboarding_replay">Repetir el tutorial</span></button></div>
                     <div class="cfg-card pm-card" id="premium-card" style="padding:16px;"></div>
                     <div class="cfg-card" style="padding:14px 16px;"><div class="cfg-fx-row"><span><b><span data-i18n="shop_ls_title">Salvavidas de racha</span><span class="cfg-pm-tag">PREMIUM</span></b><small data-i18n="shop_ls_row_x">Un salvavidas al mes para tu racha de Tics y otro por cada chat con racha. Mira cuántos te quedan.</small></span><button type="button" id="streak-lifesavers-btn" class="cfg-banner-mask-btn" data-i18n="shop_ls_see">Ver</button></div></div>
 
