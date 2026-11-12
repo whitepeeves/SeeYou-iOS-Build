@@ -63,8 +63,11 @@
                 return '<div class="shop-pk"><div><b>' + esc(p.coins) + ' ' + esc(T('shop_coins', 'monedas')) + '</b><span>' + esc(products[p.id].priceString) + '</span></div><button type="button" data-pk="' + esc(p.id) + '">' + esc(T('shop_buy', 'Comprar')) + '</button></div>';
             }).join('');
             var card = el.querySelector('.cn-card');
-            card.innerHTML = '<h4>' + esc(T('shop_title', 'Consigue más monedas')) + '</h4>' + (rows || '<p>' + esc(T('shop_native_soon', 'La compra de monedas dentro de la app llegará pronto.')) + '</p>');
+            card.innerHTML = '<h4>' + esc(T('shop_title', 'Consigue más monedas')) + '</h4>' + (rows || '<p>' + esc(T('shop_native_soon', 'La compra de monedas dentro de la app llegará pronto.')) + '</p>') +
+                (rows ? '<p style="font-size:11.5px;line-height:1.45;opacity:.75;margin:10px 0 0">' + esc(T('shop_legal', 'Las monedas son un pago único, no una suscripción.')) + ' <a href="terminos.html" style="text-decoration:underline">' + esc(T('pm_terms', 'Términos de uso')) + '</a> · <a href="privacidad.html" style="text-decoration:underline">' + esc(T('pm_privacy', 'Política de privacidad')) + '</a> · <a href="#" data-restore="1" style="text-decoration:underline">' + esc(T('pm_restore', 'Restaurar compras')) + '</a></p>' : '');
             card.addEventListener('click', function (e) {
+                var rs = e.target.closest('[data-restore]');
+                if (rs) { e.preventDefault(); Promise.resolve(P.restorePurchases()).then(function () { toast(T('pm_restore_ok', 'Compras restauradas.')); }).catch(function () { toast(T('pm_restore_fail', 'No se pudieron restaurar las compras.')); }); return; }
                 var b = e.target.closest('[data-pk]');
                 if (!b || b.disabled || !products[b.dataset.pk]) return;
                 b.disabled = true;
