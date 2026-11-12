@@ -75,6 +75,8 @@ jobs:
           $PB -c "Delete :SKAdNetworkItems" "$PLIST" 2>/dev/null || true
           $PB -c "Add :SKAdNetworkItems array" "$PLIST"
           $PB -c "Add :SKAdNetworkItems:0 dict" "$PLIST"
+          $PB -c "Delete :ITSAppUsesNonExemptEncryption" "$PLIST" 2>/dev/null || true
+          $PB -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST"
           $PB -c "Add :SKAdNetworkItems:0:SKAdNetworkIdentifier string cstr6suwn9.skadnetwork" "$PLIST"
 
       # Sin estas claves, iOS deniega el acceso a la camara/galeria en silencio
