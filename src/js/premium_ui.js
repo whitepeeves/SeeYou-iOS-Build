@@ -75,8 +75,25 @@
         if (native && storePrice && !/mes|month/i.test(storePrice)) price = T('pm_per_month', '{{p}} / mes').replace('{{p}}', storePrice);
         el.innerHTML = '<div class="pm-head"><b>SeeYou Premium</b><span class="pm-tag">' + esc(price) + '</span></div>' +
             '<p class="pm-sub">' + esc(T('pm_sub', 'Una suscripción mensual. Cancela cuando quieras.')) + '</p>' + perks +
-            '<button type="button" class="pm-btn" id="pm-buy">' + esc(T('pm_buy', 'Hazte Premium')) + '</button>';
+            '<button type="button" class="pm-btn" id="pm-buy">' + esc(T('pm_buy', 'Hazte Premium')) + '</button>' + legalHTML(native);
         el.querySelector('#pm-buy').onclick = buy;
+        var rb = el.querySelector('#pm-restore'); if (rb) rb.onclick = restore;
+    }
+    // Datos obligatorios de una suscripcion en iOS/Android: duracion, renovacion automatica, como cancelar, Terminos y Privacidad, y restaurar compras.
+    function legalHTML(native) {
+        var store = platform() === 'ios' ? 'Apple' : 'Google Play';
+        var txt = T('pm_legal', 'SeeYou Premium es una suscripción mensual que se renueva automáticamente cada mes. El pago se carga a tu cuenta de {{s}} al confirmar la compra. Se renueva salvo que la canceles al menos 24 horas antes de que termine el periodo; puedes gestionarla o cancelarla en los ajustes de tu cuenta de {{s}}.').split('{{s}}').join(store);
+        return '<p class="pm-legal" style="font-size:11.5px;line-height:1.45;opacity:.75;margin:10px 0 4px">' + esc(txt) + ' <a href="terminos.html" style="text-decoration:underline;color:inherit">' + esc(T('pm_terms', 'Términos de uso')) + '</a> · <a href="privacidad.html" style="text-decoration:underline;color:inherit">' + esc(T('pm_privacy', 'Política de privacidad')) + '</a></p>' +
+            (native ? '<button type="button" class="pm-btn ghost" id="pm-restore">' + esc(T('pm_restore', 'Restaurar compras')) + '</button>' : '');
+    }
+    function restore() {
+        var pl = rcPlugin(); var b = document.getElementById('pm-restore');
+        if (!pl) { toast(T('pm_restore_none', 'No hay compras que restaurar.')); return; }
+        if (b) b.disabled = true;
+        Promise.resolve(pl.restorePurchases()).then(function () {
+            toast(T('pm_restore_ok', 'Compras restauradas.'));
+            [1500, 5000, 10000].forEach(function (ms) { setTimeout(refresh, ms); });
+        }).catch(function () { toast(T('pm_restore_fail', 'No se pudieron restaurar las compras.')); }).then(function () { if (b) b.disabled = false; });
     }
 
     function buy() {
