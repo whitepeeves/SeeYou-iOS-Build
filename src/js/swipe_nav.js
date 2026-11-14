@@ -34,10 +34,13 @@
         return -1;
     }
 
-    function blocked(el) {
+    function blocked(el, edgeBand) {
         for (var n = el; n && n.nodeType === 1 && n !== document.documentElement; n = n.parentElement) {
             var tag = n.tagName;
-            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'CANVAS' || tag === 'VIDEO' || tag === 'IFRAME') return true;
+            // El mapa (canvas) usa el dedo para moverse: solo se desliza desde las franjas de arriba/abajo
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'VIDEO' || tag === 'IFRAME') return true;
+            if (tag === 'CANVAS' && !edgeBand) return true;
+            if (n === document.body) continue;                                          // en home.html html/body son position:fixed: no cuentan como ventana
             if (n.isContentEditable || n.hasAttribute('data-noswipe')) return true;
             if (n.classList && n.classList.contains('bottom-nav-bar')) return true;
             var cs = getComputedStyle(n);
@@ -70,7 +73,8 @@
         if (window.getSelection && String(window.getSelection()).length) return;
         var t = e.touches[0];
         if (t.clientX < 24 || t.clientX > window.innerWidth - 24) return;           // bordes: gesto "atras" del sistema
-        if (!navButtons() || overlayOpen() || blocked(e.target)) return;
+        var band = t.clientY < 120 || t.clientY > window.innerHeight - 200;
+        if (!navButtons() || overlayOpen() || blocked(e.target, band)) return;
         main = document.querySelector('.main');
         sx = lx = t.clientX; sy = t.clientY; st = lt = Date.now(); dx = 0; vx = 0;
         tracking = true;
