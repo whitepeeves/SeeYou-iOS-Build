@@ -4,6 +4,7 @@
 <head>
     <script src="js/page_slide.js?v=1"></script>
     <script src="js/perf_probe.js?v=1"></script>
+    <script src="js/analytics.js?v=1"></script>
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -3012,11 +3013,11 @@
             }
 
             acceptBtn.addEventListener('click', ()=>{
-                localStorage.setItem('seeYou_cookie_consent','accepted');
+                localStorage.setItem('seeYou_cookie_consent','accepted'); try{localStorage.setItem('seeyou_cookie_consent',JSON.stringify({necessary:true,preferences:true,analytics:true,date:new Date().toISOString()}))}catch(e){};
                 consentEl.style.display='none';
             });
             rejectBtn.addEventListener('click', ()=>{
-                localStorage.setItem('seeYou_cookie_consent','rejected');
+                localStorage.setItem('seeYou_cookie_consent','rejected'); try{localStorage.setItem('seeyou_cookie_consent',JSON.stringify({necessary:true,preferences:false,analytics:false,date:new Date().toISOString()}))}catch(e){};
                 consentEl.style.display='none';
             });
             showConsentIfNeeded();
