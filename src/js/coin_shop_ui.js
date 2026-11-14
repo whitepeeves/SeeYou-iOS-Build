@@ -50,6 +50,15 @@
         rc.ready = Promise.resolve().then(function () { return P.configure({ apiKey: key, appUserID: String(cfg.userId) }); }).then(function () { return true; }).catch(function () { rc.ready = null; return false; });
         return rc.ready;
     }
+    // Precio de la tienda solo si esta en la moneda del servidor (EUR): evita mostrar un precio de relleno
+    // (p. ej. "$4.99") distinto del que luego cobra Apple. Si no coincide no se muestra importe: el cobro real lo enseña la hoja de pago de la tienda.
+    function storePrice(pr, cfg) {
+        try {
+            var cur = String(pr.currencyCode || '').toUpperCase(), want = String((cfg && cfg.currency) || '').toUpperCase();
+            if (cur && want && cur === want) return pr.priceString || '';
+        } catch (e) { }
+        return '';
+    }
     function mountNativeShop(el, cfg) {
         var P = rcPlugin();
         if (!P || !cfg.rc || !cfg.rc[rcPlatform()]) { el.innerHTML = '<div class="cn-card"><h4>' + esc(T('shop_title', 'Consigue más monedas')) + '</h4><p>' + esc(T('shop_native_soon', 'La compra de monedas dentro de la app llegará pronto.')) + '</p></div>' + usesHTML(cfg); return; }
@@ -60,7 +69,7 @@
         }).then(function (r) {
             var products = {}; ((r && r.products) || []).forEach(function (p) { products[String(p.identifier).split(':')[0]] = p; });
             var rows = cfg.packages.filter(function (p) { return products[p.id]; }).map(function (p) {
-                return '<div class="shop-pk"><div><b>' + esc(p.coins) + ' ' + esc(T('shop_coins', 'monedas')) + '</b><span>' + esc(products[p.id].priceString) + '</span></div><button type="button" data-pk="' + esc(p.id) + '">' + esc(T('shop_buy', 'Comprar')) + '</button></div>';
+                return '<div class="shop-pk"><div><b>' + esc(p.coins) + ' ' + esc(T('shop_coins', 'monedas')) + '</b><span>' + esc(storePrice(products[p.id], cfg)) + '</span></div><button type="button" data-pk="' + esc(p.id) + '">' + esc(T('shop_buy', 'Comprar')) + '</button></div>';
             }).join('');
             var card = el.querySelector('.cn-card');
             card.innerHTML = '<h4>' + esc(T('shop_title', 'Consigue más monedas')) + '</h4>' + (rows || '<p>' + esc(T('shop_native_soon', 'La compra de monedas dentro de la app llegará pronto.')) + '</p>') +
