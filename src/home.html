@@ -2,7 +2,7 @@
 <html lang="es">
 
 <head>
-    <script src="js/page_slide.js?v=1"></script>
+    <script src="js/page_slide.js?v=2"></script>
     <script src="js/perf_probe.js?v=1"></script>
     <script src="js/analytics.js?v=1"></script>
     <meta charset="UTF-8">
@@ -23,7 +23,7 @@
     </style>
     <link rel="stylesheet" href="css/tics.css?v=19">
     <link rel="stylesheet" href="css/tic_viewer.css?v=19">
-    <script defer src="js/tics_ui.js?v=55"></script>
+    <script defer src="js/tics_ui.js?v=56"></script>
     <script defer src="js/tic_viewer.js?v=14"></script>
     <script defer src="js/home_header.js?v=1"></script>
     <script defer src="js/onboarding_tutorial.js?v=4"></script>
@@ -42,8 +42,9 @@
     <script defer src="js/tics_archive.js?v=4"></script>
     <script defer src="js/photo_meta.js?v=1"></script>
     <script defer src="js/tic_upload.js?v=3"></script>
+    <script defer src="js/theme_search.js?v=1"></script>
     <script defer src="js/outbox.js?v=2"></script>
-    <script defer src="js/feed_tabs.js?v=7"></script>
+    <script defer src="js/feed_tabs.js?v=8"></script>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1B3A5C">
@@ -116,6 +117,25 @@
         body[data-theme="dark"] .sx-in, body[data-theme="blue"] .sx-in { background:#1a1f2c; border-color:#2a3346; } body[data-theme="dark"] .sx-in input, body[data-theme="blue"] .sx-in input { color:#f2f4f8; }
         body[data-theme="dark"] .sx-lbl, body[data-theme="blue"] .sx-lbl { color:#9db8e0; } body[data-theme="dark"] .sx-pill, body[data-theme="blue"] .sx-pill { background:rgba(255,255,255,.1); color:#f2f4f8; }
         body[data-theme="dark"] .sx-note, body[data-theme="blue"] .sx-note { background:#1c2a44; color:#b8cdf0; }
+        /* Configuración: filas desplegables (creador, banner, colores) */
+        .cfg-acc-h .cfg-acc-ch { transition: transform .2s; }
+        .cfg-acc-h[aria-expanded="true"] .cfg-acc-ch { transform: rotate(180deg); }
+        .cfg-acc-b { padding: 4px 0 6px; }
+        .cfg-acc-b[hidden] { display: none; }
+        .cfg-acc:last-child .cfg-acc-h { border-bottom: none; }
+        .cfg-acc .creator-box { font-size: 14px; color: #1D1B20; }
+        .cfg-acc .creator-title { display: none; }
+        .cfg-acc .creator-text { margin: 4px 0 10px; line-height: 1.4; }
+        .cfg-acc .creator-btn { width: 100%; height: 46px; border: 0; border-radius: 14px; background: #1B3A5C; color: #fff; font: 700 15px inherit; font-family: inherit; cursor: pointer; }
+        .cfg-acc .creator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+        .cfg-acc .creator-stat { background: #F1F3F8; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; }
+        .cfg-acc .creator-stat strong { font-size: 18px; color: #1B3A5C; }
+        .cfg-acc .creator-stat span { font-size: 12px; color: #6b7280; }
+        .cfg-acc .creator-list { margin: 8px 0 0; padding-left: 18px; font-size: 13px; }
+        .cfg-acc .creator-link { word-break: break-all; font-size: 13px; color: #6b7280; }
+        body[data-theme="dark"] .cfg-acc .creator-box, body[data-theme="blue"] .cfg-acc .creator-box { color: #f2f4f8; }
+        body[data-theme="dark"] .cfg-acc .creator-stat, body[data-theme="blue"] .cfg-acc .creator-stat { background: #1a1f2c; }
+        .cfg-row-wrap > .cfg-row { width: 100%; }
         .cfg-section-title { font-size:12px; font-weight:700; letter-spacing:0.07em; color:#8A8F98; text-transform:uppercase; margin:0 0 8px 4px; }
         .cfg-card { background:#fff; border:1px solid #F0F1F5; border-radius:16px; padding:2px 14px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
         .cfg-row { width:100%; display:flex; align-items:center; gap:14px; padding:13px 2px; border:none; background:none; border-bottom:1px solid #F0F1F5; cursor:pointer; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent; }
@@ -1279,6 +1299,40 @@
             pointer-events: none;
         }
 
+        /* Temas anteriores: boton en la camara, aviso del tema elegido y hoja de busqueda */
+        .btn-camera-themes { flex: 0 0 44px; margin-left: auto; width: 44px; height: 44px; padding: 0; border-radius: 50%; background: rgba(0,0,0,.45); border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .btn-camera-themes .material-icons-outlined { font-size: 24px; }
+        .camera-theme-chip { flex: 1 1 auto; min-width: 0; margin: 0 10px; display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 12px; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; font-size: 12.5px; font-weight: 600; backdrop-filter: blur(6px); }
+        .camera-theme-chip[hidden] { display: none; }
+        .camera-theme-chip > .material-icons-outlined { font-size: 16px; flex: none; }
+        .camera-theme-chip > span:nth-child(2) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .camera-theme-chip button { flex: none; width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(255,255,255,.2); color: #fff; display: grid; place-items: center; padding: 0; cursor: pointer; }
+        .camera-theme-chip button .material-icons-outlined { font-size: 15px; }
+        .edit-theme-badge { background: rgba(0,0,0,.5); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(5px); color: #fff; max-width: 86vw; }
+        .edit-theme-badge[hidden] { display: none; }
+        .edit-theme-badge .material-icons-outlined { font-size: 18px; flex: none; }
+        .edit-theme-badge span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #past-themes-sheet { position: fixed; inset: 0; z-index: 6000; display: none; flex-direction: column; background: #fcfbff; color: #1D1B20; }
+        #past-themes-sheet.open { display: flex; animation: psIn .22s ease both; }
+        #past-themes-sheet .pt-head { display: flex; align-items: center; gap: 10px; padding: calc(12px + env(safe-area-inset-top, 0px)) 14px 8px; }
+        #past-themes-sheet .pt-head h3 { margin: 0; font-size: 19px; flex: 1; }
+        #past-themes-sheet .pt-close { width: 40px; height: 40px; border-radius: 50%; border: 0; background: #eef1f6; color: #1B3A5C; display: grid; place-items: center; cursor: pointer; }
+        #past-themes-sheet .pt-sub { margin: 0; padding: 0 16px 10px; font-size: 13px; color: #6b7280; line-height: 1.4; }
+        #past-themes-sheet .pt-search { margin: 0 14px 10px; display: flex; align-items: center; gap: 8px; background: #fff; border: 1.5px solid #E2E6EE; border-radius: 14px; padding: 0 12px; height: 46px; }
+        #past-themes-sheet .pt-search:focus-within { border-color: #2f6fed; box-shadow: 0 0 0 3px rgba(47,111,237,.12); }
+        #past-themes-sheet .pt-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 16px; color: inherit; }
+        #past-themes-sheet .pt-search .material-icons-outlined { color: #9AA0AA; font-size: 20px; }
+        #past-themes-sheet .pt-list { flex: 1; overflow-y: auto; padding: 0 14px calc(24px + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling: touch; }
+        #past-themes-sheet .pt-row { width: 100%; text-align: left; display: block; border: 1px solid #F0F1F5; background: #fff; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; font: inherit; color: inherit; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+        #past-themes-sheet .pt-row:active { transform: scale(.99); }
+        #past-themes-sheet .pt-row.is-selected { border-color: #2f6fed; box-shadow: 0 0 0 2px rgba(47,111,237,.18); }
+        #past-themes-sheet .pt-row b { display: block; font-size: 15px; font-weight: 600; line-height: 1.35; }
+        #past-themes-sheet .pt-row small { display: block; margin-top: 4px; font-size: 12px; color: #8A8F98; }
+        #past-themes-sheet .pt-today { background: #eef4ff; border-color: #cfe0ff; }
+        #past-themes-sheet .pt-empty { text-align: center; color: #8A8F98; padding: 36px 10px; font-size: 14px; }
+        body[data-theme="dark"] #past-themes-sheet, body[data-theme="blue"] #past-themes-sheet { background: #12151c; color: #f2f4f8; }
+        body[data-theme="dark"] #past-themes-sheet .pt-row, body[data-theme="blue"] #past-themes-sheet .pt-row, body[data-theme="dark"] #past-themes-sheet .pt-search, body[data-theme="blue"] #past-themes-sheet .pt-search { background: #1a1f2c; border-color: #2a3346; }
+        body[data-theme="dark"] #past-themes-sheet .pt-today, body[data-theme="blue"] #past-themes-sheet .pt-today { background: #1c2a44; }
         /* Cabecera: botón cerrar */
         .camera-header {
             display: flex;
@@ -2904,7 +2958,7 @@
     <script src="js/map_warmup.js?v=2"></script>
     <script src="js/gps_calibrator.js?v=1"></script>
     <script src="js/road_snapper.js?v=2"></script>
-    <script src="js/daily_themes.js?v=6"></script>
+    <script src="js/daily_themes.js?v=7"></script>
     <script src="js/image_cache_manager.js?v=1"></script>
     <script src="config.js?v=28"></script>
     <script src="js/back_button.js?v=3"></script>
@@ -3264,7 +3318,6 @@
                         <span class="profile-streak-label" data-i18n="prof_days_label">días</span>
                     </div>
                 </div>
-                <div id="creator-box" class="creator-box" style="margin:12px 0;padding:14px;border-radius:16px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.06);"></div>
                 <div id="profile-network" class="net-stats">
                     <button type="button" class="net-stat" onclick="openNetworkModal('followers')" aria-label="Ver seguidores" data-i18n-aria-label="prof_see_followers">
                         <strong id="profile-followers-count">0</strong>
@@ -3308,9 +3361,19 @@
                             <span class="cfg-label" data-i18n="cfg_blocked">Usuarios bloqueados</span>
                             <span class="material-icons-outlined cfg-chevron">chevron_right</span>
                         </button>
+                        <div class="cfg-acc" id="cfg-acc-creator">
+                            <button type="button" class="cfg-row cfg-acc-h" onclick="toggleCfgAcc(this)" aria-expanded="false">
+                                <span class="cfg-icon"><span class="material-icons-outlined">campaign</span></span>
+                                <span class="cfg-label" data-i18n="cr_title">Cuenta de creador</span>
+                                <span class="material-icons-outlined cfg-chevron cfg-acc-ch">expand_more</span>
+                            </button>
+                            <div class="cfg-acc-b" hidden>
+                                <div id="creator-box" class="creator-box"></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <p class="cfg-section-title" data-i18n="preferences_label">PREFERENCIAS</p>
+                    <p class="cfg-section-title" data-i18n="cfg_appearance">APARIENCIA</p>
                     <div class="cfg-card">
                         <button type="button" class="cfg-row" onclick="CONFIG.toggleLanguageSelector()">
                             <span class="cfg-icon"><span class="material-icons-outlined">language</span></span>
@@ -3325,28 +3388,28 @@
                                 <button type="button" class="theme-option" data-theme="blue" data-i18n="hm_theme_blue">Azul oscuro</button>
                             </div>
                         </div>
-                    </div>
-
-                    <p class="cfg-section-title" data-i18n="cfg_notif_title">AVISOS</p>
-                    <div class="cfg-card" style="padding:4px 16px 8px;">
-                        <label class="cfg-fx-row" style="border-top:0; margin-top:8px;"><span><b data-i18n="cfg_notif_friend_t">Tics de amigos cercanos</b><small data-i18n="cfg_notif_friend_x">Te avisamos cuando suben un Tic las personas con las que más hablas e interactúas.</small></span><input type="checkbox" id="push-pref-friend" checked></label>
-                        <label class="cfg-fx-row"><span><b data-i18n="cfg_notif_remind_t">Recordatorios de tu Tic</b><small data-i18n="cfg_notif_remind_x">Un aviso por la tarde si aún no has subido tu Tic de hoy, o si tu racha está en juego.</small></span><input type="checkbox" id="push-pref-remind" checked></label>
-                    </div>
-
-                    <div class="cfg-card" style="padding:14px 16px;"><button type="button" onclick="if(window.SeeYouOnboarding){SeeYouOnboarding.replay(localStorage.getItem('current_user_id')||localStorage.getItem('current_user'));navigate('inicio');}" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:0;font:inherit;font-weight:700;color:#1B3A5C;cursor:pointer;padding:0;"><span class="material-icons-outlined">school</span><span data-i18n="onboarding_replay">Repetir el tutorial</span></button></div>
-                    <div class="cfg-card pm-card" id="premium-card" style="padding:16px;"></div>
-                    <div class="cfg-card" style="padding:14px 16px;"><div class="cfg-fx-row"><span><b><span data-i18n="shop_ls_title">Salvavidas de racha</span><span class="cfg-pm-tag">PREMIUM</span></b><small data-i18n="shop_ls_row_x">Un salvavidas al mes para tu racha de Tics y otro por cada chat con racha. Mira cuántos te quedan.</small></span><button type="button" id="streak-lifesavers-btn" class="cfg-banner-mask-btn" data-i18n="shop_ls_see">Ver</button></div></div>
-
-                    <div class="cfg-card" style="padding:14px 16px 16px;">
-                        <p class="cfg-theme-title" style="margin:0 0 10px;" data-i18n="hm_banner_title">Banner de tu perfil</p>
-                        <div id="profile-banner-selector" class="cfg-banner-swatches"></div>
+                        <div class="cfg-acc" id="cfg-acc-banner">
+                            <button type="button" class="cfg-row cfg-acc-h" onclick="toggleCfgAcc(this)" aria-expanded="false">
+                                <span class="cfg-icon"><span class="material-icons-outlined">image</span></span>
+                                <span class="cfg-label" data-i18n="hm_banner_title">Banner de tu perfil</span>
+                                <span class="material-icons-outlined cfg-chevron cfg-acc-ch">expand_more</span>
+                            </button>
+                            <div class="cfg-acc-b" hidden>
+                                <div style="padding:2px 0 14px;">
+                                    <div id="profile-banner-selector" class="cfg-banner-swatches"></div>
                         <p id="profile-banner-hint" class="cfg-banner-hint"></p>
-                        
-                    </div>
-
-                    <div class="cfg-card" style="padding:14px 16px 16px;">
-                        <p class="cfg-theme-title" style="margin:0 0 10px;" data-i18n="hm_palette_title">Colores de la app</p>
-                        <div id="palette-selector" class="cfg-pal-grid" data-no-palette></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cfg-acc" id="cfg-acc-palette">
+                            <button type="button" class="cfg-row cfg-acc-h" onclick="toggleCfgAcc(this)" aria-expanded="false">
+                                <span class="cfg-icon"><span class="material-icons-outlined">palette</span></span>
+                                <span class="cfg-label" data-i18n="hm_palette_title">Colores de la app</span>
+                                <span class="material-icons-outlined cfg-chevron cfg-acc-ch">expand_more</span>
+                            </button>
+                            <div class="cfg-acc-b" hidden>
+                                <div style="padding:2px 0 14px;">
+                                    <div id="palette-selector" class="cfg-pal-grid" data-no-palette></div>
                         <div class="cfg-pal-custom" data-no-palette>
                             <span data-i18n="hm_custom">Personalizada</span>
                             <input type="color" id="palette-custom-a" aria-label="Color principal" data-i18n-aria-label="hm_color_a">
@@ -3354,9 +3417,12 @@
                             <button type="button" id="palette-custom-apply" data-i18n="hm_apply">Aplicar</button>
                         </div>
                         <p class="cfg-banner-hint" data-i18n="hm_palette_hint">Solo tú ves tus colores, en este dispositivo. El resto de personas sigue viendo la app con los suyos.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="language-selector" class="cfg-lang-panel" style="display:none;">
+<div id="language-selector" class="cfg-lang-panel" style="display:none;">
                         <p data-i18n="select_language" class="cfg-section-title" style="margin:0 0 10px 2px;">Selecciona el idioma</p>
                         <div class="cfg-lang-search">
                             <span class="material-icons-outlined">search</span>
@@ -3385,6 +3451,16 @@
                         <p id="language-no-results" class="cfg-lang-empty" hidden data-i18n="ch_noresults_t">Sin resultados</p>
                     </div>
 
+                    <p class="cfg-section-title" data-i18n="cfg_premium_sec">SEEYOU PREMIUM</p>
+                    <div class="cfg-card pm-card" id="premium-card" style="padding:16px;"></div>
+                    <div class="cfg-card" style="padding:14px 16px;"><div class="cfg-fx-row"><span><b><span data-i18n="shop_ls_title">Salvavidas de racha</span><span class="cfg-pm-tag">PREMIUM</span></b><small data-i18n="shop_ls_row_x">Un salvavidas al mes para tu racha de Tics y otro por cada chat con racha. Mira cuántos te quedan.</small></span><button type="button" id="streak-lifesavers-btn" class="cfg-banner-mask-btn" data-i18n="shop_ls_see">Ver</button></div></div>
+
+                    <p class="cfg-section-title" data-i18n="cfg_notif_title">AVISOS</p>
+                    <div class="cfg-card" style="padding:4px 16px 8px;">
+                        <label class="cfg-fx-row" style="border-top:0; margin-top:8px;"><span><b data-i18n="cfg_notif_friend_t">Tics de amigos cercanos</b><small data-i18n="cfg_notif_friend_x">Te avisamos cuando suben un Tic las personas con las que más hablas e interactúas.</small></span><input type="checkbox" id="push-pref-friend" checked></label>
+                        <label class="cfg-fx-row"><span><b data-i18n="cfg_notif_remind_t">Recordatorios de tu Tic</b><small data-i18n="cfg_notif_remind_x">Un aviso por la tarde si aún no has subido tu Tic de hoy, o si tu racha está en juego.</small></span><input type="checkbox" id="push-pref-remind" checked></label>
+                    </div>
+
                     <p class="cfg-section-title" data-i18n="contacts">CONTACTOS</p>
                     <div class="cfg-card">
                         <button type="button" class="cfg-row" onclick="showContacts()">
@@ -3401,6 +3477,7 @@
 
                     <p class="cfg-section-title" data-i18n="cfg_support">SOPORTE</p>
                     <div class="cfg-card">
+                        <div class="cfg-row-wrap"><button type="button" onclick="if(window.SeeYouOnboarding){SeeYouOnboarding.replay(localStorage.getItem('current_user_id')||localStorage.getItem('current_user'));navigate('inicio');}" class="cfg-row" style="border-bottom:1px solid #F0F1F5;"><span class="cfg-icon"><span class="material-icons-outlined">school</span></span><span class="cfg-label" data-i18n="onboarding_replay">Repetir el tutorial</span><span class="material-icons-outlined cfg-chevron">chevron_right</span></button></div>
                         <button type="button" class="cfg-row" onclick="openThanksModal()">
                             <span class="cfg-icon"><span class="material-icons-outlined">favorite</span></span>
                             <span class="cfg-label" data-i18n="cfg_thanks">Agradecimientos</span>
@@ -3409,16 +3486,13 @@
                     </div>
 
                     <div class="cfg-card" style="margin-bottom:14px;">
-                        <button type="button" class="cfg-row cfg-row-danger" onclick="openDeleteAccountModal()">
-                            <span class="cfg-icon cfg-icon-danger"><span class="material-icons-outlined">delete_forever</span></span>
-                            <span class="cfg-label" data-i18n="cfg_delete_account">Eliminar mi cuenta</span>
-                        </button>
-                    </div>
-
-                    <div class="cfg-card" style="margin-bottom:14px;">
                         <button type="button" class="cfg-row cfg-row-danger" onclick="if (typeof CONFIG !== 'undefined' && typeof CONFIG.logout === 'function') { CONFIG.logout(); return; } if (typeof CONFIG !== 'undefined' && CONFIG.clearSessionStorageKeepingDeviceFlags) { CONFIG.clearSessionStorageKeepingDeviceFlags(); } else { localStorage.clear(); } window.location.href='index.html';">
                             <span class="cfg-icon cfg-icon-danger"><span class="material-icons-outlined">logout</span></span>
                             <span class="cfg-label i18n-text" data-i18n="logout">Cerrar sesión</span>
+                        </button>
+                        <button type="button" class="cfg-row cfg-row-danger" onclick="openDeleteAccountModal()">
+                            <span class="cfg-icon cfg-icon-danger"><span class="material-icons-outlined">delete_forever</span></span>
+                            <span class="cfg-label" data-i18n="cfg_delete_account">Eliminar mi cuenta</span>
                         </button>
                     </div>
 
@@ -3594,6 +3668,13 @@
                 <button class="btn-camera-close" onclick="closeCamera()">
                     <span class="material-icons-outlined">close</span>
                 </button>
+                <div id="camera-theme-chip" class="camera-theme-chip" hidden>
+                    <span class="material-icons-outlined">history</span><span id="camera-theme-chip-text"></span>
+                    <button type="button" onclick="clearTicThemeChoice()" aria-label="Quitar" data-i18n-aria-label="pt_clear"><span class="material-icons-outlined">close</span></button>
+                </div>
+                <button class="btn-camera-themes" id="btn-camera-themes" type="button" onclick="openPastThemes()" aria-label="Temas anteriores" data-i18n-aria-label="pt_title" title="Temas anteriores" data-i18n-title="pt_title">
+                    <span class="material-icons-outlined">history</span>
+                </button>
             </div>
 
             <!-- Footer: girar | capturar | galería -->
@@ -3653,6 +3734,10 @@
             </div>
 
             <div style="display:flex; flex-direction:column; gap:8px; align-self:center; margin-top:8px;">
+                <!-- Tema anterior elegido (si hay) -->
+                <div id="edit-theme-badge" class="edit-theme-badge" hidden>
+                    <span class="material-icons-outlined">history</span><span id="edit-theme-badge-text"></span>
+                </div>
                 <!-- Ubicación seleccionada (si hay) -->
                 <div id="selected-location-badge"
                     style="display:none; background:rgba(0,0,0,0.5); padding:8px 16px; border-radius:20px; font-size:13px; font-weight:600; align-items:center; gap:8px; backdrop-filter:blur(5px);">
@@ -4515,9 +4600,117 @@
             }
         }
 
+        // ─── Temas anteriores: subir un Tic de un tema que ya paso ───
+        window.ticThemeChoice = null;   // { key: 'YYYY-MM-DD', text }  (null = el tema de hoy, como siempre)
+        function ptTr(k, d) { try { return CONFIG.translate(k, d); } catch (e) { return d; } }
+        function paintTicThemeChoice() {
+            const c = window.ticThemeChoice;
+            const chip = document.getElementById('camera-theme-chip');
+            const chipText = document.getElementById('camera-theme-chip-text');
+            const badge = document.getElementById('edit-theme-badge');
+            const badgeText = document.getElementById('edit-theme-badge-text');
+            if (chip) chip.hidden = !c;
+            if (badge) badge.hidden = !c;
+            if (c) {
+                const label = c.shown || c.text;
+                if (chipText) chipText.textContent = label;
+                if (badgeText) badgeText.textContent = label;
+            }
+        }
+        function setTicThemeChoice(choice) {
+            window.ticThemeChoice = choice || null;
+            paintTicThemeChoice();
+            if (choice && typeof translateDailyThemeText === 'function') {
+                translateDailyThemeText(choice.text).then((tr) => {
+                    if (window.ticThemeChoice && window.ticThemeChoice.key === choice.key && tr) { window.ticThemeChoice.shown = tr; paintTicThemeChoice(); }
+                }).catch(() => { });
+            }
+        }
+        function clearTicThemeChoice() { setTicThemeChoice(null); }
+        function ptDateLabel(key) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(key);
+            if (!m) return key;
+            const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12));
+            const days = Math.round((Date.now() - d.getTime()) / 86400000);
+            const abs = d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+            if (days <= 1) return ptTr('pt_yesterday', 'Ayer') + ' · ' + abs;
+            if (days < 31) return ptTr('pt_days_ago', 'Hace {{n}} días').replace('{{n}}', String(days)) + ' · ' + abs;
+            const months = Math.round(days / 30);
+            return ptTr(months === 1 ? 'pt_month_ago' : 'pt_months_ago', months === 1 ? 'Hace 1 mes' : 'Hace {{n}} meses').replace('{{n}}', String(months)) + ' · ' + abs;
+        }
+        let ptThemes = null;
+        function openPastThemes() {
+            if (typeof getPastDailyThemes !== 'function') return;
+            if (!ptThemes) ptThemes = getPastDailyThemes();
+            let sheet = document.getElementById('past-themes-sheet');
+            if (!sheet) {
+                sheet = document.createElement('div');
+                sheet.id = 'past-themes-sheet';
+                sheet.setAttribute('role', 'dialog');
+                sheet.setAttribute('aria-modal', 'true');
+                sheet.innerHTML = '<div class="pt-head"><h3></h3><button type="button" class="pt-close" aria-label="' + CONFIG.translate('ch_close', 'Cerrar') + '"><span class="material-icons-outlined">close</span></button></div>' +
+                    '<p class="pt-sub"></p>' +
+                    '<label class="pt-search"><span class="material-icons-outlined">search</span><input type="search" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>' +
+                    '<div class="pt-list"></div>';
+                document.body.appendChild(sheet);
+                sheet.querySelector('.pt-close').addEventListener('click', closePastThemes);
+                let timer = null;
+                sheet.querySelector('input').addEventListener('input', (e) => { clearTimeout(timer); timer = setTimeout(() => renderPastThemes(e.target.value), 120); });
+                sheet.querySelector('.pt-list').addEventListener('click', (e) => {
+                    const row = e.target.closest('.pt-row');
+                    if (!row) return;
+                    if (row.dataset.today) { setTicThemeChoice(null); }
+                    else {
+                        const key = row.dataset.key;
+                        const t = ptThemes.find((x) => x.key === key);
+                        if (t) setTicThemeChoice({ key: t.key, text: t.text });
+                    }
+                    closePastThemes();
+                });
+            }
+            sheet.querySelector('h3').textContent = ptTr('pt_title', 'Temas anteriores');
+            sheet.querySelector('.pt-sub').textContent = ptTr('pt_sub', 'Elige un tema que ya pasó y sube tu foto para él. Puedes escribir aunque te equivoques: "nabidad" encuentra Navidad.');
+            sheet.querySelector('input').placeholder = ptTr('pt_search_ph', 'Buscar un tema…');
+            sheet.querySelector('input').value = '';
+            renderPastThemes('');
+            sheet.classList.add('open');
+        }
+        function closePastThemes() {
+            const sheet = document.getElementById('past-themes-sheet');
+            if (sheet) { sheet.classList.remove('open'); const i = sheet.querySelector('input'); if (i) i.blur(); }
+        }
+        function renderPastThemes(query) {
+            const sheet = document.getElementById('past-themes-sheet');
+            if (!sheet || !ptThemes) return;
+            const list = sheet.querySelector('.pt-list');
+            const q = String(query || '').trim();
+            const items = q && window.SeeYouThemeSearch ? SeeYouThemeSearch.rank(q, ptThemes, (t) => t.text + ' ' + (t.category || '')) : ptThemes;
+            const selected = window.ticThemeChoice && window.ticThemeChoice.key;
+            const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            let html = '';
+            if (!q) {
+                const today = typeof getTodayDailyTheme === 'function' ? getTodayDailyTheme() : null;
+                html += '<button type="button" class="pt-row pt-today' + (!selected ? ' is-selected' : '') + '" data-today="1"><b>' + esc(ptTr('pt_today', 'El tema de hoy')) + '</b><small>' + esc(today && today.theme ? today.theme : '') + '</small></button>';
+            }
+            if (!items.length) html += '<div class="pt-empty">' + esc(ptTr('pt_none', 'No encontramos ningún tema parecido.')) + '</div>';
+            const MAX = 120;
+            items.slice(0, MAX).forEach((t) => {
+                html += '<button type="button" class="pt-row' + (selected === t.key ? ' is-selected' : '') + '" data-key="' + esc(t.key) + '"><b data-theme-text="' + esc(t.text) + '">' + esc(t.text) + '</b><small>' + esc(ptDateLabel(t.key)) + '</small></button>';
+            });
+            list.innerHTML = html;
+            list.scrollTop = 0;
+            // Se enseña traducido a tu idioma (si no es español), igual que el tema del dia
+            if (typeof translateDailyThemeText === 'function') {
+                list.querySelectorAll('b[data-theme-text]').forEach((b) => {
+                    translateDailyThemeText(b.dataset.themeText).then((tr) => { if (tr && b.isConnected) b.textContent = tr; }).catch(() => { });
+                });
+            }
+        }
+
         function openCreatePostSection(mode = 'publication') {
             window.currentCreatePostMode = mode;
             if (mode === 'tic') {
+                setTicThemeChoice(null);   // cada Tic nuevo empieza con el tema de hoy
                 // Mostrar el tema diario y luego abrir la cámara
                 if (typeof showDailyThemePrompt === 'function') {
                     showDailyThemePrompt(true);
@@ -5759,6 +5952,12 @@
             r.addEventListener('change', save);
         }
 
+        function toggleCfgAcc(btn) {
+            var open = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+            var body = btn.nextElementSibling;
+            if (body) body.hidden = open;
+        }
         function openProfileSettings() {
             const panel = document.getElementById('profile-settings-panel');
             if (!panel) { console.error('[SeeYou] openProfileSettings: no se encontró #profile-settings-panel en el DOM'); try { showToast('No se pudo abrir Configuración. Reinicia la app e inténtalo de nuevo.'); } catch (e) { } return; }
@@ -6696,6 +6895,7 @@
                         }),
                         date: up.createdAt || up.date ? new Date(up.createdAt || up.date) : null,
                         photoDate: up.customDate || (up.metadata && up.metadata.dateTimeOriginal) || null,
+                        themeDate: up.themeDate || null,
                         userId,
                         source: up.source || 'friend',
                         type: String(up.type || 'tic').toLowerCase(),
@@ -6895,6 +7095,7 @@
                         imgUrl: item.imageUrl || item.image_url || item.data || '',
                         date: new Date(item.createdAt || item.created_at || item.date || 0),
                         photoDate: item.customDate || (item.metadata && item.metadata.dateTimeOriginal) || null,
+                        themeDate: item.themeDate || null,
                         likes: Array.isArray(item.likes) ? item.likes : [],
                         comments: Array.isArray(item.comments) ? item.comments : [],
                         taggedUserIds: Array.isArray(item.taggedUserIds || item.tagged_user_ids) ? (item.taggedUserIds || item.tagged_user_ids) : [],
@@ -6913,6 +7114,7 @@
                         caption: item.caption || '',
                         date: item.date || new Date(item.createdAt || item.created_at || 0),
                         photoDate: item.photoDate || item.customDate || (item.metadata && item.metadata.dateTimeOriginal) || null,
+                        themeDate: item.themeDate || null,
                         likes: Array.isArray(item.likes) ? item.likes : [],
                         comments: Array.isArray(item.comments) ? item.comments : [],
                         taggedUserIds: Array.isArray(item.taggedUserIds || item.tagged_user_ids) ? (item.taggedUserIds || item.tagged_user_ids) : [],
@@ -10244,6 +10446,7 @@
                 location: currentPhotoData.location || null,
                 metadata: currentPhotoData.metadata || {},
                 customDate: currentPhotoData.customDate || '',
+                themeDate: (window.ticThemeChoice && window.ticThemeChoice.key) || '',
                 fileName: currentPhotoData.fileName || `tic_${Date.now()}.jpg`,
                 requestId: (window.TicUpload ? TicUpload.newRequestId() : String(Date.now()) + Math.random())
             };
@@ -10251,6 +10454,7 @@
             try { thumb = URL.createObjectURL(imageBlob); } catch (e) { }
 
             // El editor se cierra ya: el Tic se ve subiéndose en Inicio, con su círculo de progreso.
+            setTicThemeChoice(null);
             cancelEdit();
             navigate('inicio');
             const job = createTicJob({ thumb });
@@ -10265,6 +10469,7 @@
                 formData.append('location', JSON.stringify(snap.location));
                 formData.append('metadata', JSON.stringify(snap.metadata));
                 formData.append('customDate', snap.customDate);
+                if (snap.themeDate) formData.append('themeDate', snap.themeDate);
                 formData.append('type', 'tic');
                 formData.append('spotifyInfo', JSON.stringify(spotifyInfo));
                 formData.append('image', imageBlob, snap.fileName);

@@ -36,6 +36,7 @@
             location: up.location || null,
             date: up.createdAt || up.date ? new Date(up.createdAt || up.date) : null,
             photoDate: up.customDate || (up.metadata && up.metadata.dateTimeOriginal) || null,
+            themeDate: up.themeDate || null,
             userId: userId,
             type: String(up.type || 'tic').toLowerCase(),
             likes: Array.isArray(up.likes) ? up.likes : [],

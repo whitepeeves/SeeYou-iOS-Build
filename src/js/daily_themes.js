@@ -2332,3 +2332,31 @@ function getTodayThemeObject() {
         category: item.category
     };
 }
+
+// ---- Temas anteriores (para subir un Tic de un tema que ya paso) ----
+// Una fecha "YYYY-MM-DD" -> el tema de ese dia. Se usa el mediodia en UTC para caer siempre en ese dia de tema (el cambio es a las 10:00 de Madrid).
+function getThemeForDayKey(key) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(key || ""));
+    if (!m) return null;
+    const t = getDailyThemeForDate(new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12)));
+    return t && t.theme ? { key: key, text: t.theme, category: t.category } : null;
+}
+
+// Todos los temas desde el primer dia hasta ayer, del mas reciente al mas antiguo. Si un tema se repite, sale el dia mas reciente.
+function getPastDailyThemes() {
+    const out = [];
+    const seen = {};
+    const todayKey = getThemeDayKey();
+    const [sy, sm, sd] = String(DAILY_THEME_START_DATE).split("-").map(Number);
+    const [ty, tm, td] = todayKey.split("-").map(Number);
+    const days = Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(sy, sm - 1, sd)) / 86400000);
+    for (let i = 1; i <= days; i++) {
+        const d = new Date(Date.UTC(ty, tm - 1, td - i, 12));
+        const key = d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0") + "-" + String(d.getUTCDate()).padStart(2, "0");
+        const t = getThemeForDayKey(key);
+        if (!t || seen[t.text]) continue;
+        seen[t.text] = true;
+        out.push(t);
+    }
+    return out;
+}

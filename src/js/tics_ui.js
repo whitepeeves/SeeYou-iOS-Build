@@ -228,7 +228,9 @@
         // principal). Al tocarlo se expande para leerlo entero.
         var themeObj = null;
         try {
-            if (typeof getDailyThemeForDate === 'function' && p.date) themeObj = getDailyThemeForDate(new Date(p.date));
+            // Si al subirlo se eligio un tema anterior, ese es su tema; si no, el del dia en que se publico.
+            if (p.themeDate && typeof getThemeForDayKey === 'function') { var tk = getThemeForDayKey(p.themeDate); if (tk) themeObj = { theme: tk.text, category: tk.category }; }
+            if (!themeObj && typeof getDailyThemeForDate === 'function' && p.date) themeObj = getDailyThemeForDate(new Date(p.date));
         } catch (e) { }
         var themeFull = themeObj && themeObj.theme ? themeObj.theme : '';
         var themePreview = themeFull.length > 46 ? themeFull.slice(0, 46).replace(/\s+\S*$/, '') + '…' : themeFull;
@@ -1522,6 +1524,7 @@
             var raw = pub && (pub.createdAt || pub.created_at || pub.date || pub.customDate);
             var d = raw ? new Date(raw) : null;
             if (d && isNaN(d.getTime())) d = null;
+            if (pub && pub.themeDate && /^\d{4}-\d{2}-\d{2}$/.test(String(pub.themeDate))) { var pt = String(pub.themeDate).split('-').map(Number); d = new Date(Date.UTC(pt[0], pt[1] - 1, pt[2], 12)); }
             if (typeof getDailyThemeForDate === 'function') {
                 var t = getDailyThemeForDate(d || undefined);
                 if (t) {
@@ -2091,6 +2094,7 @@
             location: loc,
             metadata: up.metadata || {},
             photoDate: up.customDate || (up.metadata && up.metadata.dateTimeOriginal) || null,
+            themeDate: up.themeDate || null,
             date: up.createdAt ? new Date(up.createdAt) : null,
             userId: up.userId || up.user_id || '',
             likes: Array.isArray(up.likes) ? up.likes : [],
