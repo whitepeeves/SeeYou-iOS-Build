@@ -9,8 +9,8 @@
         '#initial-splash.splash-screen::before{content:"";position:absolute;width:420px;height:420px;left:50%;top:38%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(0,163,255,.22) 0%,rgba(0,163,255,0) 68%);pointer-events:none}',
         '#initial-splash .splash-logo-container{position:relative;width:132px;height:80px;margin:0 0 18px;filter:drop-shadow(0 10px 26px rgba(0,163,255,.35))}',
         '#initial-splash .splash-logo-container svg{width:100%;height:100%;overflow:visible}',
-        '#initial-splash .splash-logo-container{height:112px;width:112px}',
-        '#initial-splash .splash-logo-img{width:112px;height:112px;display:block;border-radius:26px;box-shadow:0 10px 30px rgba(0,0,0,.35)}',
+        '#initial-splash .splash-logo-container{height:auto;width:auto;margin:0 0 14px}',
+        '#initial-splash .splash-logo-img{width:168px;height:auto;display:block;margin:0 auto;background:none;border-radius:0;box-shadow:none}',
         '#initial-splash .splash-logo-container circle{transform-box:fill-box;transform-origin:center;animation:sy-pulse 2.4s infinite ease-in-out}',
         '#initial-splash .splash-logo-container circle:nth-of-type(2){animation-delay:-1.2s}',
         '@keyframes sy-pulse{0%,100%{transform:scale(.92);opacity:.55}50%{transform:scale(1.08);opacity:1}}',
@@ -27,6 +27,19 @@
         '#initial-splash .btn-splash-config,#initial-splash .btn-splash-reset{position:relative;margin-top:18px;padding:10px 22px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}',
         '#initial-splash .btn-splash-reset{display:none;margin-top:10px;background:transparent;border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.72);font-weight:500}',
         '#initial-splash.sy-slow .btn-splash-reset{display:inline-block}',
+        // Version clara: fondo blanco y el logotipo con las letras (SeeYou con caritas) como protagonista
+        '#initial-splash.splash-screen{background:#ffffff}',
+        '#initial-splash.splash-screen::before{display:none}',
+        '#initial-splash .sy-brand{display:none}',
+        '#initial-splash .splash-logo-container{filter:none;margin:0 0 26px}',
+        '#initial-splash .splash-logo-img{width:240px;height:auto;display:block;margin:0 auto;background:none;border-radius:0;box-shadow:none}',
+        '#initial-splash .splash-text{color:#5b6b7d}',
+        '#initial-splash .sy-bar{background:rgba(27,58,92,.12);box-shadow:none}',
+        '#initial-splash .sy-fill{background:linear-gradient(90deg,#1ea7f5 0%,#3bbcff 100%);box-shadow:0 0 10px rgba(30,167,245,.45)}',
+        '#initial-splash .sy-pct{color:#1B3A5C}',
+        '#initial-splash .sy-hint{color:#6b7a8c}',
+        '#initial-splash .btn-splash-config{color:#1B3A5C;border-color:rgba(27,58,92,.35);background:rgba(27,58,92,.06)}',
+        '#initial-splash .btn-splash-reset{color:#5b6b7d;border-color:rgba(0,0,0,.15)}',
         '@media (prefers-reduced-motion:reduce){#initial-splash .splash-logo-container circle,#initial-splash .sy-fill::after{animation:none}}'
     ].join('\n');
 

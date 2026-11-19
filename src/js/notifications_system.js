@@ -353,6 +353,7 @@
 
   // Insignia especial: al pulsar el aviso se abre el perfil y se repite la animacion (opcional, solo si se pulsa).
   function specialBadgeUrl(item) {
+    if (item && item.type === 'admin_message') return new URL('home.html?soporte=1', window.location.href).toString();
     const m = /^badge_special_([a-z0-9_]+)$/.exec(String((item && item.type) || ''));
     if (!m) return null;
     const url = new URL('home.html', window.location.href);

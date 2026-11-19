@@ -2,7 +2,9 @@
 <html lang="es">
 
 <head>
+    <script src="js/page_slide.js?v=1"></script>
     <script src="js/perf_probe.js?v=1"></script>
+    <script src="js/analytics.js?v=1"></script>
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -30,11 +32,13 @@
     <script defer src="js/qr_mini.js?v=1"></script>
     <script src="js/nomoney.js?v=2"></script>
     <script defer src="js/coins_ui.js?v=34"></script>
-    <script defer src="js/swipe_nav.js?v=1"></script>
-    <script defer src="js/coin_shop_ui.js?v=6"></script>
+    <script defer src="js/swipe_nav.js?v=4"></script>
+    <script defer src="js/coin_shop_ui.js?v=7"></script>
     <script defer src="js/realtime.js?v=1"></script>
     <script defer src="js/premium_ui.js?v=9"></script>
-    <script defer src="js/admob_ui.js?v=4"></script>
+    <script defer src="js/admob_ui.js?v=5"></script>
+    <script defer src="js/creator_ui.js?v=3"></script>
+    <script defer src="js/support_ui.js?v=2"></script>
     <script defer src="js/tics_archive.js?v=4"></script>
     <script defer src="js/photo_meta.js?v=1"></script>
     <script defer src="js/tic_upload.js?v=3"></script>
@@ -2902,7 +2906,7 @@
     <script src="js/road_snapper.js?v=2"></script>
     <script src="js/daily_themes.js?v=6"></script>
     <script src="js/image_cache_manager.js?v=1"></script>
-    <script src="config.js?v=27"></script>
+    <script src="config.js?v=28"></script>
     <script src="js/back_button.js?v=3"></script>
     <script src="js/notifications_system.js?v=11"></script>
     <script>
@@ -3011,11 +3015,11 @@
             }
 
             acceptBtn.addEventListener('click', ()=>{
-                localStorage.setItem('seeYou_cookie_consent','accepted');
+                localStorage.setItem('seeYou_cookie_consent','accepted'); try{localStorage.setItem('seeyou_cookie_consent',JSON.stringify({necessary:true,preferences:true,analytics:true,date:new Date().toISOString()}))}catch(e){};
                 consentEl.style.display='none';
             });
             rejectBtn.addEventListener('click', ()=>{
-                localStorage.setItem('seeYou_cookie_consent','rejected');
+                localStorage.setItem('seeYou_cookie_consent','rejected'); try{localStorage.setItem('seeyou_cookie_consent',JSON.stringify({necessary:true,preferences:false,analytics:false,date:new Date().toISOString()}))}catch(e){};
                 consentEl.style.display='none';
             });
             showConsentIfNeeded();
@@ -3260,6 +3264,7 @@
                         <span class="profile-streak-label" data-i18n="prof_days_label">días</span>
                     </div>
                 </div>
+                <div id="creator-box" class="creator-box" style="margin:12px 0;padding:14px;border-radius:16px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.06);"></div>
                 <div id="profile-network" class="net-stats">
                     <button type="button" class="net-stat" onclick="openNetworkModal('followers')" aria-label="Ver seguidores" data-i18n-aria-label="prof_see_followers">
                         <strong id="profile-followers-count">0</strong>
@@ -3444,8 +3449,9 @@
                     <input type="file" id="edit-profile-avatar-input" accept="image/*" style="display:none">
                 </div>
                 <div class="ep-card">
-                    <label class="ep-label" for="edit-profile-name" data-i18n="tic_list_name_label">Nombre</label>
-                    <input id="edit-profile-name" class="ep-input" type="text" maxlength="40" autocomplete="off" placeholder="Tu nombre" data-i18n-placeholder="hm_your_name" />
+                    <label class="ep-label" for="edit-profile-name" data-i18n="hm_nickname_label">Apodo</label>
+                    <input id="edit-profile-name" class="ep-input" type="text" maxlength="30" autocomplete="off" placeholder="Tu apodo" data-i18n-placeholder="hm_nickname_ph" />
+                    <div class="ep-count" id="edit-profile-handle" style="margin-top:6px;text-align:left"></div>
                     <label class="ep-label" for="edit-profile-bio" style="margin-top:16px"><span data-i18n="hm_j018">Descripción</span> <span id="edit-profile-bio-count" class="ep-count">0/200</span></label>
                     <textarea id="edit-profile-bio" class="ep-input" maxlength="200" rows="4" placeholder="Cuenta algo sobre ti..." data-i18n-placeholder="hm_bio_ph" oninput="var c=document.getElementById('edit-profile-bio-count'); if(c) c.textContent=this.value.length+'/200';"></textarea>
                 </div>
@@ -5242,6 +5248,7 @@
             const name = localStorage.getItem('current_user_display_name') || localStorage.getItem('current_user_name') || localStorage.getItem('current_user') || '';
             const __dec = (v) => { try { return new DOMParser().parseFromString(String(v || ''), 'text/html').documentElement.textContent || ''; } catch (e) { return v; } };
             document.getElementById('edit-profile-name').value = __dec(name);
+            try { const h = document.getElementById('edit-profile-handle'); const un = localStorage.getItem('current_user') || ''; if (h) h.textContent = un ? CONFIG.translate('hm_handle_fmt', 'Nombre de perfil: @{{user}} (único, no cambia)').replace('{{user}}', __dec(un)) : ''; } catch (e) { }
             document.getElementById('edit-profile-bio').value = __dec(localStorage.getItem('current_user_bio') || '');
             try { document.getElementById('edit-profile-bio-count').textContent = document.getElementById('edit-profile-bio').value.length + '/200'; } catch (e) { }
             // populate visibility

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnResend = $('btn-resend-code');
     const verifyError = $('verify-error');
 
-    const currentRegistration = { email: '', username: '', phone: '', verified: false, password: '', foto: null, visibility: 'public' };
+    const currentRegistration = { email: '', username: '', nickname: '', phone: '', verified: false, password: '', foto: null, visibility: 'public' };
 
     // Mientras no se puedan mandar SMS, el admin puede desactivar la obligatoriedad del
     // teléfono desde el panel: entonces no se pide ni se manda al registrarse.
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: currentRegistration.username,
+                    name: currentRegistration.nickname || currentRegistration.username,
                     username: currentRegistration.username,
                     phone: currentRegistration.phone,
                     email: currentRegistration.email,
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const registeredUser = data.user || data || {};
-            const displayName = registeredUser.name || registeredUser.display_name || registeredUser.displayName || currentRegistration.username;
+            const displayName = registeredUser.name || registeredUser.display_name || registeredUser.displayName || currentRegistration.nickname || currentRegistration.username;
             // Si el servidor no devuelve la foto, se usa la que acaba de elegir el usuario (así siempre se ve en su perfil)
             let userFoto = registeredUser.foto || registeredUser.avatar || registeredUser.photo || foto || '';
             let userId = registeredUser.id || data.id || '';
@@ -427,10 +427,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const emailInput = $('email');
     const fields = {
+        nickname: {
+            input: $('nickname'),
+            error: $('nickname-error'),
+            validate: (val) => {
+                const v = (val || '').replace(/\s+/g, ' ').trim();
+                if (!v) return tr('rg_v_nick', 'El apodo es obligatorio');
+                if (v.length > 30) return tr('rg_v_nick_long', 'El apodo admite como máximo 30 caracteres');
+                if (!/[\p{L}\p{N}]/u.test(v)) return tr('rg_v_nick_chars', 'El apodo debe incluir letras o números');
+                return '';
+            }
+        },
         username: {
             input: $('username'),
             error: $('username-error'),
-            validate: (val) => val.trim() !== '' ? '' : tr('rg_v_user', 'El nombre de usuario es obligatorio')
+            validate: (val) => {
+                const v = (val || '').trim();
+                if (!v) return tr('rg_v_user', 'El nombre de perfil es obligatorio');
+                if (v.length < 6) return tr('rg_v_user_short', 'El nombre de perfil debe tener al menos 6 caracteres');
+                if (v.length > 30) return tr('rg_v_user_long', 'El nombre de perfil admite como máximo 30 caracteres');
+                if (/^[._-]|[._-]$/.test(v)) return tr('rg_v_user_edge', 'Debe empezar y acabar por una letra o un número');
+                if (!/^[A-Za-z0-9._-]+$/.test(v)) return tr('rg_v_user_chars', 'Solo letras sin tildes, números, punto, guion y guion bajo');
+                return '';
+            }
         },
         email: {
             input: emailInput,
@@ -492,7 +511,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const email = emailInput.value.trim().toLowerCase();
         currentRegistration.email = email;
-        currentRegistration.username = fields.username.input.value;
+        currentRegistration.username = fields.username.input.value.trim();
+        currentRegistration.nickname = fields.nickname.input.value.replace(/\s+/g, ' ').trim();
         currentRegistration.phone = PHONE_REQUIRED ? (fields.phone.prefix.value + fields.phone.input.value.trim()) : '';
         currentRegistration.password = fields.password.input.value;
         currentRegistration.visibility = document.querySelector('input[name="visibility"]:checked').value;

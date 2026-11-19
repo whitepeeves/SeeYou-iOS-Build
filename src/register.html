@@ -50,13 +50,24 @@
 
                 <form class="register-form" onsubmit="return false;" novalidate>
                     <div class="input-group">
-                        <span class="material-icons-outlined">person</span>
+                        <span class="material-icons-outlined">badge</span>
                         <div class="field-container">
-                            <input type="text" id="username" placeholder=" " autocomplete="username" required>
-                            <label for="username" data-i18n="label_username">Usuario</label>
+                            <input type="text" id="nickname" placeholder=" " autocomplete="nickname" maxlength="30" required>
+                            <label for="nickname" data-i18n="label_nickname">Apodo</label>
+                            <span class="error-message" id="nickname-error"></span>
+                        </div>
+                    </div>
+                    <p class="field-hint" id="nickname-hint" data-i18n="hint_nickname" style="margin:-6px 4px 10px;font-size:12.5px;opacity:.75">Es el nombre que verán los demás en tus Tics y mensajes. Puede repetirse.</p>
+
+                    <div class="input-group">
+                        <span class="material-icons-outlined">alternate_email</span>
+                        <div class="field-container">
+                            <input type="text" id="username" placeholder=" " autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30" required>
+                            <label for="username" data-i18n="label_username_profile">Nombre de perfil</label>
                             <span class="error-message" id="username-error"></span>
                         </div>
                     </div>
+                    <p class="field-hint" id="username-hint" data-i18n="hint_username" style="margin:-6px 4px 10px;font-size:12.5px;opacity:.75">Único para ti: mínimo 6 caracteres, con letras, números, punto, guion o guion bajo. Empieza y acaba por letra o número.</p>
 
                     <div class="input-group">
                         <span class="material-icons-outlined">phone</span>
@@ -215,14 +226,15 @@
     <!-- SPLASH SCREEN ANIMADO -->
     <div id="initial-splash" class="splash-screen">
         <div class="splash-logo-container">
-            <img class="splash-logo-img" src="icon-192.png" alt="SeeYou">
+            <img class="splash-logo-img" src="logotipo-texto.png" alt="SeeYou">
         </div>
         <div class="splash-text" id="splash-status">Conectando con el servidor...</div>
         <button id="btn-splash-config" class="btn-splash-config">Configurar Servidor</button>
     </div>
-    <script src="js/splash_ui.js?v=2"></script>
+    <script src="js/splash_ui.js?v=4"></script>
+    <script src="js/analytics.js?v=1"></script>
 
-    <script src="config.js?v=27"></script>
+    <script src="config.js?v=28"></script>
     <script src="js/geo_lang.js?v=2"></script>
     <script>
         if (typeof CONFIG !== 'undefined' && typeof CONFIG.initLanguage === 'function') {
@@ -260,7 +272,7 @@
         })();
     </script>
     <script src="js/countries.js?v=8"></script>
-    <script src="js/script.js?v=14"></script>
+    <script src="js/script.js?v=15"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

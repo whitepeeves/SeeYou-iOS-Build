@@ -92,6 +92,7 @@
     }
 
     function avatarHTML(n) {
+        if (n.type === 'admin_message') return '<span class="ni-av">S</span>';
         var src = url(n.fromUserAvatar);
         if (src && !/6VBx3io/.test(src)) return '<span class="ni-av"><img loading="lazy" src="' + esc(src) + '" alt=""></span>';
         return '<span class="ni-av">' + esc(String(n.fromUserName || '?').charAt(0).toUpperCase()) + '</span>';
@@ -198,6 +199,10 @@
             return done;
         }
         if ((n.type === 'like' || n.type === 'comment') && n.pubId) { location.href = 'home.html?tic=' + encodeURIComponent(n.pubId); return; }
+        if (n.type === 'admin_message') {
+            if (window.SeeYouSupport) window.SeeYouSupport.open(); else location.href = 'home.html?soporte=1';
+            return;
+        }
         if (n.fromUserId) location.href = 'profile.html?id=' + encodeURIComponent(n.fromUserId);
     }
 

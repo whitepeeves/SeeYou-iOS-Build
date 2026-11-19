@@ -5,7 +5,7 @@
  *
  * Flujo: el servidor da un testigo firmado (start) -> se carga el video con verificacion de servidor (SSV) ->
  * al terminar, Google avisa a nuestro servidor y este paga las monedas. La app solo espera y refresca el saldo.
- * Orden de permisos: (iOS) App Tracking Transparency -> consentimiento UMP en Europa -> SDK de anuncios.
+ * Orden de permisos: (iOS) App Tracking Transparency (se pide al abrir la app) -> consentimiento UMP en Europa -> SDK de anuncios.
  */
 (function () {
     'use strict';
@@ -58,6 +58,27 @@
         })().catch(function (e) { console.warn('[SeeYou] AdMob no se pudo iniciar:', e && e.message); ready = null; return false; });
         return ready;
     }
+
+    /* ---------- Permiso de seguimiento (iOS) al abrir la app ----------
+     * Apple exige que la ventana de App Tracking Transparency salga ANTES de recoger datos y sea visible al
+     * abrir la app (la revision la busca ahi), no solo al pedir un video. Se pide una vez por sesion, con la
+     * app ya en primer plano. Si el usuario ya contesto, iOS no vuelve a mostrarla. */
+    function askTrackingOnLaunch() {
+        if (!isNative() || platform() !== 'ios') return;
+        try { if (sessionStorage.getItem('seeyou_att_asked') === '1') return; } catch (e) { }
+        var tries = 0;
+        (function attempt() {
+            var A = plugin();
+            if (!A) { if (++tries < 10) setTimeout(attempt, 500); return; }
+            if (document.visibilityState !== 'visible') { if (++tries < 20) setTimeout(attempt, 700); return; }
+            try { sessionStorage.setItem('seeyou_att_asked', '1'); } catch (e) { }
+            A.trackingAuthorizationStatus().then(function (s) {
+                if (s && s.status === 'notDetermined') return A.requestTrackingAuthorization();
+            }).catch(function () { });
+        })();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(askTrackingOnLaunch, 1500); });
+    else setTimeout(askTrackingOnLaunch, 1500);
 
     /* ---------- ver el video ---------- */
     function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
