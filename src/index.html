@@ -218,14 +218,13 @@
     <!-- SPLASH SCREEN ANIMADO -->
     <div id="initial-splash" class="splash-screen">
         <div class="splash-logo-container">
-            <img class="splash-logo-img" src="logotipo-texto.png" alt="SeeYou">
+            <img class="splash-logo-img" src="icon-192.png" alt="SeeYou">
         </div>
         <div class="splash-text" id="splash-status" data-i18n="connecting_server">Conectando con el servidor...</div>
         <button id="btn-splash-config" class="btn-splash-config" data-i18n="configure_server">Configurar Servidor</button>
         <button id="btn-hard-reset" class="btn-splash-reset" data-i18n="btn_hard_reset">LIMPIAR TODO Y REINTENTAR</button>
     </div>
-    <script src="js/splash_ui.js?v=4"></script>
-    <script src="js/analytics.js?v=1"></script>
+    <script src="js/splash_ui.js?v=2"></script>
 
     <script src="config.js?v=27"></script>
     <script src="js/geo_lang.js?v=2"></script>
@@ -278,8 +277,8 @@
             }
             const acceptBtn = document.getElementById('cookie-accept');
             const rejectBtn = document.getElementById('cookie-reject');
-            if (acceptBtn) acceptBtn.onclick = () => { localStorage.setItem('seeYou_cookie_consent','accepted'); try{localStorage.setItem('seeyou_cookie_consent',JSON.stringify({necessary:true,preferences:true,analytics:true,date:new Date().toISOString()}))}catch(e){}; document.getElementById('cookie-consent').style.display='none'; };
-            if (rejectBtn) rejectBtn.onclick = () => { localStorage.setItem('seeYou_cookie_consent','rejected'); try{localStorage.setItem('seeyou_cookie_consent',JSON.stringify({necessary:true,preferences:false,analytics:false,date:new Date().toISOString()}))}catch(e){}; document.getElementById('cookie-consent').style.display='none'; };
+            if (acceptBtn) acceptBtn.onclick = () => { localStorage.setItem('seeYou_cookie_consent','accepted'); document.getElementById('cookie-consent').style.display='none'; };
+            if (rejectBtn) rejectBtn.onclick = () => { localStorage.setItem('seeYou_cookie_consent','rejected'); document.getElementById('cookie-consent').style.display='none'; };
             showConsentIfNeeded();
         })();
     </script>

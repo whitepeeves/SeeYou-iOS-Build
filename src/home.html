@@ -2,9 +2,7 @@
 <html lang="es">
 
 <head>
-    <script src="js/page_slide.js?v=1"></script>
     <script src="js/perf_probe.js?v=1"></script>
-    <script src="js/analytics.js?v=1"></script>
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -32,8 +30,8 @@
     <script defer src="js/qr_mini.js?v=1"></script>
     <script src="js/nomoney.js?v=2"></script>
     <script defer src="js/coins_ui.js?v=34"></script>
-    <script defer src="js/swipe_nav.js?v=3"></script>
-    <script defer src="js/coin_shop_ui.js?v=7"></script>
+    <script defer src="js/swipe_nav.js?v=1"></script>
+    <script defer src="js/coin_shop_ui.js?v=6"></script>
     <script defer src="js/realtime.js?v=1"></script>
     <script defer src="js/premium_ui.js?v=9"></script>
     <script defer src="js/admob_ui.js?v=4"></script>
@@ -3013,11 +3011,11 @@
             }
 
             acceptBtn.addEventListener('click', ()=>{
-                localStorage.setItem('seeYou_cookie_consent','accepted'); try{localStorage.setItem('seeyou_cookie_consent',JSON.stringify({necessary:true,preferences:true,analytics:true,date:new Date().toISOString()}))}catch(e){};
+                localStorage.setItem('seeYou_cookie_consent','accepted');
                 consentEl.style.display='none';
             });
             rejectBtn.addEventListener('click', ()=>{
-                localStorage.setItem('seeYou_cookie_consent','rejected'); try{localStorage.setItem('seeyou_cookie_consent',JSON.stringify({necessary:true,preferences:false,analytics:false,date:new Date().toISOString()}))}catch(e){};
+                localStorage.setItem('seeYou_cookie_consent','rejected');
                 consentEl.style.display='none';
             });
             showConsentIfNeeded();
