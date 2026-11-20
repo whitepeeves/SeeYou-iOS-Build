@@ -4,9 +4,9 @@
     var panel = null, list = null, form = null, input = null, sendBtn = null, errBox = null, busy = false;
 
     function tr(key, fb) {
-        try { return (window.CONFIG && CONFIG.translate) ? CONFIG.translate(key, fb) : fb; } catch (e) { return fb; }
+        try { return (typeof CONFIG !== 'undefined' && CONFIG.translate) ? CONFIG.translate(key, fb) : fb; } catch (e) { return fb; }
     }
-    function API() { return (window.CONFIG && window.CONFIG.API_BASE_URL) || ''; }
+    function API() { try { return (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) || ''; } catch (e) { return ''; } }
     function headers(json) {
         var h = {};
         if (json) h['Content-Type'] = 'application/json';

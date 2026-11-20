@@ -178,6 +178,25 @@
     }
     state.pushNotifications = pushNotifications;
     try {
+      // El toque en un aviso se atiende ANTES de pedir permisos / crear el canal: esas esperas
+      // retrasaban varios segundos la llegada al Tic (primero se veia el inicio).
+      if (!state.pushActionRegistered) {
+        state.pushActionRegistered = true;
+        pushNotifications.addListener('pushNotificationActionPerformed', ({ notification }) => {
+          const targetUrl = notification?.data?.url || notification?.data?.link;
+          // Solo se navega a rutas de la propia app: un aviso con una URL externa no debe llevar el WebView a otra web.
+          try {
+            if (!targetUrl) return;
+            const u = new URL(String(targetUrl), window.location.href);
+            if (u.origin !== window.location.origin) return;
+            // Ya estamos en la pagina de destino: se abre el Tic sin recargar toda la pagina.
+            const samePage = u.pathname === window.location.pathname;
+            const ticId = u.searchParams.get('tic');
+            if (samePage && ticId && typeof window.openSharedTicFromUrl === 'function') { window.openSharedTicFromUrl(ticId); return; }
+            window.location.href = u.pathname + u.search + u.hash;
+          } catch (e) { /* URL no valida: se ignora */ }
+        });
+      }
       const permission = await pushNotifications.requestPermissions();
       pushDiag('permiso', permission && permission.receive);
       if (permission.receive !== 'granted') return;
@@ -204,13 +223,6 @@
             },
             body: JSON.stringify({ token: value, platform: (window.Capacitor && typeof window.Capacitor.getPlatform === 'function' && window.Capacitor.getPlatform() === 'ios') ? 'ios' : 'android' })
           });
-        });
-        await pushNotifications.addListener('pushNotificationActionPerformed', ({ notification }) => {
-          const targetUrl = notification?.data?.url || notification?.data?.link;
-          // Solo se navega a rutas de la propia app: un aviso con una URL externa no debe llevar el WebView a otra web.
-          try {
-            if (targetUrl && new URL(String(targetUrl), window.location.href).origin === window.location.origin) window.location.href = targetUrl;
-          } catch (e) { /* URL no valida: se ignora */ }
         });
       }
       await pushNotifications.register();

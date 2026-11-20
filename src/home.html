@@ -37,8 +37,8 @@
     <script defer src="js/realtime.js?v=1"></script>
     <script defer src="js/premium_ui.js?v=9"></script>
     <script defer src="js/admob_ui.js?v=5"></script>
-    <script defer src="js/creator_ui.js?v=3"></script>
-    <script defer src="js/support_ui.js?v=2"></script>
+    <script defer src="js/creator_ui.js?v=4"></script>
+    <script defer src="js/support_ui.js?v=3"></script>
     <script defer src="js/tics_archive.js?v=4"></script>
     <script defer src="js/photo_meta.js?v=1"></script>
     <script defer src="js/tic_upload.js?v=3"></script>
@@ -1182,7 +1182,7 @@
             width: 20%;
             pointer-events: none;
             transform: translateX(calc(var(--nav-index, 0) * 100%));
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.38s cubic-bezier(0.22, 0.8, 0.24, 1);
             z-index: 0;
         }
 
@@ -1196,7 +1196,7 @@
             border-radius: 50%;
             background: rgba(27, 58, 92, 0.12);
             transform: translate(-50%, -50%) scale(0.72);
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
+            transition: transform 0.38s cubic-bezier(0.22, 0.8, 0.24, 1), background 0.25s ease;
         }
 
         .bottom-nav-bar.is-ready .bottom-nav-indicator::before {
@@ -2962,7 +2962,7 @@
     <script src="js/image_cache_manager.js?v=1"></script>
     <script src="config.js?v=28"></script>
     <script src="js/back_button.js?v=3"></script>
-    <script src="js/notifications_system.js?v=11"></script>
+    <script src="js/notifications_system.js?v=12"></script>
     <script>
         (async function () {
             const splash = document.getElementById('initial-splash');
@@ -3634,15 +3634,22 @@
             if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeCircle);
             window.addEventListener('resize', placeCircle);
 
-            const activeIndex = Math.max(0, buttons.findIndex((button) => button.classList.contains('active')));
-            const previousIndex = Number(sessionStorage.getItem('seeyou_nav_previous'));
+            // Apartado de destino segun la URL (?section=): si no, la bolita iba primero a Inicio (el boton marcado
+            // en el HTML) y luego al apartado real al ejecutarse navigate(): se veia "tintinear" y aparecer en Inicio.
+            const SECTION_INDEX = { inicio: 0, amigos: 1, chat: 2, dia: 3, actividades: 3, mapa: 3, 'actividades-map': 3, perfil: 4 };
+            let urlIndex;
+            try { urlIndex = SECTION_INDEX[new URLSearchParams(window.location.search).get('section')]; } catch (e) { }
+            const activeIndex = Number.isInteger(urlIndex) ? urlIndex : Math.max(0, buttons.findIndex((button) => button.classList.contains('active')));
+            const prevRaw = sessionStorage.getItem('seeyou_nav_previous');
+            const previousIndex = (prevRaw === null || prevRaw === '') ? NaN : Number(prevRaw);
             nav.style.setProperty('--nav-index', Number.isFinite(previousIndex) ? previousIndex : activeIndex);
             requestAnimationFrame(() => {
                 nav.classList.add('is-ready');
                 nav.style.setProperty('--nav-index', activeIndex);
             });
             buttons.forEach((button, index) => button.addEventListener('click', () => {
-                sessionStorage.setItem('seeyou_nav_previous', activeIndex);
+                const curIdx = Number(nav.style.getPropertyValue('--nav-index'));
+                sessionStorage.setItem('seeyou_nav_previous', Number.isFinite(curIdx) && nav.style.getPropertyValue('--nav-index') !== '' ? curIdx : activeIndex);
                 sessionStorage.setItem('seeyou_nav_index', index);
             }));
             sessionStorage.removeItem('seeyou_nav_previous');
@@ -4496,27 +4503,39 @@
         // Abre un Tic concreto a partir del "?tic=<id>" de la URL (llegas aqui al tocar un Tic
         // que te compartieron por chat). Si ya esta cargado en el feed se usa ese; si no (puede
         // que aun no se haya cargado esa pagina del feed), se pide suelto al servidor.
+        window.openSharedTicFromUrl = openSharedTicFromUrl;
         function openSharedTicFromUrl(ticId) {
+            let opened = false;
             const openWithList = (pub, list) => {
-                if (!window.SocialTicViewer || !pub) return;
-                window.SocialTicViewer.open(ticId, Array.isArray(list) ? list : [pub], {
-                    loadMore: typeof window.loadMoreFeedTics === 'function' ? window.loadMoreFeedTics : null
-                });
+                if (opened || !pub) return;
+                const go = (left) => {
+                    if (opened) return;
+                    if (!window.SocialTicViewer) { if (left > 0) setTimeout(() => go(left - 1), 60); return; }
+                    opened = true;
+                    window.SocialTicViewer.open(ticId, Array.isArray(list) ? list : [pub], {
+                        loadMore: typeof window.loadMoreFeedTics === 'function' ? window.loadMoreFeedTics : null
+                    });
+                };
+                go(50);
             };
-            const tryNow = (attemptsLeft) => {
+            const fromFeed = () => {
                 const list = window.publicationPhotos || [];
                 const found = list.find((p) => String(p.id) === String(ticId));
-                if (found) { openWithList(found, list); return; }
-                if (attemptsLeft > 0) { setTimeout(() => tryNow(attemptsLeft - 1), 400); return; }
-                // No estaba en lo ya cargado: se pide suelto.
-                fetch(`${CONFIG.API_BASE_URL}/api/publicaciones/${encodeURIComponent(ticId)}?viewerId=${encodeURIComponent(localStorage.getItem('current_user_id') || localStorage.getItem('current_user') || '')}`)
-                    .then((r) => r.ok ? r.json() : Promise.reject(r))
-                    .then((pub) => openWithList(pub, [pub]))
-                    .catch(() => { if (typeof showToast === 'function') showToast(CONFIG.translate('hm_j007', 'Ese Tic ya no está disponible')); });
+                if (found) openWithList(found, list);
+                return !!found;
             };
-            // El feed tarda un poco en llegar la primera vez: se reintenta unas cuantas veces
-            // antes de rendirse y pedirlo suelto al servidor.
-            tryNow(6);
+            // Antes se esperaba hasta ~2,4 s a que cargara el feed y solo despues se pedia el Tic:
+            // al tocar un aviso de "le ha gustado tu Tic" se veia el inicio varios segundos. Ahora se
+            // pide el Tic suelto YA y se abre en cuanto llegue lo primero (el feed o la peticion).
+            if (fromFeed()) return;
+            fetch(`${CONFIG.API_BASE_URL}/api/publicaciones/${encodeURIComponent(ticId)}?viewerId=${encodeURIComponent(localStorage.getItem('current_user_id') || localStorage.getItem('current_user') || '')}`)
+                .then((r) => r.ok ? r.json() : Promise.reject(r))
+                .then((pub) => { if (!fromFeed()) openWithList(pub, [pub]); })
+                .catch(() => { if (!opened && !fromFeed() && typeof showToast === 'function') showToast(CONFIG.translate('hm_j007', 'Ese Tic ya no está disponible')); });
+            // Si el feed llega antes que la peticion, se usa el feed (permite deslizar entre Tics).
+            let tries = 8;
+            const poll = () => { if (opened || tries-- <= 0) return; if (!fromFeed()) setTimeout(poll, 250); };
+            setTimeout(poll, 250);
         }
 
         // Botón de compartir de la barra lateral (web): abre las opciones de invitación (WhatsApp, Telegram, correo, copiar enlace...)

@@ -225,7 +225,7 @@
             width: 20%;
             pointer-events: none;
             transform: translateX(calc(var(--nav-index, 0) * 100%));
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.38s cubic-bezier(0.22, 0.8, 0.24, 1);
             z-index: 0;
         }
 
@@ -239,7 +239,7 @@
             border-radius: 50%;
             background: rgba(27, 58, 92, 0.12);
             transform: translate(-50%, -50%) scale(0.72);
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
+            transition: transform 0.38s cubic-bezier(0.22, 0.8, 0.24, 1), background 0.25s ease;
         }
 
         .bottom-nav-bar.is-ready .bottom-nav-indicator::before {
@@ -1186,8 +1186,8 @@
     <script src="config.js?v=28"></script>
     <script>window.CT = function (k, d, v) { var s = (typeof CONFIG !== "undefined" && CONFIG.translate) ? CONFIG.translate(k, d) : d; if (v) for (var x in v) s = String(s).split('{{' + x + '}}').join(v[x]); return s; };</script>
     <script src="js/back_button.js?v=3"></script>
-    <script src="js/notifications_system.js?v=11"></script>
-    <script src="js/support_ui.js?v=2" defer></script>
+    <script src="js/notifications_system.js?v=12"></script>
+    <script src="js/support_ui.js?v=3" defer></script>
     <script src="js/notif_inbox.js?v=3" defer></script>
     <script src="js/messages_inbox.js?v=3" defer></script>
     <script src="js/badges_ui.js?v=10"></script>
@@ -1710,7 +1710,8 @@
             if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeCircle);
             window.addEventListener('resize', placeCircle);
 
-            const previousIndex = Number(sessionStorage.getItem('seeyou_nav_previous'));
+            const prevRaw = sessionStorage.getItem('seeyou_nav_previous');
+            const previousIndex = (prevRaw === null || prevRaw === '') ? NaN : Number(prevRaw);
             const activeIndex = Number.isFinite(previousIndex) && previousIndex >= 0 && previousIndex < buttons.length ? previousIndex : 2;
             const destinationIndex = Number(sessionStorage.getItem('seeyou_nav_index'));
             const targetIndex = 2; // esta pagina es el apartado Chat
@@ -1720,7 +1721,8 @@
                 nav.style.setProperty('--nav-index', targetIndex);
             });
             buttons.forEach((button, index) => button.addEventListener('click', () => {
-                sessionStorage.setItem('seeyou_nav_previous', activeIndex);
+                const curIdx = Number(nav.style.getPropertyValue('--nav-index'));
+                sessionStorage.setItem('seeyou_nav_previous', Number.isFinite(curIdx) && nav.style.getPropertyValue('--nav-index') !== '' ? curIdx : activeIndex);
                 sessionStorage.setItem('seeyou_nav_index', index);
             }));
             sessionStorage.removeItem('seeyou_nav_previous');

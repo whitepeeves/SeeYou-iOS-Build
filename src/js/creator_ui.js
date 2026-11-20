@@ -4,7 +4,7 @@
     var box = null;
 
     function API() {
-        return (window.CONFIG && window.CONFIG.API_BASE_URL) || '';
+        try { return (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) || ''; } catch (e) { return ''; }
     }
 
     function headers(json) {
@@ -19,7 +19,7 @@
     }
 
     function tr(key, fb) {
-        try { return (window.CONFIG && CONFIG.translate) ? CONFIG.translate(key, fb) : fb; } catch (e) { return fb; }
+        try { return (typeof CONFIG !== 'undefined' && CONFIG.translate) ? CONFIG.translate(key, fb) : fb; } catch (e) { return fb; }
     }
 
     function el(tag, text, cls) {
@@ -57,8 +57,8 @@
         if (status === 'rejected' && reason) box.appendChild(el('p', tr('cr_reason', 'Motivo') + ': ' + String(reason).slice(0, 300), 'creator-text'));
         box.appendChild(button(tr('cr_request_btn', 'Solicitar cuenta de creador'), function () {
             fetch(API() + '/api/creator/request', { method: 'POST', headers: headers(true), cache: 'no-store' })
-                .then(function (r) { return r.json(); })
-                .then(function (d) { draw(d.status || 'pending'); })
+                .then(function (r) { return r.json().then(function (d) { if (!r.ok || !d || !d.status) throw new Error((d && d.error) || ('HTTP ' + r.status)); return d; }); })
+                .then(function (d) { draw(d.status); })
                 .catch(function () { box.appendChild(el('p', tr('cr_request_err', 'No se pudo enviar la solicitud. Inténtalo más tarde.'), 'creator-text')); });
         }));
     }
